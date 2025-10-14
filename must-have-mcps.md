@@ -1,33 +1,67 @@
 # must-have-mcps.md
 
-(placeholder)
+A practical guide to **must‑have MCP servers** and adjacent tools that *meaningfully* upgrade your dev flow with Codex/Gemini CLI & Claude Code.
 
 ---
 
-## Add these MCPs in **Claude Code**, **Codex CLI**, and **Gemini CLI**
+## TL;DR – What to install first
 
-Below are **copy‑pasteable commands** for each client. Replace placeholder API keys and adjust paths as needed.
+If you only add seven things, make it these:
 
-> **Scopes & where config lives**
-> - **Gemini CLI:** `gemini mcp add` writes to your **user** config at `~/.gemini/settings.json` by default; add `-s project` to save in `.gemini/settings.json` inside the repo. Use `/mcp` inside the CLI to verify.
-> - **Codex CLI:** uses `~/.codex/config.toml`; `codex mcp add ...` updates it. In the TUI, use `/mcp` to list active servers.
-> - **Claude Code:** supports **http / sse / stdio** transports and **local / project / user** scopes. Use `claude mcp add ...` (and `/mcp` in the session to verify).
+1. **Filesystem (reference server)** – safe, allow‑listed file ops.
+2. **Git (reference/community)** – branch/commit/diff/search via tools the model understands.
+3. **Fetch (HTML → Markdown)** – ingest docs/specs efficiently.
+4. **Context7** – *version‑correct* API docs/examples into context.
+5. **Tavily** – search/extract/map/crawl with citations for design‑doc research.
+6. **Semgrep** – SAST gate on agent‑generated diffs.
+7. **A memory server** (pgvector or Weaviate) – persistent semantic memory to avoid re‑feeding context.
 
-### A. Baseline (Filesystem, Git, Fetch)
+Then optionally add **Firecrawl** (robust crawling), **Sourcegraph** (cross‑repo code search), **Snyk** (vuln scanning), and a workflow glue tool (**Composio/Rube**).
 
-**Filesystem (local stdio)**  
-- **Gemini:**  
-  ```bash
-  gemini mcp add fs npx -- -y @modelcontextprotocol/server-filesystem ~/Projects
-  ```
-- **Codex:**  
-  ```bash
-  codex mcp add fs -- npx -y @modelcontextprotocol/server-filesystem ~/Projects
-  ```
-- **Claude Code:**  
-  ```bash
-  claude mcp add fs -s user -- npx -y @modelcontextprotocol/server-filesystem ~/Projects
-  ```
+---
+
+## How to run and use MCPs
+
+If you're **running multiple agents at once** (e.g. Claude Code, Gemini CLI, Codex CLI all running at the same time; they can all reuse the same server):
+
+| Method | When to use | How it works |
+| --- | --- | --- |
+| **Shared instance (`http`)** | **For MCPs whose toolcalls are quick & synchronous** | Run the server once, `mcp add` command provides the server's URL; client then initiates exchanges w/ server via HTTP |
+| **Server-sent events** (`sse`) | **For MCPs whose tools run for a long time**, thus making progress updates useful; MCP server **must support SSE** | Similar to `http`, except connection remains open instead of closing after each request. Client then stays listening, and server can "push" messages (via events) to the client whenever new data is available |
+
+When you're only using **one agent at a time** (e.g. *only launching one of* Claude Code, Codex or Gemini CLI):
+
+| Method | How it works | Pros & cons |
+| --- | --- | --- |
+| **Client-managed servers (`stdio`)** | `mcp add` command includes the full command to run the server, which the client starts/stops as needed | Simple setup (no separate process) but inefficient for frequent use and stateless by default |
+
+### Gemini CLI
+ 
+- Add servers with `gemini mcp add <name> <commandOrUrl> [args...]` 
+- Stored in
+  
+    - By default: `~/.gemini/settings.json` (user Gemini config)
+    - Add `-s project` to store in `.gemini/settings.json` (project-specific config)
+
+- Use `/mcp` to list tools
+
+### Codex
+
+- Add servers with `codex mcp add ...`
+- Stored at `~/.codex/config.toml`
+- Use `/mcp` to list active servers
+
+### Claude Code
+
+- Supports:
+    
+    - `HTTP`/`sse`/`stdio` transports
+    - *Local*, *project*, or *user* scopes
+
+- Add servers with `claude mcp add ...`
+- Use `/mcp` to list active servers
+
+---
 
 **Git (choose one implementation)**  
 - **Gemini (Python server via uvx):**  

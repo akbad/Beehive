@@ -6,8 +6,9 @@ Useful Claude-related resources and config stuff
 
 ### General compilations
 
-- [**Awesome Claude Code *(insane compilation)***](https://github.com/hesreallyhim/awesome-claude-code?tab=readme-ov-file)
+- [**Awesome Claude Code *(insane compilation)***](https://github.com/hesreallyhim/awesome-claude-code)
 - [**Claude Code Templates *(insane compilation)***](https://www.aitmpl.com/agents)
+- [**Awesome MCP servers**](https://github.com/punkpeye/awesome-mcp-servers)
 - [**claudepro.directory**](https://claudepro.directory/)
     
     - [**Guides page**](https://claudepro.directory/guides)

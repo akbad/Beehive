@@ -499,6 +499,98 @@ The agent client will start and stop the server automatically as needed.
 > “Read `server/**/*.go` and propose a patch adding retries with exponential backoff; write diffs but do not commit.”
 <p></p>
 
+## Git MCP *(official/reference)*
+
+**Cost:** Free / open source.
+
+### Why use over vanilla agents
+
+- **Structured Git operations:** Exposes 12 Git tools (`status`, `diff`, `commit`, `log`, `branch`, `checkout`, etc.) as first‑class MCP tools with typed inputs/outputs instead of parsing fragile shell command text
+
+    - *Makes branch management, staging, and commit operations far more reliable*
+    - Agent receives machine‑readable data (commit hashes, file lists, diffs) rather than unpredictable `git` CLI output variations
+    - Eliminates cross‑platform shell inconsistencies (Windows vs Unix paths, line endings, locale differences)
+
+- **Atomic reasoning about changes:**
+
+    - Tools like `git_diff_staged` and `git_diff_unstaged` return structured diffs the agent can parse and reason about before committing
+    - Agent can programmatically check status, stage specific files, review changes, and commit — all in a single interaction flow without fragile bash chaining
+
+- **Safer operations with validation:**
+
+    - Server provides typed errors (e.g., `BranchNotFound`, `MergeConflict`, `UnstagedChanges`)
+    - Allows the agent to intelligently handle Git failures, suggest resolutions, or ask for clarification, rather than crashing on obscure Git error messages
+
+### Running the server
+
+#### Via `http` (when using many agents together)
+
+1. Install the server globally:
+
+    ```bash
+    uv install mcp-server-git
+    # or for isolated installs:
+    uvx install mcp-server-git
+    ```
+
+2. Set the port you want the server to use:
+
+    ```bash
+    export GIT_MCP_PORT=8082
+    ```
+
+3. Start the central server
+
+    ```bash
+    python -m mcp_server_git --repository /path/to/your/repo --port $GIT_MCP_PORT
+    ```
+
+4. Connect agents:
+
+    - Gemini CLI: `gemini mcp add git http --url http://localhost:8082/mcp/`
+    - Claude Code: `claude mcp add --transport http git http://localhost:8082/mcp/`
+    - Codex CLI: add to `~/.codex/config.toml`:
+
+        ```toml
+        [mcp_servers.git]
+        url = "http://localhost:8082/mcp/"
+        transport = "http"
+        ```
+
+#### Via `stdio` (if only using one agent at a time)
+
+The agent client will start and stop the server automatically as needed.
+
+| Agent | Command |
+| :--- | :--- |
+| Gemini CLI | `gemini mcp add git uvx -- mcp-server-git --repository /path/to/your/repo` |
+| Codex CLI | `codex mcp add git -- uvx mcp-server-git --repository /path/to/your/repo` |
+| Claude Code | `claude mcp add git -s user -- uvx mcp-server-git --repository /path/to/your/repo` |
+
+**Alternative (Node‑based):** You can also use community Node implementations:
+- `gemini mcp add git npx -- -y @cyanheads/git-mcp-server`
+- `claude mcp add git -s user -- npx -y @cyanheads/git-mcp-server`
+
+### Examples to try
+
+> "Show me the current git status and all unstaged changes in the repository."
+<p></p>
+
+> "Create a new branch called `feat/retry-logic`, stage all modified files in `src/`, and show me the staged diff."
+<p></p>
+
+> "Look at the last 10 commits in the log. Find the commit that introduced the `handleTimeout` function and show me its full diff."
+<p></p>
+
+> "Compare the current branch against `main` and summarize what changed in bullet points."
+<p></p>
+
+> "Stage the changes in `lib/auth.ts`, commit them with message 'fix: resolve token expiration edge case', and show the new commit."
+<p></p>
+
+> "List all branches. If there's a branch called `stale/old-feature`, check it out and show me its status compared to main."
+<p></p>
+
 **Git (choose one implementation)**  
 - **Gemini (Python server via uvx):**  
   ```bash

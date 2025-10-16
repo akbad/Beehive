@@ -770,12 +770,23 @@ If you prefer the CLI to manage the process (one at a time), run Qdrant locally 
 
 > “Store the ADR describing our read-repair invariants with tag `component=locker`.”  
 > Later: “Find prior decisions tagged component=locker mentioning ‘read repair’ before I change the reconciler.”  
->  
+<p></p>
+
 > “Save a summary of the DynamoDB throttling postmortem (tag it high_severity, date=2024-09-12).”  
 > Then: “Retrieve high_severity incidents about DynamoDB before planning retries.”  
->  
+<p></p>
+
 > “Remember the auth team service limits (owner=security, expires=2025-06-30).”  
 > Afterwards: “Pull security-owned memories that mention service limits.”
+<p></p>
+
+> “Store the auth migration blueprint in collection `architecture-decisions` with metadata `{"phase":"rollout","sprint":"2025-02"}`.”  
+> Later: “Search `architecture-decisions` for entries where phase=rollout mentioning ‘auth’ to prep the release brief.”
+<p></p>
+
+> “Ahead of the infra sync, run `qdrant-find` with a filter `{"must":[{"key":"owner","match":{"value":"infra"}},{"key":"created_at","range":{"gte":"2025-01-01"}}]}` and summarize the retrieved memories into action items.”
+<p></p>
+
 ## Tavily — search/extract/map/crawl with citations
 
 **Cost:** Free tier (monthly credits), paid plans for higher volume.

@@ -2,6 +2,10 @@
 
 # MCP server setup script
 #
+# Prerequisites:
+#   - Node.js (for npx)
+#   - uv/uvx (for Python packages)
+#
 # Usage:
 #   ./setup-mcp-servers.sh [options]
 #
@@ -180,7 +184,7 @@ EOF
     fi
 }
 
-# Configure single agent for HTTP MCP
+# Idempotently configure single agent for HTTP MCP
 setup_agent_http() {
     local agent=$1
     local server=$2
@@ -188,9 +192,17 @@ setup_agent_http() {
 
     case $agent in
         gemini)
+            local gemini_config="$HOME/.gemini/settings.json"
+            if [[ -f "$gemini_config" ]] && grep -q "\"$server\"" "$gemini_config" 2>/dev/null; then
+                return 0  # Already exists
+            fi
             gemini mcp add "$server" http --url "$url" 2>/dev/null
             ;;
         claude)
+            # Check user scope config directory for existing server
+            if [[ -d "$HOME/.claude" ]] && find "$HOME/.claude" -name "*.json" -exec grep -q "\"$server\"" {} \; 2>/dev/null; then
+                return 0  # Already exists
+            fi
             claude mcp add --transport http "$server" "$url" 2>/dev/null
             ;;
         codex)
@@ -199,7 +211,7 @@ setup_agent_http() {
     esac
 }
 
-# Configure single agent for stdio MCP
+# Idempotently configure single agent for stdio MCP
 setup_agent_stdio() {
     local agent=$1
     local server=$2
@@ -208,9 +220,17 @@ setup_agent_stdio() {
 
     case $agent in
         gemini)
+            local gemini_config="$HOME/.gemini/settings.json"
+            if [[ -f "$gemini_config" ]] && grep -q "\"$server\"" "$gemini_config" 2>/dev/null; then
+                return 0  # Already exists
+            fi
             gemini mcp add "$server" "${cmd_args[@]}" 2>/dev/null
             ;;
         claude)
+            # Check user scope config directory for existing server
+            if [[ -d "$HOME/.claude" ]] && find "$HOME/.claude" -name "*.json" -exec grep -q "\"$server\"" {} \; 2>/dev/null; then
+                return 0  # Already exists
+            fi
             claude mcp add "$server" -s user -- "${cmd_args[@]}" 2>/dev/null
             ;;
         codex)
@@ -265,17 +285,12 @@ if ! command -v npx &> /dev/null; then
     exit 1
 fi
 
-# Check for uvx (recommended) or Python for Git MCP server
+# Check for uvx (required for Git MCP and Zen MCP)
 if ! command -v uvx &> /dev/null; then
-    log_warning "uvx not found. Agents will need mcp-server-git installed via pip."
-    if command -v python3 &> /dev/null || command -v python &> /dev/null; then
-        log_info "Python found. Run: pip install mcp-server-git"
-    else
-        log_warning "Python not found. Install Python 3.10+ and run: pip install mcp-server-git"
-    fi
-else
-    log_info "uvx found, will configure agents to use it for Git MCP (stdio mode)"
+    log_error "uvx not found. Please install uv first: https://docs.astral.sh/uv/getting-started/installation/"
+    exit 1
 fi
+log_info "uvx found, will use for Git MCP (stdio mode) and Zen MCP"
 
 log_success "Dependency check complete."
 
@@ -294,7 +309,7 @@ start_http_server "Filesystem MCP" "$FS_MCP_PORT" "FS_PID" \
 start_http_server "Zen MCP" "$ZEN_MCP_PORT" "ZEN_PID" \
     env DISABLED_TOOLS="$ZEN_CLINK_DISABLED_TOOLS" ZEN_MCP_PORT="$ZEN_MCP_PORT" \
     uvx --from git+https://github.com/BeehiveInnovations/zen-mcp-server.git \
-    python "$SCRIPT_DIR/start-zen-http.py"
+    python3 "$SCRIPT_DIR/start-zen-http.py"
 
 # Fetch MCP (HTML to Markdown conversion)
 start_http_server "Fetch MCP" "$FETCH_MCP_PORT" "FETCH_PID" \

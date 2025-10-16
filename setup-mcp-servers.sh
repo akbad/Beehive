@@ -7,6 +7,7 @@
 #   - uv/uvx (for Python packages)
 #   - Docker (for Qdrant container)
 #   - Context7 API key in $CONTEXT7_API_KEY
+#   - Tavily API key in $TAVILY_API_KEY
 #
 # Usage:
 #   ./setup-mcp-servers.sh [options]
@@ -24,6 +25,7 @@
 #      - Fetch MCP (local server, HTML to Markdown conversion)
 #      - Qdrant MCP (local server, semantic memory with Docker backend)
 #      - Context7 MCP (remote Upstash server, always-fresh API docs)
+#      - Tavily MCP (remote Tavily server, web search/extract/map/crawl)
 #  2. Sets up the following MCP servers in stdio mode
 #     (i.e. each agent runs its own server)
 #      - Git MCP (necessary since needs to run specifically within *one* Git repo)

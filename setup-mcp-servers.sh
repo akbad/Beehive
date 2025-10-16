@@ -11,9 +11,10 @@
 #   -h, --help          Show this help message.
 #
 # Purpose:
-#  1. Sets up the following MCP servers in HTTP mode 
+#  1. Sets up the following MCP servers in HTTP mode
 #    (i.e. shared across all agents/repos):
-#      - Filesystem MCP 
+#      - Filesystem MCP
+#      - Zen MCP (clink only - for cross-CLI orchestration)
 #  2. Sets up the following MCP servers in stdio mode
 #     (i.e. each agent runs its own server)
 #      - Git MCP (necessary since needs to run specifically within *one* Git repo)
@@ -23,6 +24,9 @@
 #      - Codex CLI
 
 set -e  # exit on error
+
+# Get the directory where this script lives (for referencing adjacent files)
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # --- ARGUMENT PARSING ---
 
@@ -57,7 +61,11 @@ done
 AGENTS=("gemini" "claude" "codex")
 
 # Ports
-export FS_MCP_PORT=8081
+export FS_MCP_PORT=8080
+export ZEN_MCP_PORT=8081
+
+# Zen MCP: disable all tools except clink
+export ZEN_CLINK_DISABLED_TOOLS='analyze,apilookup,challenge,chat,codereview,consensus,debug,docgen,planner,precommit,refactor,secaudit,testgen,thinkdeep,tracer'
 
 # Directories
 FS_ALLOWED_DIR="${FS_ALLOWED_DIR:-$HOME/Code}"
@@ -280,14 +288,24 @@ log_info "Allowed directory: $FS_ALLOWED_DIR"
 start_http_server "Filesystem MCP" "$FS_MCP_PORT" "FS_PID" \
     npx -y @modelcontextprotocol/server-filesystem --port "$FS_MCP_PORT" "$FS_ALLOWED_DIR"
 
+# Zen MCP (clink only - zero-API hub for cross-CLI orchestration)
+start_http_server "Zen MCP" "$ZEN_MCP_PORT" "ZEN_PID" \
+    env DISABLED_TOOLS="$ZEN_CLINK_DISABLED_TOOLS" ZEN_MCP_PORT="$ZEN_MCP_PORT" \
+    uvx --from git+https://github.com/BeehiveInnovations/zen-mcp-server.git \
+    python "$SCRIPT_DIR/start-zen-http.py"
+
 # ============================================================================
 #   Configure agents to use MCP servers
 # ============================================================================
 
 # Servers to use in HTTP mode
 # - Filesystem MCP
+# - Zen MCP (clink)
 log_info "Configuring agents to use Filesystem MCP (HTTP)..."
 setup_http_mcp "fs" "http://localhost:$FS_MCP_PORT/mcp/"
+
+log_info "Configuring agents to use Zen MCP for clink (HTTP)..."
+setup_http_mcp "zen" "http://localhost:$ZEN_MCP_PORT/mcp/"
 
 # Servers to use in stdio mode
 # Git MCP (stdio mode - per-agent)
@@ -304,6 +322,8 @@ echo ""
 log_info "Central HTTP servers running:"
 log_info "  • Filesystem MCP: http://localhost:$FS_MCP_PORT/mcp/ (PID: $FS_PID)"
 log_info "    └─ Shared across all agents, allowed dir: $FS_ALLOWED_DIR"
+log_info "  • Zen MCP (clink): http://localhost:$ZEN_MCP_PORT/mcp/ (PID: $ZEN_PID)"
+log_info "    └─ Cross-CLI orchestration (only 'clink' tool enabled)"
 echo ""
 log_info "Configured stdio servers:"
 log_info " -> Each agent will start its own server when launched, and stop it when it's exited."
@@ -311,13 +331,14 @@ log_info " • Git MCP server"
 log_info "   └─ Uses current directory when agent is launched"
 echo ""
 log_info "Logs:"
-log_info "  • Filesystem: /tmp/mcp-fs-server.log"
+log_info "  • Filesystem: /tmp/mcp-Filesystem MCP-server.log"
+log_info "  • Zen MCP: /tmp/mcp-Zen MCP-server.log"
 echo ""
 log_info "To verify setup:"
 log_info "  1. cd into a git repo"
 log_info "  2. Run 'gemini', 'claude', or 'codex'"
 log_info "  3. Type '/mcp' to see available tools"
 echo ""
-log_info "To stop the Filesystem MCP server:"
-log_info "  kill $FS_PID"
+log_info "To stop HTTP servers:"
+log_info "  kill $FS_PID $ZEN_PID"
 

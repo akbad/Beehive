@@ -421,31 +421,60 @@ setup_stdio_mcp() {
     done
 }
 
+# Check for required dependency and exit if not found
+check_dependency() {
+    local cmd=$1
+    local install_msg=$2
+    local success_msg=${3:-""}
+
+    if ! command -v "$cmd" &> /dev/null; then
+        log_error "$cmd not found. $install_msg"
+        exit 1
+    fi
+
+    if [[ -n "$success_msg" ]]; then
+        log_info "$success_msg"
+    fi
+}
+
+# Check for required environment variable and warn if not set
+check_env_var() {
+    local var_name=$1
+    local description=$2
+
+    if [[ -z "${!var_name}" ]]; then
+        log_warning "$var_name not set. $description"
+        return 1
+    fi
+    return 0
+}
+
 # --- CHECK DEPENDENCIES ---
 
 log_info "Checking dependencies..."
 
-# Check for npx (needed for Filesystem server)
-if ! command -v npx &> /dev/null; then
-    log_error "npx not found. Please install Node.js first."
-    exit 1
-fi
-
-# Check for uvx (required for Git MCP and Zen MCP)
-if ! command -v uvx &> /dev/null; then
-    log_error "uvx not found. Please install uv first: https://docs.astral.sh/uv/getting-started/installation/"
-    exit 1
-fi
-log_info "uvx found, will use for Git MCP (stdio mode) and Zen MCP"
-
-# Check for Docker (required for Qdrant)
-if ! command -v docker &> /dev/null; then
-    log_error "docker not found. Please install Docker first: https://docs.docker.com/get-docker/"
-    exit 1
-fi
-log_info "docker found, will use for Qdrant container"
+check_dependency "npx" "Please install Node.js first."
+check_dependency "uvx" "Please install uv first: https://docs.astral.sh/uv/getting-started/installation/" \
+    "uvx found, will use for Git MCP (stdio mode) and Zen MCP"
+check_dependency "docker" "Please install Docker first: https://docs.docker.com/get-docker/" \
+    "docker found, will use for Qdrant container"
 
 log_success "Dependency check complete."
+
+log_info "Checking API keys..."
+
+CONTEXT7_AVAILABLE=false
+TAVILY_AVAILABLE=false
+
+if check_env_var "CONTEXT7_API_KEY" "Context7 MCP will not work. Get a key at https://console.upstash.com/"; then
+    CONTEXT7_AVAILABLE=true
+fi
+
+if check_env_var "TAVILY_API_KEY" "Tavily MCP will not work. Get a key at https://www.tavily.com/"; then
+    TAVILY_AVAILABLE=true
+fi
+
+log_success "API key check complete."
 
 # ============================================================================
 #   Start central HTTP servers

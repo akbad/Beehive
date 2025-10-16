@@ -316,7 +316,7 @@ EOF
 }
 
 # Idempotently configure single agent for HTTP MCP
-setup_agent_http() {
+add_http_mcp_to_agents() {
     local agent=$1
     local server=$2
     local url=$3
@@ -356,7 +356,7 @@ setup_agent_http() {
 }
 
 # Idempotently configure single agent for stdio MCP
-setup_agent_stdio() {
+add_stdio_mcp_to_agents() {
     local agent=$1
     local server=$2
     shift 2
@@ -396,7 +396,7 @@ setup_http_mcp() {
         # No Codex CLI command for HTTP servers; must use config file
         if [[ "$agent" == "codex" ]] || command -v "$agent" &> /dev/null; then
             log_info "Configuring $agent..."
-            (setup_agent_http "$agent" "$server" "$url" "${headers[@]}" && log_success "$agent configured") || log_warning "Already exists"
+            (add_http_mcp_to_agents "$agent" "$server" "$url" "${headers[@]}" && log_success "$agent configured") || log_warning "Already exists"
         else
             log_warning "$agent not found, skipping..."
         fi
@@ -414,7 +414,7 @@ setup_stdio_mcp() {
     for agent in "${AGENTS[@]}"; do
         if [[ "$agent" == "codex" ]] || command -v "$agent" &> /dev/null; then
             log_info "Configuring $agent..."
-            (setup_agent_stdio "$agent" "$server" "${cmd_args[@]}" && log_success "$agent configured") || log_warning "Already exists"
+            (add_stdio_mcp_to_agents "$agent" "$server" "${cmd_args[@]}" && log_success "$agent configured") || log_warning "Already exists"
         else
             log_warning "$agent not found, skipping..."
         fi
@@ -530,11 +530,19 @@ setup_http_mcp "fetch" "http://localhost:$FETCH_MCP_PORT/mcp/"
 log_info "Configuring agents to use Qdrant MCP (HTTP)..."
 setup_http_mcp "qdrant" "http://localhost:$QDRANT_MCP_PORT/mcp/"
 
-log_info "Configuring Gemini & Claude to use Context7 MCP (HTTP - remote Upstash)..."
-# Note: Uses colon format for headers
-# Codex will use stdio mode (configured below) since HTTP doesn't support custom headers
-# Gemini requires both CONTEXT7_API_KEY and Accept headers
-setup_http_mcp "context7" "$CONTEXT7_URL" "CONTEXT7_API_KEY:\$CONTEXT7_API_KEY" "Accept:application/json, text/event-stream"
+if [[ "$CONTEXT7_AVAILABLE" == true ]]; then
+    log_info "Configuring Gemini & Claude to use Context7 MCP (HTTP - remote Upstash)..."
+    # Note: Uses colon format for headers
+    # Codex will use stdio mode (configured below) since HTTP doesn't support custom headers
+    # Gemini requires both CONTEXT7_API_KEY and Accept headers
+    setup_http_mcp "context7" "$CONTEXT7_URL" "CONTEXT7_API_KEY:\$CONTEXT7_API_KEY" "Accept:application/json, text/event-stream"
+fi
+
+if [[ "$TAVILY_AVAILABLE" == true ]]; then
+    log_info "Configuring all agents to use Tavily MCP (HTTP - remote)..."
+    # Tavily uses API key in URL query parameter, so no custom headers needed
+    setup_http_mcp "tavily" "$TAVILY_URL"
+fi
 
 # Servers to use in stdio mode
 # - Git MCP (per-agent)
@@ -542,8 +550,10 @@ setup_http_mcp "context7" "$CONTEXT7_URL" "CONTEXT7_API_KEY:\$CONTEXT7_API_KEY" 
 log_info "Configuring agents to use Git MCP (stdio)..."
 setup_stdio_mcp "git" "uvx" "mcp-server-git" "--repository" "."
 
-log_info "Configuring Codex to use Context7 MCP (stdio)..."
-setup_agent_stdio "codex" "context7" "npx" "-y" "@upstash/context7-mcp" "--api-key" "\$CONTEXT7_API_KEY"
+if [[ "$CONTEXT7_AVAILABLE" == true ]]; then
+    log_info "Configuring Codex to use Context7 MCP (stdio)..."
+    add_stdio_mcp_to_agents "codex" "context7" "npx" "-y" "@upstash/context7-mcp" "--api-key" "\$CONTEXT7_API_KEY"
+fi
 
 # ============================================================================
 #   Completion output

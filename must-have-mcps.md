@@ -128,14 +128,318 @@ When you're only using **one agent at a time** (e.g. *only launching one of* Cla
 
     - **Doesn't support SSE**; use HTTP servers instead
 
-## Prerequisites
+---
 
-- npm
-- python3
-- uv (Python package manager)
-- 1 or more coding agents that you use (this guide covers Claude Code, Codex CLI, Gemini CLI)
+## clink (via Zen MCP)
 
-## MCP servers
+> Links our different agent CLIs together so they can use each other for what they do best,
+> but this means we *can't* use the main Zen MCP tools (like `consensus`).
+
+### Why use over vanilla agents
+
+- **Keep one thread while fanning out to subagents:** `clink` spins up fresh Claude, Gemini, or Codex sessions from inside your current agent so long-running reviews or research happen in isolated contexts while your main conversation stays intact.
+
+- **Cross-CLI specialization without re-explaining:** 
+    
+    - Role presets (`default`, `planner`, `codereviewer`, or your own) let you delegate the same task to whichever CLI excels at it
+    - The results flow back into the shared transcript so follow-up prompts inherit the full debate or investigation trail.
+
+- **Hands-off orchestration with adjustable guardrails:** 
+
+    - Zen launches each CLI with JSON output, automatic approvals, and continuation IDs, so the spawned agent can read files or run tools immediately
+    - If you need tighter control, just trim the shipped flags and keep the orchestration benefits.
+
+### Running the server
+
+Zen ships with a stdio transport today, so we wrap it in the official streamable HTTP adapter for shared use. SSE is not yet available, which makes HTTP the most reliable option when you want Claude Max, Codex CLI, and Gemini CLI to share the same `clink` hub without giving Zen its own API keys.
+
+#### Via `http` (shared zero-api hub)
+
+1. Export a minimal environment so Zen only exposes `clink`:
+
+    ```bash
+    export ZEN_CLINK_DISABLED_TOOLS='analyze,apilookup,challenge,chat,codereview,consensus,debug,docgen,planner,precommit,refactor,secaudit,testgen,thinkdeep,tracer'
+    export ZEN_MCP_PORT=3333
+    ```
+
+2. Start the shared HTTP gateway (*leave this terminal running*):
+
+    ```bash
+    uvx --from git+https://github.com/BeehiveInnovations/zen-mcp-server.git python - <<'PY'
+    import os
+    from contextlib import asynccontextmanager
+    from starlette.applications import Starlette
+    from starlette.routing import Mount
+    from mcp.server.streamable_http_manager import StreamableHTTPSessionManager
+    from server import server as zen_server
+    import uvicorn
+
+    session_manager = StreamableHTTPSessionManager(zen_server)
+
+    async def mcp_app(scope, receive, send):
+        await session_manager.handle_request(scope, receive, send)
+
+    @asynccontextmanager
+    async def lifespan(app):
+        async with session_manager.run():
+            yield
+
+    app = Starlette(routes=[Mount('/mcp', app=mcp_app)], lifespan=lifespan)
+    uvicorn.run(app, host='127.0.0.1', port=int(os.environ.get('ZEN_MCP_PORT', '3333')))
+    PY
+    ```
+
+3. Connect each CLI once (they will reuse their own credentials when `clink` launches them):
+
+    - Gemini CLI: `gemini mcp add zen http --url http://localhost:$ZEN_MCP_PORT/mcp/`
+    - Claude Code CLI: `claude mcp add --transport http zen http://localhost:$ZEN_MCP_PORT/mcp/`
+    - Codex CLI: append to `~/.codex/config.toml`:
+
+        ```toml
+        [mcp_servers.zen]
+        url = "http://localhost:3333/mcp/"  # swap port number with your ZEN_MCP_PORT value
+        transport = "http"
+        ```
+
+    `clink` shells out to the installed CLIs, so this works even if Zen itself has no provider API keys configured.
+
+#### Via `stdio` (one CLI at a time)
+
+The CLI client will start and stop Zen automatically; reuse the same `ZEN_CLINK_DISABLED` string so only `clink`, `version`, and `listmodels` stay enabled.
+
+| Agent | Command |
+| :--- | :--- |
+| Gemini CLI | `gemini mcp add zen env DISABLED_TOOLS="$ZEN_CLINK_DISABLED_TOOLS" uvx --from git+https://github.com/BeehiveInnovations/zen-mcp-server.git zen-mcp-server` |
+| Codex CLI | `codex mcp add zen -- env DISABLED_TOOLS="$ZEN_CLINK_DISABLED_TOOLS" uvx --from git+https://github.com/BeehiveInnovations/zen-mcp-server.git zen-mcp-server` |
+| Claude Code CLI | `claude mcp add zen -s user -- env DISABLED_TOOLS="$ZEN_CLINK_DISABLED_TOOLS" uvx --from git+https://github.com/BeehiveInnovations/zen-mcp-server.git zen-mcp-server` |
+
+### Config for role presets (Codex default, Sonnet planner, Gemini reviewer)
+
+Zen loads overrides from `~/.zen/cli_clients/*.json`. 
+Copy the built-in definitions and pin each role to your preferred CLI/model.
+
+1. Create the override directory:
+
+    ```bash
+    mkdir -p ~/.zen/cli_clients
+    ```
+
+2. **Codex CLI** (`~/.zen/cli_clients/codex.json`) — GPT-5-Codex with high thinking for `default`:
+
+    ```json
+    {
+        "name": "codex",
+        "command": "codex",
+        "additional_args": [
+            "--json",
+            "--dangerously-bypass-approvals-and-sandbox"
+        ],
+        "env": {},
+        "roles": {
+            "default": {
+                "prompt_path": "systemprompts/clink/default.txt",
+                "role_args": [
+                    "--model",
+                    "gpt-5-codex",
+                ]
+            },
+            "planner": {
+                "prompt_path": "systemprompts/clink/default_planner.txt",
+                "role_args": []
+            },
+            "codereviewer": {
+                "prompt_path": "systemprompts/clink/codex_codereviewer.txt",
+                "role_args": []
+            }
+        }
+    }
+    ```
+
+3. **Claude Code CLI** (`~/.zen/cli_clients/claude.json`) — Sonnet 4.5 for `planner`:
+
+    ```json
+    {
+        "name": "claude",
+        "command": "claude",
+        "additional_args": [
+            "--permission-mode",
+            "acceptEdits"
+        ],
+        "env": {},
+        "roles": {
+            "default": {
+                "prompt_path": "systemprompts/clink/default.txt",
+                "role_args": []
+            },
+            "planner": {
+                "prompt_path": "systemprompts/clink/default_planner.txt",
+                "role_args": [
+                    "--model",
+                    "sonnet-4.5"
+                ]
+            },
+            "codereviewer": {
+                "prompt_path": "systemprompts/clink/default_codereviewer.txt",
+                "role_args": []
+            }
+        }
+    }
+    ```
+
+4. **Gemini CLI** (`~/.zen/cli_clients/gemini.json`) — Gemini 2.5 Pro for `codereviewer`:
+
+    ```json
+    {
+        "name": "gemini",
+        "command": "gemini",
+        "additional_args": [
+            "--telemetry",
+            "false",
+            "--yolo",
+            "-o",
+            "json"
+        ],
+        "env": {},
+        "roles": {
+            "default": {
+                "prompt_path": "systemprompts/clink/default.txt",
+                "role_args": []
+            },
+            "planner": {
+                "prompt_path": "systemprompts/clink/default_planner.txt",
+                "role_args": []
+            },
+            "codereviewer": {
+                "prompt_path": "systemprompts/clink/default_codereviewer.txt",
+                "role_args": [
+                    "--model",
+                    "gemini-2.5-pro"
+                ]
+            }
+        }
+    }
+    ```
+
+5. Restart the Zen process (or rerun `setup-mcp-servers.sh`) so the new presets load.
+6. When you call `clink`, supply:
+    - `cli_name="codex"` for default tasks
+    - `role="planner"` to hit Sonnet 4.5
+    - `role="codereviewer"` to launch Gemini 2.5 Pro
+
+### How the config above all works together
+
+For orchestrating multi-role work-flows *(i.e. chain multiple models together for a task)*, there are a few options:
+
+#### Option 1: *Sequential* clink calls
+    
+- The main agent you're using will make separate `clink` calls, and results will flow back into the conversation.
+
+    > For example, imagine you're using Claude Code:
+    > 
+    > - You (to Claude Code): "Design a new authentication module"
+    > - Claude Code:
+    >
+    >     - Calls `clink(role="planner")` → Sonnet 4.5 creates plan → results return
+    >     - Calls `clink(role="codereviewer", task="review this plan: ...")` → Gemini reviews → results return
+    >     - Calls `clink(role="default", task="implement this reviewed plan: ...")` → Codex implements → results return
+    >
+    > - All results are in the *same* conversation thread.
+
+- You can also *explicitly* ask for sequential `clink` calls:
+
+    > You: "Use planner role to design auth module, codereviewer role to review it, and default role to implement"
+    > 
+    > Your agent then orchestrates all three clink calls *sequentially*. 
+
+##### When to use this option
+
+When you want:
+    
+- **Control & visibility** (since this way, you see all intermediate results; easier to trace and debug)
+- **Synthesis** (i.e. main agent should combine insights from all roles)
+- You want to **adjust mid-workflow** (i.e. change strategy based on planner output)
+- *Most common use case, you'll generally want this 90% of the time*
+
+#### Option 2: *Nested* clink calls (i.e. clink *within* clink)
+  
+From the main agent, ask the first `clink` subprocess to make *its own* `clink` calls.
+
+> For example, imagine you're using Claude Code:
+>
+> 1. You: "Plan the auth module, then **delegate review to codereviewer role**, then **delegate implementation to default role**"
+> 2. Claude (planner) → creates plan → calls `clink(role="codereviewer")` internally
+> 3. Gemini (reviewer) → reviews plan → calls `clink(role="default")` internally
+> 4. Codex (default) → implements → returns results up the chain
+
+##### When to use this option:
+
+When you want:
+
+- **Full autonomy**
+- When you're using **naturally-recursive workflows** where each step intuitively spawns its own sub-workflows
+- **Context isolation** (e.g. planner output shouldn't pollute reviewer context)
+
+### Examples to try (from simplest to most complex) 
+
+*Each of these examples is meant to be used as a prompt pasted into to your **main agent's CLI***. Examples are also included that show how to override (on a per-prompt basis) the default model roles set in the config above.
+
+> **Quick Codex assist *(main agent spawns GPT‑5 Codex)***
+> 
+> Use clink with cli_name="codex" prompt="Summarize the new retry helper in retry.js and suggest clearer naming."
+<p></p>
+
+> **Planner pass with Sonnet 4.5**
+> 
+> Use clink with role="planner" prompt="Create a phased rollout plan for replacing Redis with DynamoDB in the queue service."
+<p></p>
+
+> **Deep code review with Gemini 2.5 Pro**
+> 
+> Use clink with role="codereviewer" prompt="Review src/payments/refund_service.ts for re-entrancy bugs and summarize High/Medium/Low issues."
+<p></p>
+
+> **Explicit CLI + role combo**
+>
+> Use clink with cli_name="claude" role="planner" prompt="Break down how to migrate the metrics pipeline to OpenTelemetry, including risk mitigations."
+<p></p>
+
+> **Follow-up using continuation IDs**
+>
+> **Prompt:** Use clink with role="planner" prompt="Outline the plan for shipping the new auth service.
+> **Subsequent prompt *(resumes previous planner session)*:** Use clink with role="planner" continuation_id="<paste id>" prompt="Refine the timeline with detailed milestones."
+<p></p>
+
+> **Multi-model consensus, *without* Zen’s consensus tool**
+>
+> - **Prompt:**: Use clink with cli_name="codex" prompt="Is optimistic concurrency safe for the cart API update? Give pros/cons."
+> - **Subsequent prompt:**: Use clink with cli_name="gemini" prompt="React to Codex’s optimistic concurrency assessment and highlight disagreements."
+> - **Subsequent prompt:** Summarize both viewpoints and recommend a final approach.
+<p></p>
+
+> **File-focused review *(Gemini handles the big context)***
+> 
+> - *\*Attach files first\**
+> - **Prompt**: Use clink with role="codereviewer" prompt="Audit the attached rollout scripts for idempotency and rollbacks."
+<p></p>
+
+> **Planner + Codex implementation handoff**
+> 
+> - **Example 1:** Use clink with role="planner" prompt="Design a data-migration workflow for moving 10M rows without downtime."
+> - **Example 2:** Use clink with cli_name="codex" prompt="Implement the migration scripts described by the planner plan, focusing on the staging/verify steps."
+<p></p>
+
+> **Override models on the fly**
+>
+> Use clink with cli_name="codex" prompt="Use --model gpt-5 to enumerate edge cases for the new rate limiter."
+<p></p>
+
+> **Batch research, then delegate**
+> 
+> **Prompt:** clink with cli_name="gemini" prompt="Find 2025 best practices for securing WebAuthn attestation and list references."
+> **Subsequent prompt** Use clink with cli_name="codex" prompt="Given Gemini’s findings, patch auth/webauthn_handler.py to harden attestation validation."
+<p></p>
+
+## Filesystem MCP *(official/reference)*
 
 **Cost:** Free / open source.
 

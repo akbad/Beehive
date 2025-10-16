@@ -591,6 +591,78 @@ The agent client will start and stop the server automatically as needed.
 > "List all branches. If there's a branch called `stale/old-feature`, check it out and show me its status compared to main."
 <p></p>
 
+## Fetch MCP *(official/reference)*
+
+**Cost:** Free / open source.
+
+### Why use over vanilla agents
+
+- **Token efficiency:** Automatically converts HTML to clean Markdown with intelligent chunking, drastically reducing token usage compared to raw HTML while preserving document structure
+
+- **Smart content extraction:** Strips navigation, ads, and boilerplate automatically, leaving only the meaningful content for the agent to process
+
+- **Structured output for citations:** Maintains headings, links, and code blocks in Markdown format, making it easy for agents to cite sources accurately and preserve technical details
+
+- **Handles dynamic content:** Can process JavaScript-rendered pages and modern web applications that basic `curl` or `wget` would fail on
+
+- **Consistent format across sources:** Normalizes content from different websites into a uniform Markdown structure, eliminating brittleness from parsing diverse HTML layouts
+
+### Running the server
+
+#### Via `http` (when using many agents together)
+
+1. Set the port you want the server to use:
+
+    ```bash
+    export FETCH_MCP_PORT=8083
+    ```
+
+2. Start the central server:
+
+    ```bash
+    npx -y @modelcontextprotocol/server-fetch --port $FETCH_MCP_PORT
+    ```
+
+3. Connect agents:
+
+    - Gemini CLI: `gemini mcp add fetch http --url http://localhost:8083/mcp/`
+    - Claude Code: `claude mcp add --transport http fetch http://localhost:8083/mcp/`
+    - Codex CLI: add to `~/.codex/config.toml`:
+
+        ```toml
+        [mcp_servers.fetch]
+        url = "http://localhost:8083/mcp/"
+        transport = "http"
+        ```
+
+#### Via `stdio` (if only using one agent at a time)
+
+The agent client will start and stop the server automatically as needed.
+
+| Agent | Command |
+| :--- | :--- |
+| Gemini CLI | `gemini mcp add fetch npx -- -y @modelcontextprotocol/server-fetch` |
+| Codex CLI | `codex mcp add fetch -- npx -y @modelcontextprotocol/server-fetch` |
+| Claude Code | `claude mcp add fetch -s user -- npx -y @modelcontextprotocol/server-fetch` |
+
+**Alternative (Python):** You can also use the Python implementation:
+- `gemini mcp add fetch uvx -- mcp-server-fetch`
+- `claude mcp add fetch -s user -- uvx mcp-server-fetch`
+
+### Examples to try
+
+> "Fetch the Kafka idempotent producer docs at https://kafka.apache.org/documentation/#producerconfigs and summarize the integration steps for our service (bullets + code). Include links to relevant sections."
+<p></p>
+
+> "Fetch https://redis.io/docs/manual/patterns/distributed-locks/ and extract the RedLock algorithm steps into a numbered list with code examples."
+<p></p>
+
+> "Compare rate limiting strategies by fetching these three articles: [URL1], [URL2], [URL3]. Summarize pros/cons of each approach in a comparison table."
+<p></p>
+
+> "Fetch the latest Python async best practices from https://docs.python.org/3/library/asyncio.html and recommend which patterns we should adopt for our websocket service."
+<p></p>
+
 **Git (choose one implementation)**  
 - **Gemini (Python server via uvx):**  
   ```bash

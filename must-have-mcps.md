@@ -11,6 +11,9 @@ A practical guide to **must‑have MCP servers** and adjacent tools that *meanin
 - python3
 - uv (Python package manager)
 - 1 or more coding agents that you use (this guide covers Claude Code, Codex CLI, Gemini CLI)
+- **Context7 API key** (optional but recommended): Set `CONTEXT7_API_KEY` in your shell config (`.zshrc` or `.bashrc`)
+  - Create a key at [console.upstash.com](https://console.upstash.com/)
+  - Free tier available; paid tiers for higher rate limits and private repo access
 
 ## Useful background info 
 
@@ -476,7 +479,7 @@ When you want:
 
     - Gemini CLI: `gemini mcp add fs http --url http://localhost:8081/mcp/`
     - Claude Code: `claude mcp add --transport http fs http://localhost:8081/mcp/`
-    - Codex CLI add to `~/.codex/config.toml`:
+    - Codex CLI: add to `~/.codex/config.toml`:
 
         ```toml
         [mcp_servers.fs]
@@ -662,6 +665,47 @@ The agent client will start and stop the server automatically as needed.
 
 > "Fetch the latest Python async best practices from https://docs.python.org/3/library/asyncio.html and recommend which patterns we should adopt for our websocket service."
 <p></p>
+
+## Context7 (Upstash) — "always‑fresh" API docs
+
+**Cost:** Free tier for personal/edu; paid tiers available.
+
+### Why use over vanilla agents
+
+- **Eliminates training data staleness:** Injects version-correct API docs and code examples directly into context, so the model references current documentation instead of potentially outdated training data from months or years ago
+
+- **Drastic reduction in API hallucinations:** By providing authoritative, up-to-date documentation at inference time, agents stop inventing deprecated methods, wrong parameter names, or non-existent API endpoints
+
+- **Multi-version support:** Can fetch docs for specific library versions, critical when working with legacy codebases or coordinating upgrades across microservices with different dependency versions
+
+- **Semantic code examples:** Returns real-world usage patterns and code snippets from official docs, not just method signatures, helping agents write idiomatic code that follows best practices
+
+- **Broad coverage:** Works across hundreds of popular libraries and frameworks (AWS SDK, Stripe, OpenAI, Anthropic, Redis, Kafka, etc.), with automatic fallback to web documentation when specialized integrations aren't available
+
+### Running the server
+
+Visit the [**Context7 docs**](https://github.com/upstash/context7) for agent-specific guidelines.
+
+### Examples to try
+
+> "Implement S3 multipart upload with exponential backoff retries and abort handling. Use context7 to pull the latest AWS SDK v3 documentation and examples."
+<p></p>
+
+> "Fetch the current Stripe Checkout Session API docs via context7 and show me how to create a session with line items, success/cancel URLs, and customer email prefill."
+<p></p>
+
+> "Use context7 to get the latest Anthropic Messages API documentation, then implement streaming responses with tool use and explain the differences from the legacy completions API."
+<p></p>
+
+> "Pull Redis sorted sets documentation through context7 and write a leaderboard service with ZADD, ZRANGE, and ZREM operations. Include atomic score updates."
+<p></p>
+
+> "Get Kafka producer configuration docs via context7 for version 3.6.x specifically (our production version). Implement an idempotent producer with transactional semantics."
+<p></p>
+
+> "Use context7 to fetch OpenTelemetry tracing setup for Node.js, then instrument our Express API with automatic span creation and context propagation."
+<p></p>
+
 
 **Git (choose one implementation)**  
 - **Gemini (Python server via uvx):**  

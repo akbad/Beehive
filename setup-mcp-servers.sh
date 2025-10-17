@@ -26,9 +26,7 @@
 # Purpose:
 #  1. Sets up the following MCP servers in HTTP mode
 #    (i.e. shared across all agents/repos):
-#      - Filesystem MCP (local server)
 #      - Zen MCP (local server, clink only - for cross-CLI orchestration)
-#      - Fetch MCP (local server, HTML to Markdown conversion)
 #      - Qdrant MCP (local server, semantic memory with Docker backend)
 #      - Sourcegraph MCP (local server wrapper for Sourcegraph.com public search)
 #      - Semgrep MCP (local server, static analysis and security scanning)
@@ -37,6 +35,8 @@
 #      - Firecrawl MCP (remote Firecrawl server, resilient scraping with Fire-engine)
 #  2. Sets up the following MCP servers in stdio mode
 #     (i.e. each agent runs its own server)
+#      - Filesystem MCP (necessary since only supports stdio transport)
+#      - Fetch MCP (necessary since only supports stdio transport)
 #      - Git MCP (necessary since needs to run specifically within *one* Git repo)
 #  3. Connects coding agent CLI clients:
 #      - Gemini CLI
@@ -103,9 +103,7 @@ export SOURCEGRAPH_ENDPOINT="https://sourcegraph.com"                     # Free
 export SOURCEGRAPH_REPO_PATH="$PARENT_REPO/mcp-servers/sourcegraph-mcp"   # Where to clone the MCP server repo to
 
 # Ports for local HTTP servers
-export FS_MCP_PORT=8780
 export ZEN_MCP_PORT=8781
-export FETCH_MCP_PORT=8782
 export QDRANT_MCP_PORT=8783
 export SOURCEGRAPH_MCP_PORT=8784
 export SEMGREP_MCP_PORT=8785
@@ -203,6 +201,8 @@ start_http_server() {
     local start_cmd=("$@")
     local log_file="/tmp/mcp-${server_name}-server.log"
     local pid
+    local max_wait=30  # Maximum seconds to wait
+    local elapsed=0
 
     if check_port "$port"; then
         log_success "$server_name already running on port $port"
@@ -211,17 +211,25 @@ start_http_server() {
         eval "$pid_var=$pid"
     else
         log_info "Starting $server_name on port $port..."
+        log_info "  → launch command: ${start_cmd[*]}"
         nohup "${start_cmd[@]}" > "$log_file" 2>&1 &
         pid=$!
-        sleep 2
 
-        if check_port "$port"; then
-            log_success "$server_name started (PID: $pid)"
-            eval "$pid_var=$pid"
-        else
-            log_error "Failed to start $server_name. Check $log_file"
-            exit 1
-        fi
+        # Poll for port to become available (check every second, up to max_wait seconds)
+        while [ $elapsed -lt $max_wait ]; do
+            sleep 1
+            elapsed=$((elapsed + 1))
+
+            if check_port "$port"; then
+                log_success "$server_name started (PID: $pid) after ${elapsed}s"
+                eval "$pid_var=$pid"
+                return 0
+            fi
+        done
+
+        # If we get here, server didn't start within max_wait seconds
+        log_error "Failed to start $server_name within ${max_wait}s. Check $log_file"
+        exit 1
     fi
 }
 
@@ -569,20 +577,11 @@ fi
 
 log_info "Idempotently starting up HTTP MCP servers..."
 
-# Filesystem MCP
-log_info "Allowed directory for Filesystem MCP: $FS_ALLOWED_DIR"
-start_http_server "Filesystem MCP" "$FS_MCP_PORT" "FS_PID" \
-    npx -y @modelcontextprotocol/server-filesystem --port "$FS_MCP_PORT" "$FS_ALLOWED_DIR"
-
 # Zen MCP (clink only - zero-API hub for cross-CLI orchestration)
 start_http_server "Zen MCP" "$ZEN_MCP_PORT" "ZEN_PID" \
     env DISABLED_TOOLS="$ZEN_CLINK_DISABLED_TOOLS" ZEN_MCP_PORT="$ZEN_MCP_PORT" \
     uvx --from git+https://github.com/BeehiveInnovations/zen-mcp-server.git \
     python3 "$SCRIPT_DIR/start-zen-http.py"
-
-# Fetch MCP (HTML to Markdown conversion)
-start_http_server "Fetch MCP" "$FETCH_MCP_PORT" "FETCH_PID" \
-    npx -y @modelcontextprotocol/server-fetch --port "$FETCH_MCP_PORT"
 
 # Qdrant (Docker container for semantic memory backend)
 log_info "Starting Qdrant Docker container..."
@@ -612,23 +611,15 @@ start_http_server "Semgrep MCP" "$SEMGREP_MCP_PORT" "SEMGREP_PID" \
 # ============================================================================
 
 # Servers to use in HTTP mode
-# - Filesystem MCP (local)
 # - Zen MCP (local, clink)
-# - Fetch MCP (local)
 # - Qdrant MCP (local)
 # - Sourcegraph MCP (local wrapper for Sourcegraph.com)
-# - Semgrep MCP (local,)
+# - Semgrep MCP (local)
 # - Context7 MCP (remote Upstash - for Gemini & Claude only)
 # - Tavily MCP (remote Tavily - all agents)
 # - Firecrawl MCP (remote Firecrawl - all agents)
-log_info "Configuring agents to use Filesystem MCP (HTTP)..."
-setup_http_mcp "fs" "http://localhost:$FS_MCP_PORT/mcp/"
-
 log_info "Configuring agents to use Zen MCP for clink (HTTP)..."
 setup_http_mcp "zen" "http://localhost:$ZEN_MCP_PORT/mcp/"
-
-log_info "Configuring agents to use Fetch MCP (HTTP)..."
-setup_http_mcp "fetch" "http://localhost:$FETCH_MCP_PORT/mcp/"
 
 log_info "Configuring agents to use Qdrant MCP (HTTP)..."
 setup_http_mcp "qdrant" "http://localhost:$QDRANT_MCP_PORT/mcp/"
@@ -662,8 +653,17 @@ if [[ "$FIRECRAWL_AVAILABLE" == true ]]; then
 fi
 
 # Servers to use in stdio mode
+# - Filesystem MCP (per-agent, only supports stdio transport)
+# - Fetch MCP (per-agent, only supports stdio transport)
 # - Git MCP (per-agent)
 # - Context7 MCP (for Codex only, since Codex HTTP doesn't support custom headers)
+log_info "Configuring agents to use Filesystem MCP (stdio)..."
+log_info "Allowed directory for Filesystem MCP: $FS_ALLOWED_DIR"
+setup_stdio_mcp "fs" "npx" "-y" "@modelcontextprotocol/server-filesystem" "$FS_ALLOWED_DIR"
+
+log_info "Configuring agents to use Fetch MCP (stdio)..."
+setup_stdio_mcp "fetch" "uvx" "mcp-server-fetch"
+
 log_info "Configuring agents to use Git MCP (stdio)..."
 setup_stdio_mcp "git" "uvx" "mcp-server-git" "--repository" "."
 
@@ -680,10 +680,7 @@ echo ""
 log_success "Setup complete."
 echo ""
 log_info "Local HTTP servers running:"
-log_info "  • Filesystem MCP: http://localhost:$FS_MCP_PORT/mcp/ (PID: $FS_PID)"
-log_info "    └─ Allowed directory: $FS_ALLOWED_DIR"
 log_info "  • Zen MCP (clink only): http://localhost:$ZEN_MCP_PORT/mcp/ (PID: $ZEN_PID)"
-log_info "  • Fetch MCP: http://localhost:$FETCH_MCP_PORT/mcp/ (PID: $FETCH_PID)"
 log_info "  • Qdrant MCP: http://localhost:$QDRANT_MCP_PORT/mcp/ (PID: $QDRANT_PID)"
 log_info "    └─ Backend: Qdrant Docker container on port $QDRANT_PORT"
 log_info "    └─ Data directory: $QDRANT_DATA_DIR"
@@ -724,6 +721,10 @@ fi
 
 log_info "Configured stdio servers:"
 log_info "  → Each agent starts its own server when launched, stops when exited."
+log_info "  • Filesystem MCP (all agents)"
+log_info "    └─ Allowed directory: $FS_ALLOWED_DIR"
+log_info "  • Fetch MCP (all agents)"
+log_info "    └─ HTML to Markdown conversion"
 log_info "  • Git MCP (all agents)"
 log_info "    └─ Uses current directory when agent is launched"
 
@@ -733,11 +734,12 @@ if [[ "$CONTEXT7_AVAILABLE" == true ]]; then
 fi
 echo ""
 log_info "Logs:"
-log_info "  • Filesystem: /tmp/mcp-Filesystem MCP-server.log"
 log_info "  • Zen MCP: /tmp/mcp-Zen MCP-server.log"
-log_info "  • Fetch MCP: /tmp/mcp-Fetch MCP-server.log"
-log_info "  • Qdrant MCP: /tmp/mcp-Qdrant MCP-server.log"
-log_info "  • Qdrant Docker: docker logs qdrant"
+
+if [[ "$QDRANT_AVAILABLE" == true ]]; then
+    log_info "  • Qdrant MCP: /tmp/mcp-Qdrant MCP-server.log"
+    log_info "  • Qdrant Docker: docker logs qdrant"
+fi
 
 if [[ "$SOURCEGRAPH_AVAILABLE" == true ]]; then
     log_info "  • Sourcegraph MCP: /tmp/mcp-Sourcegraph MCP-server.log"
@@ -751,9 +753,13 @@ log_info "  2. Run 'gemini', 'claude', or 'codex'"
 log_info "  3. Type '/mcp' to see available tools"
 echo ""
 log_info "To stop local HTTP servers:"
-pidlist="$FS_PID $ZEN_PID $FETCH_PID $QDRANT_PID $SEMGREP_PID"
-[[ "$SOURCEGRAPH_AVAILABLE" == "true" ]] && pidlist+=("$SOURCEGRAPH_PID")
-log_info "  kill ${pidlist[*]}"
-echo ""
-log_info "To stop Qdrant Docker container:"
-log_info "  docker stop qdrant"
+pidlist="$ZEN_PID $SEMGREP_PID"
+[[ "$QDRANT_AVAILABLE" == "true" ]] && pidlist+=" $QDRANT_PID"
+[[ "$SOURCEGRAPH_AVAILABLE" == "true" ]] && pidlist+=" $SOURCEGRAPH_PID"
+log_info "  kill ${pidlist}"
+
+if [[ "$QDRANT_AVAILABLE" == true ]]; then
+    echo ""
+    log_info "To stop Qdrant Docker container:"
+    log_info "  docker stop qdrant"
+fi

@@ -18,6 +18,9 @@ A practical guide to **must‑have MCP servers** and adjacent tools that *meanin
 - **Tavily API key** (optional but recommended): Set `TAVILY_API_KEY` in your shell config (`.zshrc` or `.bashrc`)
   - Create a key at [tavily.com](https://www.tavily.com/)
   - Free tier with monthly credits; paid plans for higher volume
+- **Firecrawl API key** (optional but recommended): Set `FIRECRAWL_API_KEY` in your shell config (`.zshrc` or `.bashrc`)
+  - Create a key at [firecrawl.dev/app/api-keys](https://firecrawl.dev/app/api-keys)
+  - Free starter credits; paid plans for higher volume
 
 ## Useful background info 
 
@@ -248,6 +251,9 @@ Copy the built-in definitions and pin each role to your preferred CLI/model.
                 "role_args": [
                     "--model",
                     "gpt-5-codex",
+                    "--search",    // enable auto-approve for all web searches
+                    "-c",          // allows overriding config values w/ key-value pairs that come after
+                    "model_reasoning_effort=\"high\""
                 ]
             },
             "planner": {

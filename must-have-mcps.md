@@ -1365,3 +1365,67 @@ Spec-Kit acts as the **orchestration layer** that coordinates MCP capabilities a
 - **Constitution overwriting:** Be cautious when re-initializing; the init command may overwrite existing constitution.md
 
 ---
+
+## Security: run tools like you would any extension
+
+- **Allow‑list paths** and prefer **read‑only** where possible.  
+- **Scope tokens** narrowly (separate keys per server).  
+- Prefer **HTTP on localhost** or a proxy that can quarantine new servers.  
+- Keep a **human‑in‑the‑loop** on dangerous tools (write/exec).  
+- Stay current: the ecosystem is new; malicious servers have already appeared in the wild. Rotate creds if you ever suspect compromise.
+
+---
+
+## Decision guide (what to use when)
+
+- **Repo comprehension / giant specs** → **Gemini CLI + Fetch/Firecrawl + Memory**  
+- **Org‑wide code impact** → **Sourcegraph MCP**  
+- **Plan‑then‑execute** → **Spec‑Kit** to create artifacts, then **Git/Filesystem** + your agent  
+- **Security/correctness gate** → **Semgrep** (+ **Snyk** for deps/IaC/containers)  
+- **Ticketing & communication** → **Composio/Rube**  
+- **Token efficiency** → Prefer **Fetch** (HTML→MD), store background in **Memory**, and use a proxy/manager if you connect lots of servers
+
+---
+
+## Pricing at a glance (subject to change)
+
+- **Free/OSS:** Filesystem, Git, Fetch, Memory (ref), MCP‑Proxy, Dockmaster  
+- **Free tier + paid:** Context7 (free personal/edu), Tavily (monthly credits), Firecrawl (starter credits), Sourcegraph (free public; paid private/org), Semgrep (Community free; Teams paid), Snyk (free tier; paid), Composio/Rube (free calls; paid tiers)
+
+---
+
+## For later
+
+### Snyk – vuln/SCA/IaC/container scans
+**Why:** agent‑triggerable scanning with actionable results in chat; pairs well with Semgrep for broader coverage.
+
+**Install & run:** Use Snyk’s MCP (standalone or via CLI integration), then `gemini mcp add snyk <server_cmd>`; set `SNYK_TOKEN`.  
+**Cost:** Free tier; paid org features.
+
+**Try:** “Scan `packages/*` and open issues for critical vulns with suggested upgrades.”
+
+### Composio / Rube – glue to your work apps
+**Why:** one server exposes **hundreds of app actions** (GitHub/Jira/Linear/Slack/Notion…). Turn `/speckit.tasks` into real tickets, update docs, post diffs to Slack — **no bespoke glue code**.
+
+**Install & run:** `gemini mcp add rube npx -- @composiohq/rube` then auth the apps in their UI.  
+**Cost:** Generous free plan (tool‑call quota); paid tiers for volume.
+
+**Try:** “Create three Jira tickets from the task list; link the GH PR and post the plan in Slack #backend.”
+
+### MCP managers (quality‑of‑life)
+
+**mcp‑get** – one‑command installer: `brew install mcp-get` → `mcp-get install <server>`.  
+**MCP‑Proxy** – bridge stdio ↔ SSE, isolate/rate‑limit servers; great for aggregating many servers behind one endpoint.  
+**Dockmaster** – desktop GUI to discover/install/configure servers across clients.
+
+All are free / open source.
+
+---
+
+## Verify & manage
+
+- **Gemini CLI:** run `/mcp` to see active servers/tools.  
+- **Codex CLI:** run `/mcp` inside the TUI; edit `~/.codex/config.toml` for finer control.  
+- **Claude Code:** run `/mcp` to list; supports `.mcp.json` (project), user & enterprise‑managed configs; transports: **http**, **sse**, **stdio**.
+
+> **Security tip:** Prefer least‑privilege (path allow‑lists, read‑only where possible). For remote HTTP/SSE servers, review auth scopes and rotate tokens regularly.

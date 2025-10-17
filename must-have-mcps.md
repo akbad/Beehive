@@ -1125,299 +1125,243 @@ The agent client will start and stop the server automatically as needed.
 > "Show me the Semgrep rule JSON Schema so I can write a custom rule banning usage of `eval()` and `exec()` in our Python codebase. After you create the rule, scan all `.py` files and report violations."
 <p></p>
 
-
-**Git (choose one implementation)**  
-- **Gemini (Python server via uvx):**  
-  ```bash
-  gemini mcp add git uvx -- mcp-server-git
-  ```
-  *(alt Node)* `gemini mcp add git npx -- -y @cyanheads/git-mcp-server`
-- **Codex:**  
-  ```bash
-  codex mcp add git -- npx -y @cyanheads/git-mcp-server
-  ```
-- **Claude Code:**  
-  ```bash
-  claude mcp add git -s user -- npx -y @cyanheads/git-mcp-server
-  ```
-
-**Fetch (web → Markdown)**  
-- **Gemini (Python server):**  
-  ```bash
-  gemini mcp add fetch uvx -- mcp-server-fetch
-  ```
-- **Codex:**  
-  ```bash
-  codex mcp add fetch -- uvx mcp-server-fetch
-  ```
-- **Claude Code:**  
-  ```bash
-  claude mcp add fetch -s user -- uvx mcp-server-fetch
-  ```
-
-### B. Planning & Research (Context7, Tavily, Firecrawl)
-
-**Context7 (API docs into context)**  
-- **Gemini:**  
-  ```bash
-  gemini mcp add context7 npx -- -y @upstash/context7-mcp --api-key $CONTEXT7_API_KEY
-  ```
-- **Codex:**  
-  ```bash
-  codex mcp add context7 -- npx -y @upstash/context7-mcp
-  ```
-- **Claude Code:**  
-  ```bash
-  claude mcp add context7 -s user -- npx -y @upstash/context7-mcp
-  ```
-
-**Tavily (search / extract / map / crawl)**  
-- **Gemini (remote HTTP):**  
-  ```bash
-  gemini mcp add tavily https://mcp.tavily.com/mcp/?tavilyApiKey=$TAVILY_API_KEY
-  ```
-- **Codex (remote HTTP via config)** — add to `~/.codex/config.toml`:
-  ```toml
-  [mcp_servers.tavily]
-  url = "https://mcp.tavily.com/mcp/?tavilyApiKey=${TAVILY_API_KEY}"
-  ```
-  *(or run locally with)* `codex mcp add tavily -- npx -y @mcptools/mcp-tavily`
-- **Claude Code (HTTP):**  
-  ```bash
-  claude mcp add --transport http tavily https://mcp.tavily.com/mcp/?tavilyApiKey=$TAVILY_API_KEY
-  ```
-
-**Firecrawl (robust crawl/scrape; JS pages)**  
-- **Gemini (npx):**  
-  ```bash
-  gemini mcp add firecrawl npx -- -y firecrawl-mcp
-  ```
-- **Codex:**  
-  ```bash
-  codex mcp add firecrawl -- npx -y firecrawl-mcp
-  ```
-- **Claude Code:**  
-  ```bash
-  claude mcp add firecrawl -s user -- npx -y firecrawl-mcp
-  ```
-
-### C. Memory / Token‑efficiency
-
-**Memory (reference knowledge‑graph)**  
-- **Gemini:** `gemini mcp add memory npx -- -y @modelcontextprotocol/server-memory`  
-- **Codex:** `codex mcp add memory -- npx -y @modelcontextprotocol/server-memory`  
-- **Claude Code:** `claude mcp add memory -s user -- npx -y @modelcontextprotocol/server-memory`
-
-**Postgres + pgvector (community servers)**  
-- Add your server command where indicated:  
-  - **Gemini:** `gemini mcp add pgmem <your-pgvector-server-cmd>`  
-  - **Codex:** `codex mcp add pgmem -- <your-pgvector-server-cmd>`  
-  - **Claude Code:** `claude mcp add pgmem -s user -- <your-pgvector-server-cmd>`
-
-### D. Quality & Security Rails
-
-**Semgrep (SAST)**  
-- **Gemini (local stdio):**  
-  ```bash
-  gemini mcp add semgrep uvx -- semgrep-mcp
-  ```
-  *(or connect to remote SSE when applicable)*
-- **Codex:**  
-  ```bash
-  codex mcp add semgrep -- uvx semgrep-mcp
-  ```
-- **Claude Code:**  
-  ```bash
-  # Remote SSE (hosted by Semgrep)
-  claude mcp add --transport sse semgrep https://mcp.semgrep.ai/sse
-  # OR local:
-  claude mcp add semgrep -s user -- uvx semgrep-mcp
-  ```
-
-**Snyk (deps/IaC/containers)**  
-- **Gemini:** `gemini mcp add snyk <your-snyk-mcp-cmd>`  
-- **Codex:** `codex mcp add snyk -- <your-snyk-mcp-cmd>`  
-- **Claude Code:** `claude mcp add snyk -s user -- <your-snyk-mcp-cmd>`
-
-### E. Workflow Glue
-
-**Composio / Rube (GitHub/Jira/Slack/Notion…)**  
-- **Gemini:** `gemini mcp add rube npx -- @composiohq/rube`  
-- **Codex:** `codex mcp add rube -- npx @composiohq/rube`  
-- **Claude Code:** `claude mcp add rube -s user -- npx @composiohq/rube`
-
 ---
 
-### Verify & manage
+## *Essential non-MCP tool:* GitHub Spec-Kit 
 
-- **Gemini CLI:** run `/mcp` to see active servers/tools.  
-- **Codex CLI:** run `/mcp` inside the TUI; edit `~/.codex/config.toml` for finer control.  
-- **Claude Code:** run `/mcp` to list; supports `.mcp.json` (project), user & enterprise‑managed configs; transports: **http**, **sse**, **stdio**.
+> A precise, powerful specification-driven development framework
 
-> **Security tip:** Prefer least‑privilege (path allow‑lists, read‑only where possible). For remote HTTP/SSE servers, review auth scopes and rotate tokens regularly.
+**Cost:** Free / open source (v0.0.69 as of October 2025)
 
----
+### Why use alongside MCPs and agent CLIs
 
-## Appendix — User vs Project Config (Claude Code, Codex CLI, Gemini CLI)
+- **Process framework for planning artifacts:** While MCPs provide **capabilities** (search, memory, security scanning), Spec-Kit provides **workflow structure** — transforms "vibe-coding" into systematic spec → plan → tasks → implement flows with reviewable, in-repo artifacts
 
-Use **user/global config** to “set & forget” shared servers, and **project config** for path‑scoped tools (Filesystem), policies (Semgrep/Snyk), or per‑repo memory namespaces.
+- **Executable specifications as contracts:** Specifications become **executable** rather than static documents — they directly generate working implementations instead of merely guiding them, treating coding agents as "literal-minded pair programmers" that need unambiguous instructions
 
-> **Verify fast:** in any client session, type **`/mcp`** to list active servers & tools.
+- **Separates stable "what" from flexible "how":** Captures **intent as source of truth** independent of implementation details, enabling parallel implementations across diverse tech stacks and making specs portable across different LLM providers and agent CLIs
 
-### A) Gemini CLI
+- **Team-friendly artifact generation:** Creates diffable, version-controlled documents (constitution, spec, plan, tasks) that live in-repo for human review before implementation — critical for teams with code review processes or when building medium/large features
 
-**Where config lives**
-- **User:** `~/.gemini/settings.json` (default for `gemini mcp add …`)
-- **Project:** `.gemini/settings.json` in the repo (use `-s project` after `gemini mcp add`)
+- **Universal slash command interface:** Equips 12+ agent CLIs (Claude Code, Gemini CLI, Codex CLI, Cursor, Windsurf, etc.) with consistent `/speckit.*` commands for constitution, specify, plan, tasks, implement, clarify, analyze, and checklist operations
 
-**User config (one root for many repos)**
-```jsonc
-{
-  "mcpServers": {
-    "fs": {
-      "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-filesystem", "~/Projects"],
-      "transport": "stdio",
-      "enabled": true
-    },
-    "tavily": {
-      "url": "https://mcp.tavily.com/mcp/?tavilyApiKey=${TAVILY_API_KEY}",
-      "transport": "http",
-      "enabled": true
-    }
-  }
-}
-```
+- **Prevents scope creep with checkpoints:** Forces deliberate "plan before code" discipline through structured phases — architect can review plan, team can review spec, stakeholders can review requirements before any code changes happen
 
-**Project config (safer: repo‑local root)**
-```jsonc
-// .gemini/settings.json (checked into the repo if you wish)
-{
-  "mcpServers": {
-    "fs": {
-      "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-filesystem", "."],
-      "transport": "stdio",
-      "enabled": true
-    },
-    "semgrep": {
-      "command": "uvx",
-      "args": ["semgrep-mcp"],
-      "transport": "stdio",
-      "env": { "SEMGREP_RULES": "./.semgrep/rules" }
-    },
-    "memory": {
-      "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-memory"],
-      "env": { "MEMORY_NAMESPACE": "locker" }
-    }
-  }
-}
-```
+- **Optional quality gates:** Use `/speckit.checklist` to generate domain-specific checklists (UX, security, accessibility) and `/speckit.analyze` for cross-artifact consistency validation before implementation
 
-**Switch scope via commands**
+### Installation
+
+**Persistent installation (recommended):**
+
 ```bash
-# User/global
-gemini mcp add fs npx -- -y @modelcontextprotocol/server-filesystem ~/Projects
-
-# Project‑scoped (writes .gemini/settings.json in the repo)
-gemini mcp add -s project fs npx -- -y @modelcontextprotocol/server-filesystem .
+uv tool install specify-cli --from git+https://github.com/github/spec-kit.git
 ```
 
----
+**One-time usage (for quick setup):**
 
-### B) OpenAI Codex CLI
-
-**Where config lives**
-- **Global:** `~/.codex/config.toml`
-- **Profiles:** define named profiles in the same file and launch with `codex --profile <name>`
-
-**Global config (one root for many repos)**
-```toml
-[mcp_servers.fs]
-command = "npx"
-args = ["-y", "@modelcontextprotocol/server-filesystem", "~/Projects"]
-transport = "stdio"
-enabled = true
-
-[mcp_servers.tavily]
-url = "https://mcp.tavily.com/mcp/?tavilyApiKey=${TAVILY_API_KEY}"
-transport = "http"
-enabled = true
-```
-
-**Profile for a specific repo (safer root)**
-```toml
-[profiles.locker.mcp_servers.fs]
-command = "npx"
-args = ["-y", "@modelcontextprotocol/server-filesystem", "."]
-transport = "stdio"
-enabled = true
-
-[profiles.locker.env]
-MEMORY_NAMESPACE = "locker"
-SEMGREP_RULES = "./.semgrep/rules"
-```
-
-**Launch with a profile**
 ```bash
-codex --profile locker
+uvx --from git+https://github.com/github/spec-kit.git specify init <PROJECT_NAME>
 ```
 
----
+**With AI agent selection:**
 
-### C) Claude Code (CLI + VS Code)
-
-**Where config lives**
-- **User:** stored by `claude mcp add …` at user scope
-- **Project:** `.mcp.json` (checked into the repo if you like)
-
-**Project config (`.mcp.json`) — per‑repo root & policies**
-```jsonc
-{
-  "mcpServers": {
-    "fs": {
-      "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-filesystem", "."],
-      "transport": "stdio",
-      "enabled": true
-    },
-    "tavily": {
-      "url": "https://mcp.tavily.com/mcp/?tavilyApiKey=${TAVILY_API_KEY}",
-      "transport": "http",
-      "enabled": true
-    },
-    "semgrep": {
-      "command": "uvx",
-      "args": ["semgrep-mcp"],
-      "transport": "stdio",
-      "env": { "SEMGREP_RULES": "./.semgrep/rules" }
-    },
-    "memory": {
-      "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-memory"],
-      "env": { "MEMORY_NAMESPACE": "locker" }
-    }
-  }
-}
-```
-
-**User scope via commands**
 ```bash
-# Broad root for many repos (least friction)
-claude mcp add fs -s user -- npx -y @modelcontextprotocol/server-filesystem ~/Projects
+# For Claude Code
+specify init my-project --ai claude
 
-# Repo‑local root (least privilege) — run inside the repo
-claude mcp add fs -s project -- npx -y @modelcontextprotocol/server-filesystem .
+# For Gemini CLI
+specify init my-project --ai gemini
+
+# For Codex CLI
+specify init my-project --ai codex
 ```
 
+**Additional options:**
+- `--script [sh|ps]` — Choose Bash (.sh) or PowerShell (.ps1) scripts
+- `--here` — Initialize in current directory instead of creating new folder
+- `--ignore-agent-tools` — Skip tool verification (get templates without checks)
+
+**Verify installation:**
+
+```bash
+specify check   # Verifies installed tools (git, agent CLIs, etc.)
+```
+
+### Core workflow and slash commands
+
+Spec-Kit implements a five-phase process accessed via slash commands in your agent CLI:
+
+#### 1. Constitution (`/speckit.constitution`)
+
+Establish project governing principles and non-negotiable constraints.
+
+**Example:**
+```
+/speckit.constitution Performance is critical. All database queries must complete in <100ms. Zero-downtime deploys required. Property-based tests for core logic.
+```
+
+#### 2. Specify (`/speckit.specify`)
+
+Define **WHAT** to build — requirements, user stories, success metrics.
+
+**Example:**
+```
+/speckit.specify Add read-repair and anti-entropy sync to the eventually consistent KV store. Users should see consistent data within 5 seconds across all nodes.
+```
+
+#### 3. Plan (`/speckit.plan`)
+
+Create **HOW** — technical implementation strategy, stack decisions, architecture.
+
+**Example:**
+```
+/speckit.plan Go + gRPC; background reconciler running every 30s; Lamport timestamps for conflict resolution; property tests with quickcheck.
+```
+
+#### 4. Tasks (`/speckit.tasks`)
+
+Break plan into actionable, reviewable chunks.
+
+**Example:**
+```
+/speckit.tasks
+```
+
+Agent generates numbered task list with dependencies, estimates, and acceptance criteria.
+
+#### 5. Implement (`/speckit.implement`)
+
+Execute all tasks using agent's native tools (edit files, run tests, commit).
+
+**Example:**
+```
+/speckit.implement
+```
+
+Agent orchestrates multi-file changes, runs tests, creates commits with descriptive messages.
+
+#### Optional commands
+
+- `/speckit.clarify` — Resolve underspecified or ambiguous areas in spec/plan
+- `/speckit.analyze` — Validate consistency across constitution, spec, plan, tasks
+- `/speckit.checklist` — Generate domain-specific quality checklists (UX, security, accessibility)
+
+### When to use Spec-Kit
+
+**Use for:**
+- **Medium/large features** (3+ files, cross-cutting concerns)
+- **Architectural changes** (database migrations, API redesigns, refactors)
+- **Team projects** where specs/plans need human review before implementation
+- **0-to-1 projects** where starting from scratch benefits from clear requirements
+- **Cross-stack exploration** where you want portable specs that work across different implementations
+
+**Skip for:**
+- **One-file bug fixes** or trivial changes
+- **Exploratory prototypes** where you're just experimenting
+- **Solo "hack day" projects** where process overhead isn't worth it
+
+### Integration with MCP-enhanced workflows
+
+Spec-Kit acts as the **orchestration layer** that coordinates MCP capabilities and agent execution:
+
+```
+┌───────────────┐
+│  Spec-Kit   │  ← Process framework (artifacts, workflow)
+│ Constitution│
+│ Specify     │
+│ Plan        │
+│ Tasks       │
+└───────┬───────┘
+       │
+       ├─→ Research Phase (MCPs provide context)
+       │   ├─ Sourcegraph: Find all code touch points
+       │   ├─ Context7: Fetch latest API docs
+       │   ├─ Qdrant: Retrieve past architectural decisions
+       │   └─ Tavily: Research best practices
+       │
+       ├─→ Planning Phase (Agent + MCPs)
+       │   ├─ Use Fetch/Firecrawl for documentation
+       │   ├─ Use Semgrep to understand existing patterns
+       │   └─ Generate spec and plan artifacts
+       │
+       └─→ Execution Phase (Agent + MCPs)
+           ├─ Agent: Implement with auto-testing
+           ├─ Semgrep: Security validation
+           ├─ Git MCP: Structured commits
+           └─ Qdrant: Store decisions for future reference
+```
+
+### Example workflow: Auth service migration
+
+```bash
+# Phase 1: Constitution
+/speckit.constitution Zero downtime. Backward compatibility for 2 weeks. All endpoints <200ms p99. Security-first.
+
+# Phase 2: Research with MCPs
+# (Agent automatically uses Sourcegraph to find all auth calls, Context7 for Auth0 docs)
+/speckit.specify Migrate from custom JWT auth to Auth0. Support both auth methods during transition. Feature flag controls rollout.
+
+# Phase 3: Planning
+/speckit.plan Next.js middleware for Auth0. Feature flag in Redis. Dual auth validation for 2 weeks. Metrics for both paths.
+
+# Phase 4: Task breakdown
+/speckit.tasks
+
+# Phase 5: Review tasks, then execute
+/speckit.implement
+
+# Phase 6: Validation with Semgrep
+/semgrep scan src/auth/ for High/Critical issues. Fix all findings before merging.
+```
+
+### Supported agents (as of October 2025)
+
+**Fully supported:**
+
+- Claude Code CLI
+- GitHub Copilot
+- Gemini CLI
+- Codex CLI
+- Cursor
+- Qwen Code
+- opencode
+- Windsurf
+- Kilo Code
+- Auggie CLI
+- CodeBuddy CLI
+- Roo Code
+
+### Examples to try
+
+> "Run /speckit.constitution to define that all API endpoints must validate input with Zod, return structured errors, and have integration tests."
+<p></p>
+
+> "Use /speckit.specify to create a spec for adding rate limiting to our REST API with Redis-backed sliding window, configurable limits per endpoint, and admin override capability."
+<p></p>
+
+> "Run /speckit.plan after the spec is approved. Then use Sourcegraph to identify all API routes that need rate limiting middleware."
+<p></p>
+
+> "Generate tasks with /speckit.tasks, review them, then implement with /speckit.implement."
+<p></p>
+
+> "Use /speckit.clarify to resolve ambiguity in the caching strategy mentioned in the plan. Should we use write-through or write-behind?"
+<p></p>
+
+> "Run /speckit.analyze to check consistency between our 'performance first' constitution and the plan's proposed synchronous database calls."
+<p></p>
+
+> "Use /speckit.checklist with focus on security. Generate a checklist for validating our authentication implementation before production."
+<p></p>
+
+> **[Full workflow]** "Create a complete feature spec for webhook delivery system: `/speckit.constitution `(reliability, at-least-once semantics), /speckit.specify (retry logic, dead letter queue), /speckit.plan (architecture), /speckit.tasks (breakdown), then /speckit.implement."
+<p></p>
+
+### Caveats and evolution
+
+- **Active development:** Version 0.0.69 as of October 2025; rapid iteration with frequent releases
+- **Template updates:** Some agent profiles still catching up with latest features
+- **Slash command issues:** If commands misbehave, check [GitHub issues](https://github.com/github/spec-kit/issues) or re-run `specify init` to refresh templates
+- **Constitution overwriting:** Be cautious when re-initializing; the init command may overwrite existing constitution.md
+
 ---
-
-### One‑root vs Many‑roots (Filesystem)
-
-- **One root** (e.g., `~/Projects`): simplest — works across all repos inside that path.  
-  *Trade‑off:* broader access; rely on allow‑lists and human‑in‑the‑loop for safety.
-- **Many roots** (per‑repo `.`): most secure — each repo declares its own filesystem server in **project config**.  
-  *Trade‑off:* a bit more setup when creating a new repo.
-
-**Tip:** For monorepos, prefer **project config** at the workspace root and specify additional allow‑listed subpaths via server args if your filesystem server supports them.

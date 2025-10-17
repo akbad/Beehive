@@ -472,6 +472,31 @@ check_env_var() {
     return 0
 }
 
+# Install or update a Python package from git using uv tool
+install_or_update_pip_pkg_from_git() {
+    local git_url=$1
+    local package_name=$2
+
+    # Check if package is already installed
+    if uv tool list | grep -q "^$package_name "; then
+        log_info "$package_name is already installed. Updating to latest version..."
+        if uv tool install "$package_name" --force --from "git+$git_url"; then
+            log_success "$package_name updated successfully"
+        else
+            log_error "Failed to update $package_name"
+            return 1
+        fi
+    else
+        log_info "$package_name not found. Installing from $git_url..."
+        if uv tool install "$package_name" --from "git+$git_url"; then
+            log_success "$package_name installed successfully"
+        else
+            log_error "Failed to install $package_name from $git_url"
+            return 1
+        fi
+    fi
+}
+
 # --- CHECK DEPENDENCIES ---
 
 log_info "Checking dependencies..."
@@ -483,6 +508,9 @@ check_dependency "docker" "Please install Docker first: https://docs.docker.com/
     "docker found, will use for Qdrant container"
 
 log_success "Dependency check complete."
+
+log_info "Checking for optional tools..."
+install_or_update_pip_pkg_from_git "https://github.com/github/spec-kit.git" "specify-cli"
 
 log_info "Checking API keys..."
 

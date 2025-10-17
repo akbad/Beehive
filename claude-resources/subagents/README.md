@@ -38,9 +38,9 @@ This directory contains template files defining useful subagents to use with age
 
 - Can **invoke subagents explicitly:**
 
-    > ```
-    > Use the code-reviewer subagent to check my recent changes
-    > ```
+    ```
+    Use the code-reviewer subagent to check my recent changes
+    ```
 
     - Can also **chain subagents together** for complex workflows:
 
@@ -61,7 +61,6 @@ This directory contains template files defining useful subagents to use with age
 - Put policy gates (allow/ask/deny) in your `.claude/settings.json`, for example:
 
     ```json
-    {
     "permissions": {
         "allow": [
         "Bash(git diff:*)",
@@ -73,7 +72,6 @@ This directory contains template files defining useful subagents to use with age
         ]
     },
     "enableAllProjectMcpServers": true
-    }
     ```
 
 ## *Any* agentic coding CLI
@@ -97,7 +95,7 @@ Using the [`backend-architect`](from-cc-templates/backend-architect.md) role as 
 
 2. Add it as a role to each CLI's Zen config file's `roles`:
 
-    - **Codex CLI:**:
+    - **Codex CLI:**
 
         ```json
         // ~/.zen/cli_clients/codex.json
@@ -113,7 +111,7 @@ Using the [`backend-architect`](from-cc-templates/backend-architect.md) role as 
         }
         ```
     
-    - **Gemini CLI (`gemini.json`):**
+    - **Gemini CLI:**
         ```json
         // ~/.zen/cli_clients/gemini.json
 
@@ -136,4 +134,4 @@ Using the [`backend-architect`](from-cc-templates/backend-architect.md) role as 
 
     > Example prompt: `Use clink with cli_name="codex" role="backend-architect" prompt="Draft a scalable and maintainable architecture for the payment processing microservice."`
     > 
-    > This will spawn a subagent instance of codex (with its system prompt set to be the contents of `backend-architect.md`) that will perform the desired task and 
+    > This will spawn a subagent instance of codex (with its system prompt set to be the contents of `backend-architect.md`) that will perform the desired task and return the results to the original conversation in the agent that it was launched from.

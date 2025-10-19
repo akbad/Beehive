@@ -5,8 +5,9 @@
 # Prerequisites:
 #   Required:
 #       - Node.js (for npx)
-#       - uv/uvx (for Python packages)
+#       - uv/uvx (for Python packages - Python 3.12 recommended)
 #       - Docker (for Qdrant container)
+#       - Homebrew (for installing semgrep binary)
 #       - Context7 API key in $CONTEXT7_API_KEY
 #       - Tavily API key in $TAVILY_API_KEY
 #

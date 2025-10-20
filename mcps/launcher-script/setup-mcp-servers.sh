@@ -589,7 +589,7 @@ else
     # Create parent directory if it doesn't exist
     mkdir -p "$(dirname "$SOURCEGRAPH_REPO_PATH")"
 
-    if git clone https://github.com/divar-ir/sourcegraph-mcp "$SOURCEGRAPH_REPO_PATH"; then
+    if git clone -b fix/server-startup https://github.com/akbad/sourcegraph-mcp.git "$SOURCEGRAPH_REPO_PATH"; then
         log_success "Repository cloned successfully"
         SOURCEGRAPH_AVAILABLE=true
     else

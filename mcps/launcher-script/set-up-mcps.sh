@@ -821,7 +821,7 @@ if [[ "$CONTEXT7_AVAILABLE" == true || "$TAVILY_AVAILABLE" == true || "$FIRECRAW
     if [[ "$FIRECRAWL_AVAILABLE" == true ]]; then
         log_info "  • Firecrawl MCP: https://mcp.firecrawl.dev/<firecrawl-api-key>/v2/mcp"
         log_info "    └─ Claude & Codex: Configured via HTTP streamable transport"
-        log_info "    └─ Gemini: Uses local stdio launcher (env FIRECRAWL_API_KEY=... npx -y firecrawl-mcp)"
+        log_info "    └─ Gemini: Uses stdio with local proxy (env FIRECRAWL_API_KEY=... npx -y firecrawl-mcp)"
     fi
 
     log_empty_line

@@ -1,4 +1,4 @@
-# MCP a: how-tos and setup script ([scripts/set-up-mcp.sh](scripts/set-up-mcps.sh))
+# *MCP and CLI tools suite*: how-tos and [setup script](scripts/set-up-mcps.sh)
 
 ## What the script does
 
@@ -109,7 +109,7 @@ Most MCP servers are run as **client-managed `stdio` servers**:
 
 Some servers support being accessed remotely (being run either as a locally-running process or by an online service that you access with a URL + API key), which allows them to be reused by many agents.
 
-| Communication method (transport layer) w/ remote MCP servers | Use case | How it works |
+| Method of talking to remote MCP servers | Use case | How it works |
 | --- | --- | --- |
 | **HTTP** | Best for MCPs whose toolcalls are quick & synchronous | Run the server once, `mcp add` command provides the server's URL; client then initiates exchanges w/ server via HTTP |
 | **SSE *(deprecated in a lot of places, better to just always use HTTP)*** | Best for MCPs whose tools run for a long time, thus making progress updates useful; Agent CLI *and* MCP server **must support SSE** | Similar to `http`, except connection remains open instead of closing after each request. Client then stays listening, and server can "push" messages (via events) to the client whenever new data is available |

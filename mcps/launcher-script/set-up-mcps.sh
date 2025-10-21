@@ -145,10 +145,18 @@ log_error() {
     echo -e "${RED}[ERROR]${NC} $1"
 }
 
+log_empty_line() {
+    echo ""
+}
+
+log_divider_line() {
+    echo "--------------------"
+}
+
 log_separator() {
-    echo ""
-    echo "----------------"
-    echo ""
+    log_empty_line
+    log_divider_line
+    log_empty_line
 }
 
 # Check if a port is already in use
@@ -180,7 +188,7 @@ build_firecrawl_streamable_http_url() {
     local path="$FIRECRAWL_STREAMABLE_HTTP_PATH"
 
     if [[ -z "$api_key" ]]; then
-        echo ""
+        log_empty_line
         return 0
     fi
 
@@ -289,13 +297,13 @@ start_http_server() {
                 ;;
             died)
                 log_error "$server_name process died during startup (PID: $pid)"
-                echo ""
+                log_empty_line
                 log_error "Log file saved at: $log_file"
                 exit 1
                 ;;
             *)  # timeout - process still alive but port not open
                 log_error "$server_name did not open port $port within ${DEFAULT_TIMEOUT}s (process still running)"
-                echo ""
+                log_empty_line
                 log_error "Log file saved at: $log_file"
                 exit 1
                 ;;
@@ -387,7 +395,7 @@ add_http_mcp_to_agent() {
             echo "Adding $server as remote HTTP to Claude with the command:"
             local claude_cmd=(claude mcp add --transport http "$server" --scope user "$url" "${header_args[@]}")
             printf '  %q' "${claude_cmd[@]}"
-            echo ""
+            log_empty_line
             "${claude_cmd[@]}"
             ;;
         codex)
@@ -421,7 +429,7 @@ add_stdio_mcp_to_agent() {
             echo "Adding $server as local stdio to Claude with the command:"
             local claude_cmd=(claude mcp add --transport stdio "$server" --scope user -- "${cmd_args[@]}")
             printf '  %q' "${claude_cmd[@]}"
-            echo ""
+            log_empty_line
             "${claude_cmd[@]}"
             ;;
         codex)
@@ -580,7 +588,9 @@ brew install semgrep
 
 log_success "Dependency check complete."
 
-log_info "Checking for optional tools..."
+log_info "Checking/installing optional tools..."
+log_empty_line
+log_info "→ Installing/checking for update for GitHub Spec Kit CLI..."
 install_or_update_pip_pkg_from_git "https://github.com/github/spec-kit.git" "specify-cli"
 
 log_info "Checking API keys..."
@@ -773,9 +783,9 @@ fi
 #   Completion output
 # ============================================================================
 
-echo ""
+log_empty_line
 log_success "Setup complete."
-echo ""
+log_empty_line
 log_info "Local HTTP servers running:"
 log_info "  • Zen MCP (clink only): http://localhost:$ZEN_MCP_PORT/mcp/ (PID: $ZEN_PID)"
 log_info "  • Qdrant MCP: http://localhost:$QDRANT_MCP_PORT/mcp/ (PID: $QDRANT_PID)"
@@ -790,7 +800,7 @@ fi
 
 log_info "  • Semgrep MCP: http://localhost:$SEMGREP_MCP_PORT/mcp/ (PID: $SEMGREP_PID)"
 log_info "    └─ Static analysis and security scanning (5000+ rules)"
-echo ""
+log_empty_line
 
 # Only show remote servers section if at least one is configured
 if [[ "$CONTEXT7_AVAILABLE" == true || "$TAVILY_AVAILABLE" == true || "$FIRECRAWL_AVAILABLE" == true ]]; then
@@ -814,7 +824,7 @@ if [[ "$CONTEXT7_AVAILABLE" == true || "$TAVILY_AVAILABLE" == true || "$FIRECRAW
         log_info "    └─ Gemini: Uses local stdio launcher (env FIRECRAWL_API_KEY=... npx -y firecrawl-mcp)"
     fi
 
-    echo ""
+    log_empty_line
 fi
 
 log_info "Configured stdio servers:"
@@ -835,7 +845,7 @@ if [[ "$FIRECRAWL_AVAILABLE" == true ]]; then
     log_info "  • Firecrawl MCP (Gemini only)"
     log_info "    └─ Launches via env FIRECRAWL_API_KEY=... npx -y firecrawl-mcp"
 fi
-echo ""
+log_empty_line
 log_info "Logs:"
 log_info "  • Zen MCP: /tmp/mcp-Zen MCP-server.log"
 
@@ -849,25 +859,29 @@ if [[ "$SOURCEGRAPH_AVAILABLE" == true ]]; then
 fi
 
 log_info "  • Semgrep MCP: /tmp/mcp-Semgrep MCP-server.log"
-echo ""
+log_empty_line
 log_info "To verify setup:"
 log_info "  1. cd into a git repo"
 log_info "  2. Run 'gemini', 'claude', or 'codex'"
 log_info "  3. Type '/mcp' to see available tools"
-echo ""
+
+log_empty_line
 log_info "To stop local HTTP servers:"
 pidlist="$ZEN_PID $SEMGREP_PID"
 [[ "$QDRANT_AVAILABLE" == "true" ]] && pidlist+=" $QDRANT_PID"
 [[ "$SOURCEGRAPH_AVAILABLE" == "true" ]] && pidlist+=" $SOURCEGRAPH_PID"
 KILL_HTTPS_CMD="kill ${pidlist}"
 log_info "  $KILL_HTTPS_CMD"
-KILL_HTTPS_FILE="kill_local_http_mcps.sh"
-echo "$KILL_HTTPS_CMD" > "$KILL_HTTPS_FILE"
-log_info "  (also written to $KILL_HTTPS_FILE to allow conveniently stopping servers later)"
+TAKE_DOWN_FILE="take_down_mcps.sh"
+echo "$KILL_HTTPS_CMD" > "$TAKE_DOWN_FILE"
 
 
 if [[ "$QDRANT_AVAILABLE" == true ]]; then
-    echo ""
+    log_empty_line
+    QDRANT_STOP_CMD="docker stop qdrant"
     log_info "To stop Qdrant Docker container:"
-    log_info "  docker stop qdrant"
+    log_info "  $QDRANT_STOP_CMD"
 fi
+
+log_empty_line
+log_info "✔︎ Stop commands also saved to $RED $TAKE_DOWN_FILE $NC for convenience"

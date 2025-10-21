@@ -1,16 +1,16 @@
-# MCP setup script (`set-up-mcps.sh` and helpers)
+# MCP a: how-tos and setup script ([scripts/set-up-mcp.sh](scripts/set-up-mcps.sh))
 
-## What this script does
+## What the script does
 
-1. Sets up [these MCPs](#mcps-used) (including running some MCPs & Docker containers locally) 
-    
+1. Sets up a series of essential MCPs and CLI tools (including running some MCPs & Docker containers locally) 
+     
     > Uses ports **8780-8784** for the servers/containers it starts.
 
 2. Configures [these coding agent CLIs](#supported-coding-agents) to use them
 
 And other useful background stuff.
 
-### Tools set up by this script
+### Tools set up by the script
 
 See [`tools.md`](tools.md) for:
 

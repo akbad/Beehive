@@ -1,11 +1,9 @@
-# Tools set up by `set-up-mcps.sh` & how to use them
+# Tools set up by [`scripts/set-up-mcps.sh`](scripts/set-up-mcps.sh) & how to use them
 
-- **List:**
+- [**MCP servers**](#mcp-servers)
+- [**Non-MCP tools**](#non-mcp-tools)
 
-    - [**MCP servers**](#mcp-servers)
-    - [**Non-MCP tools**](#non-mcp-tools)
-
-- [**How to use each tool**](#how-to-use-each-tool-eg-in-prompts)
+**Full how-tos for each tool** can be found in `tool-descriptions/`
 
 ---
 
@@ -54,35 +52,3 @@ A few of these servers have redundant/duplicate roles. This is on purpose so we 
 | **[GitHub SpecKit](https://github.github.io/spec-kit/) *(amazing, your agents will never hallucinate or get distracted again)*** | Command-line tool | Enables **Spec-Driven Development** via `specify` CLI, which allows making detailed constitution/spec/plan/tasks for each project; agent-agnostic templates (Copilot/Claude/Gemini) |
 
 > There's a bit of a learning curve for getting to use GitHub SpecKit, but it's definitely worth it
-
-## How to use each tool (e.g. in prompts)
-
-### Sourcegraph MCP
-
-- Free tier used; thus searching covers **public repos only** (via Sourcegraph's [Public Code Search](https://sourcegraph.com/search))
-- Link to [**full guide to Sourcegraph's code search query syntax**](https://sourcegraph.com/docs/code-search/queries)
-
-**Tools this MCP server provides**
-
-| Tool | Description |
-| :--- | :---------- |
-| `search` | Search across codebases using Sourcegraph's advanced query syntax with support for regex, language filters, and boolean operators |
-| `search_prompt_guide` | Generate a context-aware guide for constructing effective search queries based on your specific objective |
-| `fetch_content` | Retrieve file contents or explore directory structures from repositories |
-
-### Qdrant MCP
-
-> **Scaling strategy for large collections/datasets of memories** 
-> 
-> 1. Pre-create the collection in Qdrant with on-disk vectors or on-disk HNSW to reduce RAM pressure
-> 2. Then, point the MCP to it (using `COLLECTION_NAME=...`). 
-> 
-> *(This is internal Qdrant DB tuning, independent of the Qdrant MCP server)*
-
-### GitHub SpecKit 
-
-**Guides/resources**
-
-- [Description: **Spec-Driven Development (SDD)**](https://github.com/github/spec-kit/blob/main/spec-driven.md)
-- [**Docs**](https://github.github.io/spec-kit/)
-- [**Repo README**](https://github.com/github/spec-kit)

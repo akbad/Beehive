@@ -21,13 +21,14 @@ A few of these servers have redundant/duplicate roles. This is on purpose so we 
 | **Sourcegraph MCP** | Basically **“Google for code”**: lets your agent search across repos (and branches) using powerful filters (regex, language, and file-path), then open the matching files/line ranges to pull the exact code snippets you're looking for. Also includes **guided search prompts**, so the agent can turn a natural request (e.g., “find all places we construct HttpClient with a 5s timeout”) into precise queries and iterate until it finds what you need. | Free tier used: search covers **public repos only**; covering private/org repos requires paid plans | HTTP with locally-run server (that talks to [Sourcegraph Public Code Search](https://sourcegraph.com/search)) |
 | **Tavily MCP** | Handles searching, extracting, mapping and crawling the web, with citations | HTTP with Tavily's cloud-hosted server | Free version used: gives 1000 API credits/month (resets on 1st of month); *[click to see amount of credits used for each request type](https://docs.tavily.com/documentation/api-credits#api-credits-costs)* | 
 
-> Important: **the *Fetch* MCP does not support fetching from the GitHub website** (e.g. to look up API-/code-related info about public repos) 
+> Important: **the *Fetch* MCP does not support fetching directly from the GitHub website** (e.g. to look up API-/code-related info about public repos) 
 > 
 > Instead, tell the agent to use one of these solutions, depending on what you need from GitHub: 
 > 
 > 1. Use `gh` CLI 
-> 2. Use Sourcegraph MCP
-> 3. Clone repos locally and use Git MCP to go through them**
+> 2. Use the Fetch MCP to fetch from `https://raw.githubusercontent.com/<path>`, where `<path>` is usually something like `<user/org>/<repo>/<dir>/<file>`
+> 3. Use Sourcegraph MCP
+> 4. Clone repos locally and use Git MCP to go through them**
 
 ### MCP memory servers
 

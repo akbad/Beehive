@@ -82,13 +82,12 @@ So
 - `-a gc` sets up only Claude Code and Gemini to use the MCPs
 - `-a cgx` = same as default, set up for all 3
 
-## MCPs set up by this script
+## What this script sets up
 
-| Server | Functionality | How it's run/used | Restrictions |
-| :----- | :------------ | :------------ | :----------- |
-| Zen *(`clink` only)* | 
+See [`tools.md`](tools.md) for:
 
-## Non-MCP tools set up by this script
+- full list of tools set up/made available by the script
+- how to use them (e.g. when writing prompts)
 
 ## Useful background info 
 

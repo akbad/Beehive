@@ -150,13 +150,13 @@ while [[ $# -gt 0 ]]; do
         AGENT_STRING="$2"
 
         if [[ $AGENT_STRING == *c* ]]; then
-            AGENTS+=("claude")
+            AGENTS+=("Claude Code")
         fi
         if [[ $AGENT_STRING == *g* ]]; then
-            AGENTS+=("gemini")
+            AGENTS+=("Gemini CLI")
         fi
         if [[ $AGENT_STRING == *x* ]]; then
-            AGENTS+=("codex")
+            AGENTS+=("Codex CLI")
         fi
         ;;
 
@@ -177,7 +177,7 @@ while [[ $# -gt 0 ]]; do
 done
 
 if [[ ${#AGENTS[@]} == 0 ]]; then 
-    AGENTS=("codex" "claude" "gemini")
+    AGENTS=("Codex CLI" "Claude Code" "Gemini CLI")
 fi
 
 # --- HELPERS ---
@@ -523,7 +523,7 @@ setup_http_mcp() {
 
     for agent in "${AGENTS[@]}"; do
         # No Codex CLI command for HTTP servers; must use config file
-        if [[ "$agent" == "codex" ]] || command -v "$agent" &> /dev/null; then
+        if [[ "$agent" == "Codex CLI" ]] || command -v "$agent" &> /dev/null; then
             log_info "Configuring $agent..."
             (add_http_mcp_to_agent "$agent" "$server" "$url" "${headers[@]}" && log_success "$agent configured") || log_warning "Already exists"
         else
@@ -541,7 +541,7 @@ setup_stdio_mcp() {
     log_info "Setting up $server (stdio - per-agent)..."
 
     for agent in "${AGENTS[@]}"; do
-        if [[ "$agent" == "codex" ]] || command -v "$agent" &> /dev/null; then
+        if [[ "$agent" == "Codex CLI" ]] || command -v "$agent" &> /dev/null; then
             log_info "Configuring $agent..."
             (add_stdio_mcp_to_agent "$agent" "$server" "${cmd_args[@]}" && log_success "$agent configured") || log_warning "Already exists"
         else
@@ -922,17 +922,17 @@ if [[ "$FIRECRAWL_AVAILABLE" == true ]]; then
         log_warning "Firecrawl API key missing; skipping Firecrawl HTTP configuration."
     else
         log_info "Configuring Claude Code to use Firecrawl MCP (HTTP - remote streamable)..."
-        if add_http_mcp_to_agent "claude" "firecrawl" "$firecrawl_http_url"; then
+        if add_http_mcp_to_agent "Claude Code" "firecrawl" "$firecrawl_http_url"; then
             log_success "Claude Code configured"
         fi
 
         log_info "Configuring Codex to use Firecrawl MCP (HTTP - remote streamable)..."
-        if add_http_mcp_to_agent "codex" "firecrawl" "$firecrawl_http_url"; then
+        if add_http_mcp_to_agent "Codex CLI" "firecrawl" "$firecrawl_http_url"; then
             log_success "Codex CLI configured"
         fi
 
         log_info "Configuring Gemini to use Firecrawl MCP (stdio - local launcher)..."
-        if add_stdio_mcp_to_agent "gemini" "firecrawl" "env" "FIRECRAWL_API_KEY=$FIRECRAWL_API_KEY" "npx" "-y" "firecrawl-mcp"; then
+        if add_stdio_mcp_to_agent "Gemini CLI" "firecrawl" "env" "FIRECRAWL_API_KEY=$FIRECRAWL_API_KEY" "npx" "-y" "firecrawl-mcp"; then
             log_success "Gemini CLI configured"
         fi
     fi
@@ -981,7 +981,7 @@ fi
 if [[ "$CONTEXT7_AVAILABLE" == true ]]; then
     log_separator
     log_info "Configuring Codex to use Context7 MCP (stdio)..."
-    add_stdio_mcp_to_agent "codex" "context7" "npx" "-y" "@upstash/context7-mcp" "--api-key" "\$CONTEXT7_API_KEY"
+    add_stdio_mcp_to_agent "Codex CLI" "context7" "npx" "-y" "@upstash/context7-mcp" "--api-key" "\$CONTEXT7_API_KEY"
 fi
 
 # ============================================================================

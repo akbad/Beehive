@@ -46,12 +46,14 @@
 #      - Context7 MCP (remote Upstash server, always-fresh API docs)
 #      - Tavily MCP (remote Tavily server, web search/extract/map/crawl)
 #      - Firecrawl MCP (remote Firecrawl server, web scraping and crawling)
+#      - Exa MCP (remote Exa server, neural search optimized for AI agents)
 #  2. Sets up the following MCP servers in stdio mode
 #     (i.e. each agent runs its own server)
 #      - Filesystem MCP (necessary since only supports stdio transport)
 #      - Fetch MCP (necessary since only supports stdio transport)
 #      - Git MCP (necessary since needs to run specifically within *one* Git repo)
 #      - Memory MCP (knowledge graph for persistent structured memory)
+#      - Brave Search MCP (privacy-focused web search)
 #  3. Connects coding agent CLI clients:
 #      - Gemini CLI
 #      - Claude Code
@@ -89,7 +91,9 @@ export SOURCEGRAPH_ENDPOINT="https://sourcegraph.com"
 export CONTEXT7_URL="https://mcp.context7.com/mcp"
 export TAVILY_URL="https://mcp.tavily.com/mcp/?tavilyApiKey=\${TAVILY_API_KEY}"
 export FIRECRAWL_BASE_URL="https://mcp.firecrawl.dev"
-export FIRECRAWL_STREAMABLE_HTTP_PATH="/v2/mcp"
+export FIRECRAWL_HTTP_PATH="v2/mcp"
+export EXA_BASE_URL="https://mcp.exa.ai"
+export EXA_HTTP_PATH_AND_PARAMS="mcp?exaApiKey="
 
 # Zen MCP: disable all tools except clink (since they need an API key)
 export ZEN_CLINK_DISABLED_TOOLS='analyze,apilookup,challenge,chat,codereview,consensus,debug,docgen,planner,precommit,refactor,secaudit,testgen,thinkdeep,tracer'
@@ -154,7 +158,6 @@ while [[ $# -gt 0 ]]; do
         if [[ $AGENT_STRING == *x* ]]; then
             AGENTS+=("codex")
         fi
-
         ;;
 
         -h|--help)
@@ -229,24 +232,40 @@ kill_port() {
     fi
 }
 
-# Build the Firecrawl streamable HTTP URL with the API key embedded in the path.
+# Build a streamable HTTP URL for cloud-hosted MCP servers with API key authentication.
+# Supports different URL patterns:
+#   - Firecrawl: API key embedded in path (base/api_key/path)
+#   - Exa: API key as query parameter (base/path?exaApiKey=api_key)
 # Returns an empty string if no API key is provided so callers can detect the issue
 # without the script exiting (since set -e is enabled globally).
-build_firecrawl_streamable_http_url() {
-    local api_key=$1
-    local base="${FIRECRAWL_BASE_URL%/}"
-    local path="$FIRECRAWL_STREAMABLE_HTTP_PATH"
+#
+# Usage: build_mcp_http_url <service> <api_key>
+#   service: "firecrawl" or "exa"
+#   api_key: The API key to embed in the URL
+build_mcp_http_url() {
+    local service=$1
+    local api_key=$2
+    local url
 
     if [[ -z "$api_key" ]]; then
         log_empty_line
         return 0
     fi
 
-    if [[ "${path:0:1}" != "/" ]]; then
-        path="/$path"
-    fi
+    case "$service" in
+        firecrawl)
+            url="${FIRECRAWL_BASE_URL%/}/$api_key/$FIRECRAWL_HTTP_PATH"
+            ;;
+        exa)
+            url="${EXA_BASE_URL}/${EXA_HTTP_PATH_AND_PARAMS}$api_key"
+            ;;
+        *)
+            log_error "Unknown service: $service"
+            return 1
+            ;;
+    esac
 
-    echo "$base/$api_key$path"
+    echo "$url"
 }
 
 # Start Qdrant Docker container idempotently
@@ -365,9 +384,11 @@ start_http_server() {
 }
 
 # Add or update Gemini MCP entry (supports HTTP and stdio transports)
-add_to_gemini_json() {
+add_mcp_to_gemini() {
     local transport=$1
     local server_name=$2
+
+    # shift past the args so that the remaining ones can be passed to the script at the end of the function
     shift 2
 
     mkdir -p "$HOME/.gemini"
@@ -382,11 +403,11 @@ add_to_gemini_json() {
         return 0
     fi
 
-    python3 "$SCRIPT_DIR/add_to_gemini_json.py" "$transport" "$server_name" "$GEMINI_CONFIG" "$@"
+    python3 "$SCRIPT_DIR/add_mcp_to_gemini.py" "$transport" "$server_name" "$GEMINI_CONFIG" "$@"
 }
 
 # Add server to Codex config file
-add_to_codex() {
+add_mcp_to_codex() {
     local server_name=$1
     local transport=$2
     shift 2
@@ -429,7 +450,7 @@ add_http_mcp_to_agent() {
     case $agent in
         gemini)
             # Use direct JSON manipulation to add server with headers
-            add_to_gemini_json "http" "$server" "$url" "${headers[@]}"
+            add_mcp_to_gemini "http" "$server" "$url" "${headers[@]}"
             ;;
         claude)
             # Check user scope config directory for existing server
@@ -457,7 +478,7 @@ add_http_mcp_to_agent() {
             if [[ ${#headers[@]} -gt 0 ]]; then
                 return 1  # Cannot configure - headers not supported
             fi
-            add_to_codex "$server" "http" "$url"
+            add_mcp_to_codex "$server" "http" "$url"
             ;;
     esac
 }
@@ -471,7 +492,7 @@ add_stdio_mcp_to_agent() {
 
     case $agent in
         gemini)
-            add_to_gemini_json "stdio" "$server" "${cmd_args[@]}"
+            add_mcp_to_gemini "stdio" "$server" "${cmd_args[@]}"
             ;;
         claude)
             # Check user scope config directory for existing server
@@ -486,7 +507,7 @@ add_stdio_mcp_to_agent() {
             "${claude_cmd[@]}"
             ;;
         codex)
-            add_to_codex "$server" "stdio" "${cmd_args[@]}"
+            add_mcp_to_codex "$server" "stdio" "${cmd_args[@]}"
             ;;
     esac
 }
@@ -669,19 +690,21 @@ configure_auto_approve() {
     local mcp_servers=()
     mcp_servers+=("zen" "qdrant" "semgrep" "fs" "fetch" "git" "memory")
 
-    # Add conditional servers
+    # Add the other servers if they're available
     [[ "$SOURCEGRAPH_AVAILABLE" == true ]] && mcp_servers+=("sourcegraph")
     [[ "$SERENA_AVAILABLE" == true ]] && mcp_servers+=("serena")
     [[ "$CONTEXT7_AVAILABLE" == true ]] && mcp_servers+=("context7")
     [[ "$TAVILY_AVAILABLE" == true ]] && mcp_servers+=("tavily")
     [[ "$FIRECRAWL_AVAILABLE" == true ]] && mcp_servers+=("firecrawl")
+    [[ "$BRAVE_AVAILABLE" == true ]] && mcp_servers+=("brave")
+    [[ "$EXA_AVAILABLE" == true ]] && mcp_servers+=("exa")
 
     # Configure each agent
     for agent in "${AGENTS[@]}"; do
         case "$agent" in
             claude)
                 log_info "→ Configuring Claude Code..."
-                if python3 "$SCRIPT_DIR/update_claude_settings.py" "$CLAUDE_SETTINGS"; then
+                if python3 "$SCRIPT_DIR/add-claude-auto-approvals.py" "$CLAUDE_SETTINGS"; then
                     log_success "  Claude Code settings updated"
                 else
                     log_error "  Failed to update Claude Code settings"
@@ -689,7 +712,7 @@ configure_auto_approve() {
                 ;;
             codex)
                 log_info "→ Configuring Codex..."
-                if python3 "$SCRIPT_DIR/update_codex_config.py" "$CODEX_CONFIG"; then
+                if python3 "$SCRIPT_DIR/add-codex-auto-approvals.py" "$CODEX_CONFIG"; then
                     log_success "  Codex config updated"
                 else
                     log_error "  Failed to update Codex config"
@@ -697,7 +720,7 @@ configure_auto_approve() {
                 ;;
             gemini)
                 log_info "→ Configuring Gemini..."
-                if python3 "$SCRIPT_DIR/update_gemini_settings.py" "$GEMINI_CONFIG" "${mcp_servers[@]}"; then
+                if python3 "$SCRIPT_DIR/add-gemini-auto-approvals.py" "$GEMINI_CONFIG" "${mcp_servers[@]}"; then
                     log_success "  Gemini settings updated"
                 else
                     log_error "  Failed to update Gemini settings"
@@ -738,10 +761,11 @@ install_or_update_pip_pkg_from_git "https://github.com/github/spec-kit.git" "spe
 
 log_info "Checking API keys..."
 
-QDRANT_AVAILABLE=true
 CONTEXT7_AVAILABLE=false
 TAVILY_AVAILABLE=false
 FIRECRAWL_AVAILABLE=false
+BRAVE_AVAILABLE=false
+EXA_AVAILABLE=false
 SOURCEGRAPH_AVAILABLE=false
 
 if check_env_var "CONTEXT7_API_KEY" "Context7 MCP will not work. Get a key at https://console.upstash.com/"; then
@@ -756,16 +780,17 @@ if check_env_var "FIRECRAWL_API_KEY" "Firecrawl MCP will not work. Get a key at 
     FIRECRAWL_AVAILABLE=true
 fi
 
-log_success "API key check complete."
-
-# Configure MCP auto-approvals if requested
-if [[ "$AUTO_APPROVE_MCP" == true ]]; then
-    log_separator
-    configure_auto_approve
+if check_env_var "BRAVE_API_KEY" "Brave Search MCP will not work. Get a key at https://brave.com/search/api/"; then
+    BRAVE_AVAILABLE=true
 fi
 
+if check_env_var "EXA_API_KEY" "Exa MCP will not work. Get a key at https://exa.ai/"; then
+    EXA_AVAILABLE=true
+fi
+
+log_success "API key check complete."
+
 # Check if Sourcegraph MCP repo is available (must be cloned from GitHub)
-SOURCEGRAPH_AVAILABLE=false
 if ensure_git_repo_cloned "Sourcegraph MCP" "https://github.com/akbad/sourcegraph-mcp.git" "$SOURCEGRAPH_REPO_PATH" "fix/server-startup"; then
     SOURCEGRAPH_AVAILABLE=true
 fi
@@ -892,7 +917,7 @@ fi
 
 if [[ "$FIRECRAWL_AVAILABLE" == true ]]; then
     log_separator
-    firecrawl_http_url="$(build_firecrawl_streamable_http_url "$FIRECRAWL_API_KEY")"
+    firecrawl_http_url="$(build_mcp_http_url "firecrawl" "$FIRECRAWL_API_KEY")"
     if [[ -z "$firecrawl_http_url" ]]; then
         log_warning "Firecrawl API key missing; skipping Firecrawl HTTP configuration."
     else
@@ -910,6 +935,17 @@ if [[ "$FIRECRAWL_AVAILABLE" == true ]]; then
         if add_stdio_mcp_to_agent "gemini" "firecrawl" "env" "FIRECRAWL_API_KEY=$FIRECRAWL_API_KEY" "npx" "-y" "firecrawl-mcp"; then
             log_success "Gemini CLI configured"
         fi
+    fi
+fi
+
+if [[ "$EXA_AVAILABLE" == true ]]; then
+    log_separator
+    exa_http_url="$(build_mcp_http_url "exa" "$EXA_API_KEY")"
+    if [[ -z "$exa_http_url" ]]; then
+        log_warning "Exa API key missing; skipping Exa HTTP configuration."
+    else
+        log_info "Configuring all agents to use Exa MCP (HTTP - remote)..."
+        setup_http_mcp "exa" "$exa_http_url"
     fi
 fi
 
@@ -935,6 +971,12 @@ setup_stdio_mcp "git" "uvx" "mcp-server-git" "--repository" "."
 log_separator
 log_info "Configuring agents to use Memory MCP (stdio)..."
 setup_stdio_mcp "memory" "npx" "-y" "@modelcontextprotocol/server-memory"
+
+if [[ "$BRAVE_AVAILABLE" == true ]]; then
+    log_separator
+    log_info "Configuring agents to use Brave Search MCP (stdio)..."
+    setup_stdio_mcp "brave" "env" "BRAVE_API_KEY=$BRAVE_API_KEY" "npx" "-y" "@brave/brave-search-mcp-server" "--transport" "stdio"
+fi
 
 if [[ "$CONTEXT7_AVAILABLE" == true ]]; then
     log_separator
@@ -994,6 +1036,11 @@ if [[ "$CONTEXT7_AVAILABLE" == true || "$TAVILY_AVAILABLE" == true || "$FIRECRAW
         log_info "    └─ Gemini: Uses stdio with local proxy (env FIRECRAWL_API_KEY=... npx -y firecrawl-mcp)"
     fi
 
+    if [[ "$EXA_AVAILABLE" == true ]]; then
+        log_info "  • Exa MCP: https://mcp.exa.ai/mcp?exaApiKey=<exa-api-key>"
+        log_info "    └─ All agents: Neural search optimized for AI agents (\$10 free credits)"
+    fi
+
     log_empty_line
 fi
 
@@ -1007,6 +1054,11 @@ log_info "  • Git MCP (all agents)"
 log_info "    └─ Uses current directory when agent is launched"
 log_info "  • Memory MCP (all agents)"
 log_info "    └─ Knowledge graph for persistent structured memory (entities, relations, observations)"
+
+if [[ "$BRAVE_AVAILABLE" == true ]]; then
+    log_info "  • Brave Search MCP (all agents)"
+    log_info "    └─ Privacy-focused web search (2,000 queries/month free)"
+fi
 
 if [[ "$CONTEXT7_AVAILABLE" == true ]]; then
     log_info "  • Context7 MCP (Codex only)"
@@ -1046,8 +1098,6 @@ pidlist="$ZEN_PID $SEMGREP_PID $QDRANT_PID"
 [[ "$SERENA_AVAILABLE" == "true" ]] && pidlist+=" $SERENA_PID"
 KILL_HTTPS_CMD="kill ${pidlist}"
 log_info "  $KILL_HTTPS_CMD"
-TAKE_DOWN_FILE="take_down_mcps.sh"
-echo "$KILL_HTTPS_CMD" > "$TAKE_DOWN_FILE"
 
 log_empty_line
 QDRANT_STOP_CMD="docker stop qdrant"
@@ -1055,6 +1105,8 @@ log_info "To stop Qdrant Docker container:"
 log_info "  $QDRANT_STOP_CMD"
 
 log_empty_line
+TAKE_DOWN_FILE="take_down_mcps.sh"
+echo "$KILL_HTTPS_CMD; $QDRANT_STOP_CMD" > "$TAKE_DOWN_FILE"
 log_info "✔︎ Stop commands also saved to $RED $TAKE_DOWN_FILE $NC for convenience"
 
 if [[ "$AUTO_APPROVE_MCP" == true ]]; then

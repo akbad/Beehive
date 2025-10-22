@@ -3,7 +3,7 @@
 Helper script to update Claude Code settings.json with MCP auto-approval configuration.
 
 Usage:
-    python3 update_claude_settings.py <settings_file_path>
+    python3 add-claude-auto-approvals.py <settings_file_path>
 
 This script:
 1. Creates the settings file if it doesn't exist
@@ -11,9 +11,8 @@ This script:
 3. Preserves existing settings
 """
 
-import json
 import sys
-from pathlib import Path
+from config_utils import load_json_config, save_json_config
 
 
 def update_claude_settings(settings_path: str) -> None:
@@ -23,23 +22,8 @@ def update_claude_settings(settings_path: str) -> None:
     Args:
         settings_path: Path to the settings.json file
     """
-    settings_file = Path(settings_path).expanduser()
-
-    # Create parent directory if it doesn't exist
-    settings_file.parent.mkdir(parents=True, exist_ok=True)
-
-    # Read existing settings or start with empty dict
-    if settings_file.exists():
-        try:
-            with open(settings_file, 'r') as f:
-                settings = json.load(f)
-        except json.JSONDecodeError:
-            print(f"Warning: {settings_file} contains invalid JSON. Creating backup and starting fresh.")
-            backup_path = settings_file.with_suffix('.json.backup')
-            settings_file.rename(backup_path)
-            settings = {}
-    else:
-        settings = {}
+    # Load existing settings or start with empty dict
+    settings = load_json_config(settings_path, default={})
 
     # Ensure permissions structure exists
     if 'permissions' not in settings:
@@ -64,11 +48,8 @@ def update_claude_settings(settings_path: str) -> None:
         print(f"'enableAllProjectMcpServers' already set to: {settings['enableAllProjectMcpServers']}")
 
     # Write updated settings
-    with open(settings_file, 'w') as f:
-        json.dump(settings, f, indent=2)
-        f.write('\n')  # Add trailing newline
-
-    print(f"Successfully updated {settings_file}")
+    save_json_config(settings_path, settings)
+    print(f"Successfully updated {settings_path}")
 
 
 if __name__ == '__main__':

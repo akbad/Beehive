@@ -3,12 +3,11 @@
 Helper script to update Gemini settings.json with auto-approved MCP tools.
 
 Usage:
-    python3 update_gemini_settings.py <settings_file_path> <tool1> [tool2] [tool3] ...
+    python3 add-gemini-auto-approvals.py <settings_file_path> <tool1> [tool2] [tool3] ...
 """
 
-import json
 import sys
-from pathlib import Path
+from config_utils import load_json_config, save_json_config
 
 
 def update_gemini_settings(settings_path: str, tools: list[str]) -> None:
@@ -19,23 +18,8 @@ def update_gemini_settings(settings_path: str, tools: list[str]) -> None:
         settings_path: Path to the settings.json file
         tools: List of tool names to auto-approve
     """
-    settings_file = Path(settings_path).expanduser()
-
-    # Create parent directory if it doesn't exist
-    settings_file.parent.mkdir(parents=True, exist_ok=True)
-
-    # Read existing settings or start with empty dict
-    if settings_file.exists():
-        try:
-            with open(settings_file, 'r') as f:
-                settings = json.load(f)
-        except json.JSONDecodeError:
-            print(f"Warning: {settings_file} contains invalid JSON. Creating backup and starting fresh.")
-            backup_path = settings_file.with_suffix('.json.backup')
-            settings_file.rename(backup_path)
-            settings = {}
-    else:
-        settings = {}
+    # Load existing settings or start with empty dict
+    settings = load_json_config(settings_path, default={})
 
     # Ensure autoApprovedTools array exists
     if 'autoApprovedTools' not in settings:
@@ -59,11 +43,8 @@ def update_gemini_settings(settings_path: str, tools: list[str]) -> None:
     print(f"Auto-approved tools: {', '.join(settings['autoApprovedTools'])}")
 
     # Write updated settings
-    with open(settings_file, 'w') as f:
-        json.dump(settings, f, indent=2)
-        f.write('\n')  # Add trailing newline
-
-    print(f"Successfully updated {settings_file}")
+    save_json_config(settings_path, settings)
+    print(f"Successfully updated {settings_path}")
 
 
 if __name__ == '__main__':

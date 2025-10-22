@@ -3,7 +3,7 @@
 Helper script to update Codex config.toml with auto-approval settings.
 
 Usage:
-    python3 update_codex_config.py <config_file_path>
+    python3 add-codex-auto-approvals.py <config_file_path>
 """
 
 import sys
@@ -109,7 +109,7 @@ def update_codex_config(config_path: str) -> None:
 
 if __name__ == '__main__':
     if len(sys.argv) != 2:
-        print("Usage: python3 update_codex_config.py <config_file_path>")
+        print("Usage: python3 add-codex-auto-approvals.py <config_file_path>")
         sys.exit(1)
 
     config_path = sys.argv[1]

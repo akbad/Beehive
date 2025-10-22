@@ -25,8 +25,6 @@
 - Form submission automation
 - Visual regression testing
 
-
-
 ## Docker MCP
 
 **Package**: `docker-mcp`
@@ -49,8 +47,6 @@
 - Spin up/down Docker Compose services inside automation flows
 - Tail container logs or fetch health metrics during debugging
 - Provision short-lived integration environments without leaving the agent
-
-
 
 ## OpenAPI MCP server
 
@@ -76,78 +72,46 @@
 - Audit partner APIs for missing endpoints or incompatible versions
 
 
+## SQLite Explorer MCP (FastMCP)
 
-## SQLite MCP (Official)
+**Package**: `sqlite-explorer-fastmcp-mcp-server` (community-maintained)
 
-**Package**: `@modelcontextprotocol/server-sqlite`
+**Repository**: https://github.com/hannesrudolph/sqlite-explorer-fastmcp-mcp-server
 
-**Purpose**: Local relational database operations and data analysis
+**Purpose**: Safe, read-only SQLite database exploration and analysis
 
 **Why add it**:
+- Actively maintained community alternative (official server was archived)
+- Read-only access provides enhanced security (no accidental data modification)
+- Built with modern FastMCP framework for reliability
+- Query validation and sanitization built-in
 - Analyze local databases without cloud services
-- Perfect for prototyping, local data storage, structured queries
 - Complements Qdrant (which handles vectors, not relational data)
 - Zero dependencies - just filesystem-based database
-- Official Anthropic implementation
+- Perfect for data analysis, prototyping, and structured queries
 
-**How it's run**: Stdio with private client-managed instance
+**How it's run**: Stdio with private client-managed instance (Python-based)
 
 **Free tier**: Completely free (local SQLite files)
 
-**Install**: `npx @modelcontextprotocol/server-sqlite --db-path /path/to/database.db`
+**Install**:
+```bash
+# Clone repository
+git clone https://github.com/hannesrudolph/sqlite-explorer-fastmcp-mcp-server.git
+
+# Run with uv
+SQLITE_DB_PATH=/path/to/database.db uvx --from fastmcp run /path/to/sqlite_explorer.py
+```
 
 **Use cases**:
 - Local data analysis and reporting
 - Structured storage for agent-generated data
 - Rapid prototyping with relational data
 - Single-user app backends
+- Database schema inspection and exploration
 
-
-
-## Brave Search MCP
-
-**Package**: Community implementations available (search for `brave-search-mcp`)
-
-**Purpose**: Privacy-focused alternative search engine with generous free tier
-
-**Why add it**:
-- Diversifies search sources (not reliant on single provider)
-- More generous free tier than Tavily (2,000 queries/month vs 1,000)
-- Privacy-respecting (no Google tracking)
-- Good fallback when other search APIs hit rate limits
-
-**How it's run**: Stdio or HTTP depending on implementation
-
-**Free tier**: Brave Search API provides 2,000 queries/month free
-
-**Restrictions**: Requires Brave Search API key (free to obtain)
-
-**Use cases**:
-- Search redundancy and failover
-- Privacy-conscious searching
-- Higher query volume needs
-
-
-
-## EXA Search MCP
-
-**Package**: Community implementations available (search for `exa-mcp` or `exa-search`)
-
-**Purpose**: Neural search engine optimized specifically for LLMs and AI agents
-
-**Why add it**:
-- Designed from the ground up for AI/LLM workflows
-- Better semantic understanding than traditional keyword search
-- Returns content formatted for AI consumption
-- Complements Tavily's general-purpose search with AI-native approach
-- Superior for research and knowledge discovery
-
-**How it's run**: Stdio or HTTP depending on implementation
-
-**Free tier**: 1,000 searches/month free
-
-**Restrictions**: Requires EXA API key (free tier available)
-
-**Key difference from Tavily**:
-- Tavily = general web search with citations
-- EXA = neural search optimized for AI agents, finds contextually relevant content
+**Safety features**:
+- Read-only access (no writes/deletes)
+- Automatic query validation
+- Parameter binding for SQL injection prevention
+- Row limit enforcement

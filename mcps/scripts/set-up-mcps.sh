@@ -406,11 +406,13 @@ add_mcp_to_gemini() {
     fi
 
     # Check if server already exists
-    if grep -q "\"$server_name\"" "$GEMINI_CONFIG" 2>/dev/null; then
+    # IMPORTANT: must check for `\"$server_name\": {`  since the string \"$server_name\" 
+    #            may already exist in the `autoApprovedTools` array
+    if grep -q "\"$server_name\": {" "$GEMINI_CONFIG" 2>/dev/null; then
         return 1
     fi
 
-    python3 "$SCRIPT_DIR/add_mcp_to_gemini.py" "$transport" "$server_name" "$GEMINI_CONFIG" "$@"
+    python3 "$SCRIPT_DIR/add-mcp-to-gemini.py" "$transport" "$server_name" "$GEMINI_CONFIG" "$@"
 }
 
 # Add server to Codex config file

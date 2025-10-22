@@ -208,8 +208,6 @@ build_firecrawl_streamable_http_url() {
 # Start Qdrant Docker container idempotently
 start_qdrant_docker() {
     local container_name="qdrant"
-    local port=$QDRANT_PORT
-    local data_dir=$QDRANT_DATA_DIR
 
     # Check if container exists and is running
     if docker ps --format '{{.Names}}' | grep -q "^${container_name}$"; then
@@ -227,18 +225,23 @@ start_qdrant_docker() {
     fi
 
     # Create data directory if it doesn't exist
-    mkdir -p "$data_dir"
+    mkdir -p "$QDRANT_DATA_DIR"
 
     # Start new container
     log_info "Creating and starting Qdrant container..."
+
+    # mappings:
+    # - uses port $QDRANT_DB_PORT on host machine, 6333 within container
+    # - maps the directory $QDRANT_DATA_DIR on host machine to `/qdrant/directory` 
+    #   in the container's filesystem
     docker run -d \
         --name "$container_name" \
-        -p "$port:6333" \
-        -v "$data_dir:/qdrant/storage" \
+        -p "$QDRANT_DB_PORT:6333" \
+        -v "$QDRANT_DATA_DIR:/qdrant/storage" \
         qdrant/qdrant >/dev/null
 
     sleep 2
-    log_success "Qdrant container started on port $port"
+    log_success "Qdrant container started on port $QDRANT_DB_PORT"
 }
 
 # Start HTTP server idempotently (returns PID via variable name passed as arg)

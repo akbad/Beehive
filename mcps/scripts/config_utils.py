@@ -9,7 +9,7 @@ managing JSON configuration files with proper error handling.
 import json
 import os
 from pathlib import Path
-from typing import Any, Optional
+from typing import Optional
 
 
 def ensure_parent_dir(file_path: Path) -> None:

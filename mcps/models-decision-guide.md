@@ -154,4 +154,56 @@
     4. budget-constrained projects
 - Haiku 4.5
 - Sonnet 4.5
+    
+    - **Top-tier for**: Agentic coding and multi-step computer use; long-running agents that coordinate multiple tools; complex planning/design with explicit trade-offs; research/synthesis across many sources
+        
+        - Highlights: 200K context window; up to 64K output tokens; state-of-the-art coding and computer-use benchmarks (e.g., strong SWE‑bench Verified and OSWorld results); advanced tool coordination and context management
+    
+    - Extended thinking modes
+        - Off (default): near‑instant responses; concise, direct style; ideal for interactive editing, reviews, quick fixes, short-form planning
+        - On (extended thinking): step‑by‑step visible reasoning; better accuracy on long‑horizon, multi‑step coding, and complex research/analysis; higher latency and token usage; streamed thinking can arrive in “chunky” bursts; budget control recommended
+    
+    - **Excellent for**:
+        
+        | Use case | Why |
+        |----------|-----|
+        | Agentic coding & refactors | Strong planning + edit accuracy; coordinates parallel tool calls; maintains coherence across large, long-running tasks |
+        | Computer use & browser automation | Leads on computer-use tasks; reliable multi-step flows (procurement, onboarding, competitive analysis) with high tool success |
+        | Architecture & system design | Concise, trade-off aware proposals; keeps state across sessions; extended thinking improves depth and justification |
+        | Security & incident response | Strong at proactive fixes, runbooks, and vulnerability remediation when paired with tools; benefits from extended thinking for RCA |
+        | Research & synthesis | Pulls from multiple sources, summarizes with clear rationale; visible thinking improves traceability and review |
+        | Financial analysis & reporting | Handles complex analysis pipelines and long-form outputs; extended thinking improves correctness and auditability |
+    
+    - **Good for**:
+        
+        | Use case | Why |
+        |----------|-----|
+        | Platform/DevEx & CI/CD | Generates policy/IaC/CI steps with strong instruction following; extended thinking helps plan safe rollouts |
+        | Data engineering/ML | Orchestrates ETL, validations, and experiments; long context helps with config/log/code cross-referencing |
+        | Database optimization | Solid at schema/query tuning with explanation; pair with EXPLAIN/ANALYZE and traces for verification |
+        | Performance optimization | Identifies common anti-patterns (N+1, blocking I/O); extended thinking helps with multi-hop bottleneck analysis |
+        | Distributed systems | Explains consistency/partitioning trade‑offs; coordinates changes across services with tool use |
+    
+    - **Moderate for**:
+        
+        | Use case | Why |
+        |----------|-----|
+        | Low-level C++/Rust performance edge cases | Strong guidance, but hardware/OS nuances require profiling; verify with benches/fuzzing |
+        | Pixel-perfect UI/animation | Needs designer review for fidelity; excels when paired with design system constraints |
+        | Strict real-time/HFT constraints | Proposes sound patterns, but kernel/NUMA/GC tuning must be validated on target hardware |
+    
+    - **Less ideal for**:
+        
+        | Use case | Why |
+        |----------|-----|
+        | Zero-latency responses with no visible reasoning | Extended thinking increases latency; default mode is better for speed but may trade depth |
+        | Compliance contexts disallowing any reasoning traces | Thinking summaries are visible when extended thinking is enabled; disable when prohibited |
+        | Pure creative/narrative long-form | Competent; however other models may be preferred for highly stylized narrative work |
+    
+    - **Key limitations**:
+        - Extended thinking increases latency and token use; use budgets and enable only when depth is needed
+        - Streaming of extended thinking can be “chunky” with intermittent delays between events
+        - Concise communication style may skip verbose summaries after tool calls unless prompted
+        - Hardware/OS‑level performance claims still require profiling and tests on target systems
+    - **Strategic use**: Default to Sonnet 4.5 for agentic coding and computer use; keep extended thinking off for interactive edits and on for long-horizon work, incident RCAs, end‑to‑end refactors, and multi‑service planning
 - Opus 4.1

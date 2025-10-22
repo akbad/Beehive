@@ -815,7 +815,7 @@ start_http_server "Semgrep MCP" "$SEMGREP_MCP_PORT" "SEMGREP_PID" \
 # Serena MCP (semantic code analysis and editing)
 if [[ "$SERENA_AVAILABLE" == true ]]; then
     start_http_server "Serena MCP" "$SERENA_MCP_PORT" "SERENA_PID" \
-        uv run --directory "$SERENA_REPO_PATH" serena start-mcp-server --transport streamable-http --port "$SERENA_MCP_PORT"
+        uv run --directory "$SERENA_REPO_PATH" --python 3.11 serena start-mcp-server --transport streamable-http --port "$SERENA_MCP_PORT"
 fi
 
 # ============================================================================

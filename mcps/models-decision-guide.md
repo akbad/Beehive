@@ -257,3 +257,52 @@
         - Hardware/OS‑level performance claims still require profiling and tests on target systems
     - **Strategic use**: Default to Sonnet 4.5 for agentic coding and computer use; keep extended thinking off for interactive edits and on for long-horizon work, incident RCAs, end‑to‑end refactors, and multi‑service planning
 - Opus 4.1
+    
+    - **Top-tier for**: Maximum depth reasoning, high‑stakes reviews, formal write‑ups, and contentious design/security decisions where precision and justification matter more than speed/cost
+        
+        - Highlights: frontier‑level analytical quality and argumentation; excels at long‑form synthesis and rigorous trade‑off analysis; best used sparingly due to stricter weekly limits and higher latency/cost
+    
+    - **Excellent for**:
+        
+        | Use case | Why |
+        |----------|-----|
+        | Architecture RFCs & design reviews | Produces deeply reasoned proposals with explicit trade‑offs and risks; strong at clarifying decision records |
+        | Threat models & risk assessments | Systematic enumeration of attack surfaces/mitigations with clear assumptions and constraints |
+        | Complex algorithm analysis | Step‑by‑step derivations, proofs/explanations, and correctness arguments for tricky logic |
+        | Migration/modernization decision papers | Carefully weighs phased approaches, rollback strategies, and stakeholder impact |
+        | Long‑form documentation | High‑quality narratives, executive summaries, and policy/standards documents |
+    
+    - **Good for**:
+        
+        | Use case | Why |
+        |----------|-----|
+        | Hard bug triage & RCAs | Careful reasoning reduces misdiagnosis; strong at structuring evidence and hypotheses |
+        | Data governance & DB evolution plans | Nuanced discussion of consistency, retention, partitioning, and compliance trade‑offs |
+        | Cross‑org comms | Clear, persuasive writing tailored to leadership/stakeholders; reduces back‑and‑forth |
+        | Research synthesis | Integrates many sources into coherent conclusions with well‑argued rationale |
+        | Policy‑as‑code design | Captures intent and constraints before encoding as rules and tests |
+    
+    - **Moderate for**:
+        
+        | Use case | Why |
+        |----------|-----|
+        | Interactive coding loops | Higher latency can slow edit‑run‑fix cycles; prefer Haiku/Sonnet for tight feedback |
+        | Multi‑tool agentic coding | Capable but strict weekly limits hinder long runs; Sonnet better for extended workflows |
+        | Frontend polish & animation | Strong writing, but UI fidelity benefits from Sonnet + design system constraints |
+        | Real‑time/perf tuning | Good reasoning, but OS/hardware nuances require on‑target profiling and faster iteration |
+    
+    - **Less ideal for**:
+        
+        | Use case | Why |
+        |----------|-----|
+        | High‑volume automation | Stricter weekly quotas and cost make large batch jobs impractical |
+        | Zero‑latency UX | Latency profile unsuitable for rapid interactions; use Haiku |
+        | Massive mechanical refactors | Prefer GPT‑5‑Codex or Sonnet for speed, tool orchestration, and consistency |
+        | Browser/computer use at scale | Tool success is strong but quotas limit large‑scale runs; Sonnet/Haiku preferred |
+    
+    - **Key limitations**:
+        - Strict, low weekly limits in many environments; reserve for highest‑impact tasks
+        - Higher latency and cost per token; not suited for frequent interactive loops
+        - Can over‑elaborate; prompt for concise outputs and explicit constraints
+        - As with all models, validate code/infra changes via tests, policy checks, and reviews
+    - **Strategic use**: Use Opus 4.1 as the “final say” model—finalize RFCs, threat models, decision records, and executive narratives. Prototype/explore with Haiku/Sonnet (or GPT‑5‑Codex for mass edits), then escalate to Opus for polished, defensible write‑ups and sign‑offs

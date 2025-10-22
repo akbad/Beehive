@@ -5,7 +5,7 @@
 - [**MCP servers**](#mcp-servers)
 - [**Non-MCP tools**](#non-mcp-tools)
 
-**Full how-tos for each tool** can be found in `tool-descriptions/`
+A **full decision guide as to when to use each tool** can be found at [`tools-decision-guide.md`](tools-decision-guide.md).
 
 ---
 

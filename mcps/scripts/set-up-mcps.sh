@@ -67,14 +67,11 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # Parent repo (best if it contains all projects you want to use these agents with)
 DEFAULT_DIR="$HOME/Code"
 PARENT_DIR=$DEFAULT_DIR
-CLONE_DIR="$DEFAULT_DIR/mcp-servers/"
+CLONE_DIR="$DEFAULT_DIR/mcp-servers"
 
-# Sourcegraph MCP: code search configuration
-export SOURCEGRAPH_ENDPOINT="https://sourcegraph.com"
-export SOURCEGRAPH_REPO_PATH="$CLONE_DIR/sourcegraph-mcp"   # Where to clone the MCP server repo to
-
-# Serena MCP: semantic code analysis and editing
-export SERENA_REPO_PATH="$CLONE_DIR/mcp-servers/serena"     # Where to clone the Serena repo to
+# Where to place needed clones of MCP server repos
+export SOURCEGRAPH_REPO_PATH="$CLONE_DIR/sourcegraph-mcp"
+export SERENA_REPO_PATH="$CLONE_DIR/serena"
 
 AGENTS=()
 
@@ -88,6 +85,7 @@ DEFAULT_TIMEOUT=30     # timeout when waiting for any server/daemon to start
 RANCHER_TIMEOUT=120    # timeout specific for Rancher Desktop startup (can take a while)
 
 # Remote server URLs
+export SOURCEGRAPH_ENDPOINT="https://sourcegraph.com"
 export CONTEXT7_URL="https://mcp.context7.com/mcp"
 export TAVILY_URL="https://mcp.tavily.com/mcp/?tavilyApiKey=\${TAVILY_API_KEY}"
 export FIRECRAWL_BASE_URL="https://mcp.firecrawl.dev"
@@ -174,6 +172,10 @@ while [[ $# -gt 0 ]]; do
         ;;
     esac
 done
+
+if [[ ${#AGENTS[@]} == 0 ]]; then 
+    AGENTS=("codex" "claude" "gemini")
+fi
 
 # --- HELPERS ---
 
@@ -784,6 +786,12 @@ if ensure_git_repo_cloned "Serena" "https://github.com/oraios/serena" "$SERENA_R
     SERENA_AVAILABLE=true
 fi
 
+# Configure MCP auto-approvals if requested
+if [[ "$AUTO_APPROVE_MCP" == true ]]; then
+    log_separator
+    configure_auto_approve
+fi
+
 # ============================================================================
 #   Start central HTTP servers
 # ============================================================================
@@ -888,19 +896,19 @@ if [[ "$FIRECRAWL_AVAILABLE" == true ]]; then
     if [[ -z "$firecrawl_http_url" ]]; then
         log_warning "Firecrawl API key missing; skipping Firecrawl HTTP configuration."
     else
-        log_info "Configuring Claude to use Firecrawl MCP (HTTP - remote streamable)..."
+        log_info "Configuring Claude Code to use Firecrawl MCP (HTTP - remote streamable)..."
         if add_http_mcp_to_agent "claude" "firecrawl" "$firecrawl_http_url"; then
-            log_success "Claude configured"
+            log_success "Claude Code configured"
         fi
 
         log_info "Configuring Codex to use Firecrawl MCP (HTTP - remote streamable)..."
         if add_http_mcp_to_agent "codex" "firecrawl" "$firecrawl_http_url"; then
-            log_success "codex configured"
+            log_success "Codex CLI configured"
         fi
 
         log_info "Configuring Gemini to use Firecrawl MCP (stdio - local launcher)..."
         if add_stdio_mcp_to_agent "gemini" "firecrawl" "env" "FIRECRAWL_API_KEY=$FIRECRAWL_API_KEY" "npx" "-y" "firecrawl-mcp"; then
-            log_success "gemini configured"
+            log_success "Gemini CLI configured"
         fi
     fi
 fi
@@ -1012,11 +1020,8 @@ fi
 log_empty_line
 log_info "Logs:"
 log_info "  • Zen MCP: /tmp/mcp-Zen MCP-server.log"
-
-if [[ "$QDRANT_AVAILABLE" == true ]]; then
-    log_info "  • Qdrant MCP: /tmp/mcp-Qdrant MCP-server.log"
-    log_info "  • Qdrant Docker: docker logs qdrant"
-fi
+log_info "  • Qdrant MCP: /tmp/mcp-Qdrant MCP-server.log"
+log_info "  • Qdrant Docker: docker logs qdrant"
 
 if [[ "$SOURCEGRAPH_AVAILABLE" == true ]]; then
     log_info "  • Sourcegraph MCP: /tmp/mcp-Sourcegraph MCP-server.log"
@@ -1036,8 +1041,7 @@ log_info "  3. Type '/mcp' to see available tools"
 
 log_empty_line
 log_info "To stop local HTTP servers:"
-pidlist="$ZEN_PID $SEMGREP_PID"
-[[ "$QDRANT_AVAILABLE" == "true" ]] && pidlist+=" $QDRANT_PID"
+pidlist="$ZEN_PID $SEMGREP_PID $QDRANT_PID"
 [[ "$SOURCEGRAPH_AVAILABLE" == "true" ]] && pidlist+=" $SOURCEGRAPH_PID"
 [[ "$SERENA_AVAILABLE" == "true" ]] && pidlist+=" $SERENA_PID"
 KILL_HTTPS_CMD="kill ${pidlist}"
@@ -1045,13 +1049,10 @@ log_info "  $KILL_HTTPS_CMD"
 TAKE_DOWN_FILE="take_down_mcps.sh"
 echo "$KILL_HTTPS_CMD" > "$TAKE_DOWN_FILE"
 
-
-if [[ "$QDRANT_AVAILABLE" == true ]]; then
-    log_empty_line
-    QDRANT_STOP_CMD="docker stop qdrant"
-    log_info "To stop Qdrant Docker container:"
-    log_info "  $QDRANT_STOP_CMD"
-fi
+log_empty_line
+QDRANT_STOP_CMD="docker stop qdrant"
+log_info "To stop Qdrant Docker container:"
+log_info "  $QDRANT_STOP_CMD"
 
 log_empty_line
 log_info "✔︎ Stop commands also saved to $RED $TAKE_DOWN_FILE $NC for convenience"

@@ -51,15 +51,101 @@ set -e  # exit on error
 # Get the directory where this script lives (for referencing adjacent files)
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
+# --- CONFIG ---
+
+# Parent repo (best if it contains all projects you want to use these agents with)
+DEFAULT_DIR="$HOME/Code"
+PARENT_DIR=$DEFAULT_DIR
+CLONE_DIR="$DEFAULT_DIR/mcp-servers/"
+
+# Sourcegraph MCP: code search configuration
+export SOURCEGRAPH_ENDPOINT="https://sourcegraph.com"
+export SOURCEGRAPH_REPO_PATH="$CLONE_DIR/sourcegraph-mcp"   # Where to clone the MCP server repo to
+
+# Serena MCP: semantic code analysis and editing
+export SERENA_REPO_PATH="$CLONE_DIR/mcp-servers/serena"     # Where to clone the Serena repo to
+
+AGENTS=()
+
+# Supported coding agents CLIs' config file locations
+GEMINI_CONFIG="$HOME/.gemini/settings.json"
+CLAUDE_CONFIG="$HOME/.claude.json"
+CLAUDE_SETTINGS="$HOME/.claude/settings.json"
+CODEX_CONFIG="$HOME/.codex/config.toml"
+
+DEFAULT_TIMEOUT=30     # timeout when waiting for any server/daemon to start
+RANCHER_TIMEOUT=120    # timeout specific for Rancher Desktop startup (can take a while)
+
+# Remote server URLs
+export CONTEXT7_URL="https://mcp.context7.com/mcp"
+export TAVILY_URL="https://mcp.tavily.com/mcp/?tavilyApiKey=\${TAVILY_API_KEY}"
+export FIRECRAWL_BASE_URL="https://mcp.firecrawl.dev"
+export FIRECRAWL_STREAMABLE_HTTP_PATH="/v2/mcp"
+
+# Zen MCP: disable all tools except clink (since they need an API key)
+export ZEN_CLINK_DISABLED_TOOLS='analyze,apilookup,challenge,chat,codereview,consensus,debug,docgen,planner,precommit,refactor,secaudit,testgen,thinkdeep,tracer'
+
+# Ports for local HTTP servers
+export QDRANT_DB_PORT=8780 
+export ZEN_MCP_PORT=8781
+export QDRANT_MCP_PORT=8782
+export SOURCEGRAPH_MCP_PORT=8783
+export SEMGREP_MCP_PORT=8784
+export SERENA_MCP_PORT=8785
+
+# Qdrant MCP: semantic memory configuration
+export QDRANT_URL="http://127.0.0.1:$QDRANT_DB_PORT"
+export QDRANT_COLLECTION_NAME="coding-memory"
+export QDRANT_EMBEDDING_PROVIDER="fastembed"
+export QDRANT_DATA_DIR="$PARENT_DIR/qdrant-data"
+
+# Directories
+FS_ALLOWED_DIR="${FS_ALLOWED_DIR:-$PARENT_DIR}"
+
+# Colors
+GREEN='\033[0;32m'
+BLUE='\033[0;34m'
+YELLOW='\033[1;33m'
+RED='\033[0;31m'
+NC='\033[0m'
+
 # --- ARGUMENT PARSING ---
+
+AUTO_APPROVE_MCP=false
 
 while [[ $# -gt 0 ]]; do
     key="$1"
     case $key in
-        -d|--dir)
+        -f|--fsdir)
         FS_ALLOWED_DIR="$2"
         shift # past argument
         shift # past value
+        ;;
+
+        -c|--clonedir)
+        CLONE_DIR="$2"
+        shift # past argument
+        shift # past value
+        ;;
+
+        -y|--yes)
+        AUTO_APPROVE_MCP=true
+        shift # past argument
+        ;;
+
+        -a/--agents)
+        AGENT_STRING="$2"
+
+        if [[ $AGENT_STRING == *c* ]]; then
+            AGENTS+=("claude")
+        fi
+        if [[ $AGENT_STRING == *g* ]]; then
+            AGENTS+=("gemini")
+        fi
+        if [[ $AGENT_STRING == *x* ]]; then
+            AGENTS+=("codex")
+        fi
+
         ;;
 
         -h|--help)
@@ -77,61 +163,6 @@ while [[ $# -gt 0 ]]; do
         ;;
     esac
 done
-
-# --- CONFIG ---
-
-# Parent repo (best if it contains all projects you want to use these agents with)
-PARENT_REPO="$HOME/Code"
-
-# Agent CLIs we support and their config file locations
-AGENTS=("gemini" "claude" "codex")
-
-GEMINI_CONFIG="$HOME/.gemini/settings.json"
-CLAUDE_CONFIG="$HOME/.claude.json"
-CODEX_CONFIG="$HOME/.codex/config.toml"
-
-DEFAULT_TIMEOUT=30     # timeout when waiting for any server/daemon to start
-RANCHER_TIMEOUT=120    # timeout specific for Rancher Desktop startup (can take a while)
-
-# Remote server URLs
-export CONTEXT7_URL="https://mcp.context7.com/mcp"
-export TAVILY_URL="https://mcp.tavily.com/mcp/?tavilyApiKey=\${TAVILY_API_KEY}"
-export FIRECRAWL_BASE_URL="https://mcp.firecrawl.dev"
-export FIRECRAWL_STREAMABLE_HTTP_PATH="/v2/mcp"
-
-# Zen MCP: disable all tools except clink
-export ZEN_CLINK_DISABLED_TOOLS='analyze,apilookup,challenge,chat,codereview,consensus,debug,docgen,planner,precommit,refactor,secaudit,testgen,thinkdeep,tracer'
-
-# Qdrant MCP: semantic memory configuration
-export QDRANT_PORT=8780
-export QDRANT_URL="http://127.0.0.1:$QDRANT_PORT"
-export QDRANT_COLLECTION_NAME="coding-memory"
-export QDRANT_EMBEDDING_PROVIDER="fastembed"
-export QDRANT_DATA_DIR="$PARENT_REPO/qdrant-data"
-
-# Sourcegraph MCP: code search configuration
-export SOURCEGRAPH_ENDPOINT="https://sourcegraph.com"                     # Free public search (no token needed)
-export SOURCEGRAPH_REPO_PATH="$PARENT_REPO/mcp-servers/sourcegraph-mcp"   # Where to clone the MCP server repo to
-
-# Serena MCP: semantic code analysis and editing
-export SERENA_REPO_PATH="$PARENT_REPO/mcp-servers/serena"   # Where to clone the Serena repo to
-
-# Ports for local HTTP servers
-export ZEN_MCP_PORT=8781
-export QDRANT_MCP_PORT=8782
-export SOURCEGRAPH_MCP_PORT=8783
-export SEMGREP_MCP_PORT=8784
-export SERENA_MCP_PORT=8785
-
-# Directories
-FS_ALLOWED_DIR="${FS_ALLOWED_DIR:-$PARENT_REPO}"
-
-# Colors
-GREEN='\033[0;32m'
-BLUE='\033[0;34m'
-YELLOW='\033[1;33m'
-RED='\033[0;31m'
-NC='\033[0m'
 
 # --- HELPERS ---
 
@@ -616,6 +647,60 @@ ensure_git_repo_cloned() {
     fi
 }
 
+# Configure auto-approval for all agents
+configure_auto_approve() {
+    log_info "Configuring auto-approval for all agents..."
+    log_empty_line
+
+    # Build list of MCP server names being configured
+    local mcp_servers=()
+    mcp_servers+=("zen" "qdrant" "semgrep" "fs" "fetch" "git" "memory")
+
+    # Add conditional servers
+    [[ "$SOURCEGRAPH_AVAILABLE" == true ]] && mcp_servers+=("sourcegraph")
+    [[ "$SERENA_AVAILABLE" == true ]] && mcp_servers+=("serena")
+    [[ "$CONTEXT7_AVAILABLE" == true ]] && mcp_servers+=("context7")
+    [[ "$TAVILY_AVAILABLE" == true ]] && mcp_servers+=("tavily")
+    [[ "$FIRECRAWL_AVAILABLE" == true ]] && mcp_servers+=("firecrawl")
+
+    # Configure each agent
+    for agent in "${AGENTS[@]}"; do
+        case "$agent" in
+            claude)
+                log_info "→ Configuring Claude Code..."
+                if python3 "$SCRIPT_DIR/update_claude_settings.py" "$CLAUDE_SETTINGS"; then
+                    log_success "  Claude Code settings updated"
+                else
+                    log_error "  Failed to update Claude Code settings"
+                fi
+                ;;
+            codex)
+                log_info "→ Configuring Codex..."
+                if python3 "$SCRIPT_DIR/update_codex_config.py" "$CODEX_CONFIG"; then
+                    log_success "  Codex config updated"
+                else
+                    log_error "  Failed to update Codex config"
+                fi
+                ;;
+            gemini)
+                log_info "→ Configuring Gemini..."
+                if python3 "$SCRIPT_DIR/update_gemini_settings.py" "$GEMINI_CONFIG" "${mcp_servers[@]}"; then
+                    log_success "  Gemini settings updated"
+                else
+                    log_error "  Failed to update Gemini settings"
+                fi
+                ;;
+            *)
+                log_warning "  Unknown agent: $agent (skipping)"
+                ;;
+        esac
+    done
+
+    log_empty_line
+    log_success "Auto-approval configured for all agents"
+    log_info "MCP tools will now be auto-approved without permission prompts"
+}
+
 # --- CHECK DEPENDENCIES ---
 
 log_info "Checking dependencies..."
@@ -659,6 +744,12 @@ if check_env_var "FIRECRAWL_API_KEY" "Firecrawl MCP will not work. Get a key at 
 fi
 
 log_success "API key check complete."
+
+# Configure MCP auto-approvals if requested
+if [[ "$AUTO_APPROVE_MCP" == true ]]; then
+    log_separator
+    configure_auto_approve
+fi
 
 # Check if Sourcegraph MCP repo is available (must be cloned from GitHub)
 SOURCEGRAPH_AVAILABLE=false
@@ -953,3 +1044,12 @@ fi
 
 log_empty_line
 log_info "✔︎ Stop commands also saved to $RED $TAKE_DOWN_FILE $NC for convenience"
+
+if [[ "$AUTO_APPROVE_MCP" == true ]]; then
+    log_empty_line
+    log_success "All agents configured to auto-approve MCP tools"
+    log_info "  → Updated: ~/.claude/settings.json"
+    log_info "  → Updated: ~/.codex/config.toml"
+    log_info "  → Updated: ~/.gemini/settings.json"
+    log_info "  → MCP tools will no longer require permission prompts"
+fi

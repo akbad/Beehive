@@ -1,12 +1,5 @@
 # Useful, uncovered roles in V2 ported to V3 structure by Gemini
 
-> **Remaining roles to create**
-> - **`competitive-analyst.md`**: This role focuses on business-centric competitive and market intelligence, which is outside the scope of the engineering-focused v3 superstar agents.
-> - **`cpp-pro.md`**: The v3 agents are domain-oriented (e.g., security, reliability) rather than language-specific. There is no C++ specialist.
-> - **`golang-pro.md`**: Similar to the C++ agent, there is no Go-specific specialist in v3.
-> - **`prompt-engineer.md`**: This is a meta-role focused on the craft of prompt design itself. The v3 agents are the output of prompt engineering, but none is designed to perform it as its primary function.
-> - **`rust-pro.md`**: Like the C++ and Go agents, there is no Rust-specific specialist in v3.
-
 ## Researchers
 
 > **Workflow: *how to research with these agents***

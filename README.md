@@ -13,7 +13,12 @@ You don't technically have to learn what the different agents and MCPs available
 ### MCPs
 
 1. Read the [must-read information about the setup script](mcps/README.md) and ensure you have the listed prerequisites set up.
-2. Run the [setup script](mcps/scripts/set-up-mcps.sh)
+2. Run the [setup script](mcps/scripts/set-up-mcps.sh):
+    
+    ```bash
+    mcps/scripts/set-up-mcps.sh [options]
+    ```
+
 3. Set up the [`claude-mem` automatic context management plugin](https://github.com/thedotmack/claude-mem) by starting up Claude Code and running these commands:
 
     ```

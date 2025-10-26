@@ -49,7 +49,8 @@
 
 **Math/Science Heavy Tasks**:
 - Complex mathematical analysis, algorithm optimization with formal proofs
-- **Delegate to**: `gemini` (88% AIME 2025, 86.4% GPQA)
+- **Delegate to**: `codex` with GPT-5-Codex + High thinking (94.6% AIME 2025)
+- **Budget alternative**: `gemini` with `optimization` role (88% AIME, free tier)
 - **Example**: "Analyze the time complexity of this sorting algorithm and prove optimality"
 
 **Large-Scale Refactoring**:
@@ -77,7 +78,8 @@ Refer to [Model Selection Guide](#model-selection-guide-for-clink-roles) for det
 Always provide:
 - `cli_name`: "claude", "codex", or "gemini"
 - `prompt`: Clear task description with context
-- `role`: Appropriate role preset (see model selection guide)
+- `role`: Appropriate role preset (see model selection guide and available roles below)
+  Note: Roles are defined in /clink-role-prompts/ directory (e.g., "architect", "migration-refactoring", "api-integration")
 - `continuation_id`: ALWAYS reuse from previous calls to maintain conversation context
 - `files`: Absolute paths to relevant files (optional but helpful)
 ```
@@ -173,23 +175,33 @@ Always provide:
 
 | Task Category | First Pick | CLI | Role | Why |
 |---------------|-----------|-----|------|-----|
-| Architecture & system design | Sonnet 4.5 | `claude` | `default` or `planner` | Trade-off aware; multi-tool planning; extended thinking for deep justification |
-| Large migrations & refactors | GPT-5-Codex | `codex` | `default` | 91% multi-file refactoring success; repo-wide mechanical changes |
-| API integration | GPT-5-Codex | `codex` | `default` | Contract-first design; idempotency/retry patterns |
-| Data engineering / ML | Gemini 2.5 Pro | `gemini` | `default` | Superior math reasoning; 1M context for large datasets |
-| Database optimization | Gemini 2.5 Pro | `gemini` | `default` | Strong query plan analysis; long context for slow query logs |
-| Performance optimization | Gemini 2.5 Pro | `gemini` | `default` | Mathematical complexity analysis; whole-service bottleneck analysis |
-| Frontend / design systems | GPT-5-Codex | `codex` | `default` | Component refactors; a11y; Storybook updates |
-| Platform / DevEx / Infra | Haiku 4.5 | `claude` | `default` | CI fix-ups; batch hygiene; cost-efficient at scale |
-| Observability / incident | Sonnet 4.5 | `claude` | `default` | Runbooks; SLO/error budgets; extended thinking for RCAs |
-| Reliability / scalability | Sonnet 4.5 | `claude` | `default` or `planner` | Capacity plans; multi-tool coordination |
-| Security / privacy | Sonnet 4.5 | `claude` | `default` or `codereviewer` | Proactive fixes; extended thinking for threat modeling |
-| Testing / verification | GPT-5-Codex | `codex` | `default` | Unit/property/mutation tests; CI flake triage |
-| Real-time systems | GPT-5-Codex | `codex` | `default` | Latency budgets; jitter control; scheduling proposals |
-| Systems languages (C++/Rust/Go) | GPT-5-Codex | `codex` | `default` | Concurrency primitives; FFI patterns; safety idioms |
-| Code reviews | Any with good context | Any | `codereviewer` | Use appropriate model based on language/complexity |
-| High-stakes RFCs / threat models | Opus 4.1 | `claude` | `planner` | Maximum depth reasoning; formal write-ups |
-| Long-context whole-repo analysis | Gemini 2.5 Pro | `gemini` | `default` | 1M context window vs 200K-400K for others |
+| Architecture & system design | Sonnet 4.5 | `claude` | `architect` | Trade-off aware; multi-tool planning; extended thinking for deep justification |
+| Large migrations & refactors | GPT-5-Codex | `codex` | `migration-refactoring` | 91% multi-file refactoring success; repo-wide mechanical changes |
+| API integration | GPT-5-Codex | `codex` | `api-integration` | Contract-first design; idempotency/retry patterns |
+| Data engineering / ML | Gemini 2.5 Pro | `gemini` | `ai-ml-eng` | **Only if needs 1M context** for large datasets/logs; else use codex with High thinking |
+| Database optimization | Gemini 2.5 Pro | `gemini` | `db-internals` | **Only if analyzing entire slow query logs** (1M context); else use codex |
+| Performance optimization | GPT-5-Codex | `codex` | `optimization` | Finds N+1s, blocking I/O, complexity issues; use High thinking for algorithmic redesign |
+| Frontend / design systems | GPT-5-Codex | `codex` | `frontend` | Component refactors; a11y; Storybook updates |
+| Platform / DevEx / Infra | Haiku 4.5 | `claude` | `platform-eng` | CI fix-ups; batch hygiene; cost-efficient at scale |
+| Observability / incident | Sonnet 4.5 | `claude` | `observability` | Runbooks; SLO/error budgets; extended thinking for RCAs |
+| Reliability / scalability | Sonnet 4.5 | `claude` | `scalability-reliability` | Capacity plans; multi-tool coordination |
+| Security / privacy | Sonnet 4.5 | `claude` | `security-compliance` | Proactive fixes; extended thinking for threat modeling |
+| Testing / verification | GPT-5-Codex | `codex` | `testing` | Unit/property/mutation tests; CI flake triage |
+| Real-time systems | GPT-5-Codex | `codex` | `realtime` | Latency budgets; jitter control; scheduling proposals |
+| Systems languages: C++ | GPT-5-Codex | `codex` | `cpp-pro` | Concurrency primitives; FFI patterns; safety idioms |
+| Systems languages: Rust | GPT-5-Codex | `codex` | `rust-pro` | Memory safety; ownership patterns; unsafe blocks |
+| Systems languages: Go | GPT-5-Codex | `codex` | `golang-pro` | Goroutines; channels; idiomatic Go patterns |
+| Code explanation / understanding | Any with good context | Any | `explainer` | Use appropriate model based on codebase size/complexity |
+| Architecture audits | Sonnet 4.5 | `claude` | `architecture-audit` | Deep analysis of existing architecture; identify issues |
+| High-stakes RFCs / threat models | Opus 4.1 | `claude` | `architect` | Maximum depth reasoning; formal write-ups |
+| Tech debt analysis | Sonnet 4.5 | `claude` | `tech-debt` | Identify and prioritize technical debt systematically |
+| Cost optimization | Sonnet 4.5 | `claude` | `cost-optimization-finops` | Cloud costs; resource optimization; FinOps strategies |
+| Distributed systems design | Sonnet 4.5 | `claude` | `distributed-systems` | Consensus; consistency; partition tolerance |
+| Networking / edge infrastructure | GPT-5-Codex | `codex` | `networking-edge-infra` | CDN; load balancing; edge compute patterns |
+| Mobile engineering | GPT-5-Codex | `codex` | `mobile-eng-architect` | iOS/Android architecture; mobile-specific patterns |
+| DevOps / IaC focus | GPT-5-Codex | `codex` | `devops-infra-as-code` | Terraform; Kubernetes; IaC best practices |
+| Implementation helper | Any | Any | `implementation-helper` | General coding assistance; when no specific specialty needed |
+| Long-context whole-repo analysis (>400K tokens) | Gemini 2.5 Pro | `gemini` | `explainer` | **1M context is undisputed advantage** for entire repos/services that exceed GPT-5's 400K limit |
 
 ### Model-Specific Guidance
 
@@ -202,7 +214,19 @@ Always provide:
 - **Frontend component libraries**
 - **Cross-file dependency management**
 
-**Available roles**: `default`, `planner`, `codereviewer`
+**Available roles**:
+- `api-integration` - API design, client/server stubs, contract-first development
+- `cpp-pro` - C++ expertise, concurrency, FFI patterns
+- `devops-infra-as-code` - Terraform, Kubernetes, IaC best practices
+- `frontend` - React, component libraries, accessibility, design systems
+- `golang-pro` - Go idioms, goroutines, channels
+- `implementation-helper` - General coding assistance
+- `migration-refactoring` - Large-scale refactoring, pattern lifts
+- `mobile-eng-architect` - iOS/Android architecture
+- `networking-edge-infra` - CDN, load balancing, edge compute
+- `realtime` - Real-time systems, latency budgets, scheduling
+- `rust-pro` - Rust memory safety, ownership, unsafe blocks
+- `testing` - Unit, integration, property-based testing
 
 **Thinking effort in prompts** (when using codex):
 - Mention "minimal effort" for formatting, small regex fixes
@@ -211,15 +235,23 @@ Always provide:
 - Mention "high effort" for complex migrations, concurrency design
 
 #### Use `gemini` (Gemini 2.5 Pro) for:
-- **Long context analysis** (entire repos/services - 1M tokens)
-- **Math-heavy reasoning** (algorithm analysis, optimization proofs)
-- **Data engineering** (pipeline optimization, feature engineering)
-- **Database query optimization** (whole slow-query log analysis)
-- **Performance analysis** across entire services
-- **Research/documentation** synthesis
-- **Budget-constrained projects** (free tier)
+- **Primary use case: Long context analysis** (>400K tokens - entire repos/services - 1M tokens)
+  - This is Gemini's **undisputed advantage** over GPT-5 (400K) and Claude (200K)
+  - Analyzing entire slow query logs, large datasets, multi-service analysis
+  - Whole codebase understanding when size exceeds 400K tokens
+- **Budget-constrained projects** (free tier with practically unlimited usage)
+  - Good choice when cost matters and 88% AIME vs 94.6% is acceptable trade-off
 
-**Available roles**: `default`, `planner`, `codereviewer`
+**Important**: For most tasks where context fits in 400K tokens, **prefer GPT-5-Codex with High thinking** for better accuracy (94.6% vs 88% AIME). Only choose Gemini when:
+1. Context genuinely exceeds 400K tokens, OR
+2. Budget is a primary constraint and free tier needed
+
+**Available roles**:
+- `ai-ml-eng` - ML pipelines (use only when analyzing massive datasets requiring 1M context)
+- `db-internals` - Database optimization (use only when entire slow query logs exceed 400K)
+- `explainer` - Code explanation for massive codebases (>400K tokens)
+- `implementation-helper` - General coding assistance (budget-constrained scenarios)
+- `optimization` - Performance analysis (use only for whole-service analysis >400K tokens)
 
 **Note**: Watch for unrelated file modifications; be precise with instructions
 
@@ -230,7 +262,10 @@ Always provide:
 - **Quick code hygiene tasks**
 - **Real-time UI/application loops**
 
-**Available roles**: `default`, `planner`, `codereviewer`
+**Available roles**:
+- `implementation-helper` - Quick coding tasks, CI fix-ups
+- `platform-eng` - Platform/DevEx work, batch hygiene
+- Any role when speed/cost is priority (but with reduced depth vs Sonnet)
 
 #### Use `claude` with Sonnet 4.5 for:
 - **Agentic coding** (multi-step tool coordination)
@@ -240,7 +275,17 @@ Always provide:
 - **Computer use / browser automation**
 - **Complex planning** requiring extended thinking
 
-**Available roles**: `default`, `planner`, `codereviewer`
+**Available roles**:
+- `architect` - Architecture design, system design, trade-off analysis
+- `architecture-audit` - Auditing existing architectures, finding issues
+- `cost-optimization-finops` - Cloud cost analysis, FinOps strategies
+- `distributed-systems` - Consensus, consistency, CAP theorem trade-offs
+- `explainer` - Code explanation with strong reasoning
+- `implementation-helper` - General agentic coding assistance
+- `observability` - Monitoring, alerting, SLOs, incident response
+- `scalability-reliability` - Scaling strategies, reliability patterns
+- `security-compliance` - Security audits, threat modeling, compliance
+- `tech-debt` - Technical debt analysis and prioritization
 
 **When to mention "extended thinking"** in prompt:
 - Long-horizon refactors
@@ -255,15 +300,23 @@ Always provide:
 - **Long-form documentation** (executive summaries, policy docs)
 - **"Final say" reviews** before sign-off
 
-**Available roles**: `default`, `planner`, `codereviewer`
+**Available roles**:
+- `architect` - Deep architecture RFCs, formal design documents
+- `architecture-audit` - Comprehensive architecture reviews
+- `security-compliance` - Formal threat models, security audits
+- `tech-debt` - Strategic technical debt analysis
+- Use any role when maximum depth/rigor is required (but note strict weekly limits)
 
 **Note**: Strict weekly limits - use sparingly for highest-impact work
 
 ### Cost/Speed Optimization Strategy
 
-1. **Prototype/explore** with Haiku 4.5 or Gemini 2.5 Pro (fast, cheap/free)
-2. **Implement** with GPT-5-Codex or Sonnet 4.5 (strong coding capabilities)
-3. **Finalize/review** with Opus 4.1 if high-stakes (maximum rigor)
+1. **Prototype/explore** with Haiku 4.5 (fast) or Gemini only if budget-constrained (free tier)
+2. **Implement** with GPT-5-Codex (default choice - superior accuracy, 91% refactoring success, 94.6% AIME)
+3. **Complex agentic/coordination** with Sonnet 4.5 (multi-tool orchestration, extended thinking)
+4. **Finalize/review** with Opus 4.1 only if high-stakes (maximum rigor, strict limits)
+
+**Default model preference**: GPT-5-Codex (High thinking) > Sonnet 4.5 > Gemini (only for >400K context or budget constraints)
 
 ---
 
@@ -417,14 +470,18 @@ When operation requires approval:
 
 #### Context Analysis
 ```
-IF context needed > 200K tokens
-THEN delegate to gemini via clink
+IF context needed > 400K tokens (exceeds GPT-5's limit)
+THEN delegate to gemini via clink with appropriate role (e.g., explainer for whole-repo analysis)
+     Reason: Gemini's 1M context is undisputed advantage
 
-IF need whole-repo analysis
-THEN delegate to gemini via clink
+IF context between 200K-400K tokens
+THEN delegate to codex with GPT-5-Codex (400K context limit)
 
 IF context < 200K AND within Claude capabilities
 THEN handle directly or use Task tool
+
+IF need whole-repo analysis AND repo size < 400K tokens
+THEN prefer codex over gemini (better accuracy)
 ```
 
 #### Task Complexity
@@ -445,40 +502,56 @@ THEN use Glob tool if specific pattern, else Task tool with Explore agent
 #### Refactoring Scale
 ```
 IF mechanical refactor across 10+ files
-THEN delegate to codex (GPT-5-Codex) via clink
+THEN delegate to codex via clink with migration-refactoring role
 
 IF refactor within 2-5 files
 THEN handle directly with Edit tool
 
 IF mass rename across entire repo
-THEN delegate to codex with "high effort" in prompt
+THEN delegate to codex with migration-refactoring role + "high effort" in prompt
+
+IF API refactoring/integration changes
+THEN delegate to codex with api-integration role
 ```
 
 #### Speed Requirements
 ```
 IF need sub-second responses for batch edits
-THEN delegate to claude with Haiku 4.5 role via clink
+THEN delegate to claude with Haiku 4.5 + implementation-helper role via clink
 
 IF interactive editing loop
 THEN handle directly (already Sonnet 4.5)
 
 IF long-running agentic workflow
 THEN handle directly (Sonnet 4.5 best for this)
+
+IF platform/CI work needing speed
+THEN delegate to claude with Haiku 4.5 + platform-eng role via clink
 ```
 
 #### Reasoning Depth
 ```
 IF math-heavy algorithm analysis
-THEN delegate to gemini via clink
+THEN delegate to codex with GPT-5-Codex + High thinking (94.6% AIME)
+     Budget alternative: gemini with optimization role (88% AIME, free)
+
+IF complex algorithm optimization with formal proofs
+THEN delegate to codex with GPT-5-Codex + High thinking
 
 IF architecture RFC needing maximum depth
-THEN delegate to claude with Opus 4.1 role via clink
+THEN delegate to claude with Opus 4.1 + architect role via clink
 
 IF threat model for sign-off
-THEN delegate to claude with Opus 4.1 role via clink
+THEN delegate to claude with Opus 4.1 + security-compliance role via clink
 
 IF standard architecture design
-THEN handle directly (Sonnet 4.5) or use planner role
+THEN handle directly (Sonnet 4.5) or delegate to claude with architect role
+
+IF architecture audit/review
+THEN delegate to claude with Sonnet 4.5 + architecture-audit role
+
+IF distributed systems design
+THEN delegate to claude with distributed-systems role
 ```
 
 #### User Interaction
@@ -502,61 +575,140 @@ THEN proceed with commit (no approval needed)
 #### Cost Optimization
 ```
 IF budget-constrained project
-THEN prefer gemini (free tier)
+THEN prefer gemini with appropriate role (free tier)
 
 IF high-volume batch operations
-THEN delegate to claude with Haiku 4.5 role (cost-efficient)
+THEN delegate to claude with Haiku 4.5 + implementation-helper role (cost-efficient)
 
 IF quota concerns with paid models
-THEN delegate to gemini via clink
+THEN delegate to gemini via clink with appropriate role
+
+IF cloud cost analysis needed
+THEN delegate to claude with cost-optimization-finops role
 ```
 
 #### Testing
 ```
 IF need comprehensive test generation
-THEN delegate to codex via clink
+THEN delegate to codex with testing role via clink
 
 IF simple test fixes/updates
 THEN handle directly
 
 IF property-based testing strategy needed
-THEN delegate to gemini via clink (strong math reasoning)
+THEN delegate to codex with testing role + High thinking (better math reasoning: 94.6% vs 88%)
+
+IF unit/integration test scaffolding
+THEN delegate to codex with testing role
+
+IF mutation testing/test coverage analysis
+THEN delegate to codex with testing role
 ```
 
 #### Security
 ```
 IF security audit needed
-THEN delegate to claude with Sonnet 4.5 + codereviewer role
+THEN delegate to claude with Sonnet 4.5 + security-compliance role
 
 IF threat model for formal review
-THEN delegate to claude with Opus 4.1 + planner role
+THEN delegate to claude with Opus 4.1 + security-compliance role
 
 IF quick security hygiene (secret scanning)
-THEN delegate to codex or use claude with Haiku 4.5
+THEN delegate to codex with security-compliance role or claude with Haiku 4.5 + implementation-helper
+
+IF compliance analysis needed
+THEN delegate to claude with security-compliance role
 ```
 
 #### Frontend/UI
 ```
 IF component library refactor
-THEN delegate to codex via clink
+THEN delegate to codex with frontend role via clink
 
 IF quick styling tweaks
-THEN delegate to claude with Haiku 4.5 role
+THEN delegate to claude with Haiku 4.5 + implementation-helper role
 
 IF design system coordination
-THEN handle directly (Sonnet 4.5) with extended thinking
+THEN handle directly (Sonnet 4.5) with extended thinking or delegate to codex with frontend role
+
+IF mobile UI/architecture work
+THEN delegate to codex with mobile-eng-architect role
 ```
 
 #### Database/Data
 ```
-IF analyzing entire slow query logs
-THEN delegate to gemini via clink (1M context)
+IF analyzing entire slow query logs AND logs exceed 400K tokens
+THEN delegate to gemini with db-internals role via clink (1M context advantage)
+
+IF analyzing slow query logs AND logs fit within 400K tokens
+THEN delegate to codex with db-internals role (better analysis accuracy)
 
 IF schema design with math rigor
-THEN delegate to gemini via clink
+THEN delegate to codex with GPT-5-Codex + High thinking (superior math: 94.6% vs 88%)
 
 IF SQL refactoring and code changes
-THEN delegate to codex via clink
+THEN delegate to codex with db-internals role via clink
+
+IF data engineering/ML pipelines with massive datasets (>400K tokens)
+THEN delegate to gemini with ai-ml-eng role (1M context needed)
+     ELSE delegate to codex with High thinking (better accuracy)
+
+IF performance optimization analysis for entire service (>400K tokens)
+THEN delegate to gemini with optimization role (1M context advantage)
+     ELSE delegate to codex + High thinking (better optimization analysis)
+```
+
+#### DevOps/Platform/Infrastructure
+```
+IF Terraform/Kubernetes/IaC work
+THEN delegate to codex with devops-infra-as-code role
+
+IF platform engineering/CI-CD
+THEN delegate to claude with Haiku 4.5 + platform-eng role (for speed)
+     OR claude with Sonnet 4.5 + platform-eng role (for complex coordination)
+
+IF networking/CDN/edge infrastructure
+THEN delegate to codex with networking-edge-infra role
+```
+
+#### Observability/Reliability
+```
+IF observability/monitoring setup
+THEN delegate to claude with observability role
+
+IF incident response/RCA
+THEN delegate to claude with Sonnet 4.5 + observability role (extended thinking for RCAs)
+
+IF scalability/reliability design
+THEN delegate to claude with scalability-reliability role
+
+IF real-time systems work
+THEN delegate to codex with realtime role
+```
+
+#### Systems Languages
+```
+IF C++ work (concurrency, FFI, safety)
+THEN delegate to codex with cpp-pro role
+
+IF Rust work (memory safety, ownership)
+THEN delegate to codex with rust-pro role
+
+IF Go work (goroutines, channels, idioms)
+THEN delegate to codex with golang-pro role
+```
+
+#### Technical Debt/Code Quality
+```
+IF tech debt analysis/prioritization
+THEN delegate to claude with tech-debt role
+
+IF code explanation/understanding
+THEN delegate to gemini with explainer role (for long context)
+     OR claude with explainer role (for deep reasoning)
+
+IF general implementation help
+THEN delegate with implementation-helper role to appropriate CLI
 ```
 
 ---
@@ -575,7 +727,7 @@ THEN delegate to codex via clink
 2. Use `AskUserQuestion` to clarify requirements (token expiration, refresh tokens, storage?)
 3. Create plan and present to user
 4. Get approval for breaking changes
-5. Delegate implementation to `codex` via `clink` with default role (best for multi-file refactoring)
+5. Delegate implementation to `codex` via `clink` with `migration-refactoring` role (best for multi-file refactoring)
 6. After completion, ask before committing
 
 ### Example 2: User asks "Find all places where we handle errors"
@@ -598,11 +750,13 @@ THEN delegate to codex via clink
 - Database-specific
 
 **Decision Path**:
-1. Check service size - if large, delegate to `gemini` via `clink` (1M context, strong DB analysis)
+1. **Check context size first**:
+   - If slow query logs + service code > 400K tokens → delegate to `gemini` with `db-internals` role (1M context advantage)
+   - If < 400K tokens → delegate to `codex` with `db-internals` role + High thinking (better accuracy: 94.6% vs 88%)
 2. Include all slow query logs and relevant service files
 3. Get optimization recommendations
 4. Use `AskUserQuestion` to confirm approach before implementing
-5. Implement changes (can handle directly or delegate to codex for SQL refactoring)
+5. Implement changes (delegate to codex with `db-internals` role for SQL refactoring)
 
 ### Example 4: User asks "Write a threat model for our payment API"
 
@@ -613,7 +767,7 @@ THEN delegate to codex via clink
 
 **Decision Path**:
 1. Gather context about payment API (use `Read` tool or `Task` tool with Explore)
-2. Delegate to `claude` with Opus 4.1 role + `planner` role via `clink`
+2. Delegate to `claude` with Opus 4.1 + `security-compliance` role via `clink`
 3. Review and present to user
 4. This is for sign-off, so Opus 4.1's depth is justified
 
@@ -625,7 +779,7 @@ THEN delegate to codex via clink
 - Speed and cost matter
 
 **Decision Path**:
-1. Delegate to `claude` with Haiku 4.5 role via `clink`
+1. Delegate to `claude` with Haiku 4.5 + `implementation-helper` role via `clink`
 2. Provide file list and linting error details
 3. Let Haiku handle quickly and cheaply
 4. Ask before committing
@@ -638,7 +792,11 @@ THEN delegate to codex via clink
    - Task exceeds your context window
    - Another model has clear advantages (cost, speed, specialization)
    - Multi-file refactoring at scale (codex)
-   - Long-context analysis (gemini)
+   - Long-context analysis >400K tokens (gemini's undisputed advantage)
+
+   **Important**: Prefer GPT-5-Codex with High thinking for most tasks. Only use Gemini when:
+   - Context genuinely exceeds 400K tokens (its 1M context is undisputed advantage), OR
+   - Budget is primary constraint and free tier needed
 
 2. **Always ask user when**:
    - Requirements unclear
@@ -655,11 +813,14 @@ THEN delegate to codex via clink
 4. **Remember**:
    - Always reuse `continuation_id` in clink for context preservation
    - Provide absolute file paths when using clink
-   - Use appropriate roles (default, planner, codereviewer)
+   - Use appropriate specialized roles (see available roles for each CLI: `architect`, `migration-refactoring`, `api-integration`, `security-compliance`, etc.)
    - Mark todos throughout implementation
    - Be explicit about thinking effort (minimal/low/medium/high) when relevant
 
 5. **Cost/Speed Strategy**:
-   - Prototype → Haiku 4.5 or Gemini (fast/cheap)
-   - Implement → GPT-5-Codex or Sonnet 4.5 (strong coding)
+   - Prototype → Haiku 4.5 (fast) or Gemini only if budget-constrained
+   - Implement → GPT-5-Codex with appropriate thinking level (default choice for coding)
+   - Complex/Agentic → Sonnet 4.5 (multi-tool coordination)
    - Finalize → Opus 4.1 (high-stakes only)
+
+   **Model selection priority**: GPT-5-Codex (High thinking) > Sonnet 4.5 > Gemini (only for >400K context or budget constraints)

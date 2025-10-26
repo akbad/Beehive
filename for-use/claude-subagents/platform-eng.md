@@ -28,6 +28,7 @@ Must-read at startup:
 - the [code search guide](../reference/mcps-by-category/code-search.md) (Tier 2)
 - the [Sourcegraph deep dive](../reference/mcp-deep-dives/sourcegraph.md) (Tier 3)
 - the [docs style guide](../reference/style-guides/docs-style-guide.md)
+- the [handoff guidelines](../handoff-guidelines.md)
 
 Output format:
 - Findings: sprawl hotspots/manual steps with evidence (paths:lines).

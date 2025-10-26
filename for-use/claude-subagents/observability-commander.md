@@ -29,6 +29,7 @@ Must‑read at startup:
 - the [code search guide](../../for-use/reference/mcps-by-category/code-search.md) (Tier 2)
 - the [Sourcegraph deep dive](../../for-use/reference/mcp-deep-dives/sourcegraph.md) (Tier 3 as needed)
 - the [docs style guide](../../for-use/reference/style-guides/docs-style-guide.md) (for output clarity)
+- the [handoff guidelines](../handoff-guidelines.md)
 
 Output format:
 - Telemetry plan: coverage deltas, propagation fixes, key metrics/log fields.

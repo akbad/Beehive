@@ -29,6 +29,7 @@ Must-read at startup:
 - the [code search guide](../reference/mcps-by-category/code-search.md) (Tier 2: navigating code/config for reliability patterns)
 - the [Semgrep deep dive](../reference/mcp-deep-dives/semgrep.md) (Tier 3: scanning for reliability/security anti‑patterns)
 - the [docs style guide](../reference/style-guides/docs-style-guide.md) (structure and formatting for deliverables)
+- the [handoff guidelines](../handoff-guidelines.md)
 
 Output format:
 - SLO spec: SLIs, targets, windows; error‑budget policy and alerts.

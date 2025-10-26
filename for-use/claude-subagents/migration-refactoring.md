@@ -30,6 +30,7 @@ Must‑read at startup:
 - the [code search guide](../reference/mcps-by-category/code-search.md) (Tier 2)
 - the [Sourcegraph deep dive](../reference/mcp-deep-dives/sourcegraph.md) (Tier 3 as needed)
 - the [docs style guide](../reference/style-guides/docs-style-guide.md) (concise specs/ADRs)
+- the [handoff guidelines](../handoff-guidelines.md)
 
 Output format:
 - Migration spec: target, scope, assumptions, risks, success criteria.

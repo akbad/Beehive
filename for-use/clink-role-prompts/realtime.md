@@ -22,6 +22,7 @@ Must‑read at startup:
 - the [compact MCP list](../reference/compact-mcp-list.md) (Tier 1: tool selection)
 - the [code search guide](../reference/mcps-by-category/code-search.md) (Tier 2)
 - the [Context7 deep dive](../reference/mcp-deep-dives/context7.md) (Tier 3 as needed)
+- the [handoff guidelines](../handoff-guidelines.md)
 
 Output format:
 - Budget: topology, per‑hop targets, assumptions, and constraints.

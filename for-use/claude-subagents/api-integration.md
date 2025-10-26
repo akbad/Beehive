@@ -31,6 +31,7 @@ Must-read at startup:
 - the [Context7 deep dive](../reference/mcp-deep-dives/context7.md) (Tier 3: official framework/library docs)
 - the [Semgrep deep dive](../reference/mcp-deep-dives/semgrep.md) (security/hygiene checks for APIs)
 - the [docs style guide](../reference/style-guides/docs-style-guide.md) (structure and formatting for deliverables)
+- the [handoff guidelines](../handoff-guidelines.md)
 
 Output format:
 - Charter: goals, boundaries, protocol decision and trade-offs.

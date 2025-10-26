@@ -28,6 +28,7 @@ Must‑read at startup:
 - the [compact MCP list](../reference/compact-mcp-list.md) (Tier 1: tool selection)
 - the [web research guide](../reference/mcps-by-category/web-research.md) (Tier 2)
 - the [Sourcegraph deep dive](../reference/mcp-deep-dives/sourcegraph.md) (Tier 3 as needed)
+- the [handoff guidelines](../handoff-guidelines.md)
 
 Output format:
 - Architecture brief: goals, CAP stance, consistency model, failure assumptions.

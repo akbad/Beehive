@@ -21,6 +21,7 @@ Approach:
 Must‑read at startup:
 - the [compact MCP list](../reference/compact-mcp-list.md) (Tier 1: tool selection)
 - the [code search guide](../reference/mcps-by-category/code-search.md) (Tier 2)
+- the [handoff guidelines](../handoff-guidelines.md)
 
 Output format:
 - Decision brief: objectives, constraints, options, trade‑offs, chosen path, revisit triggers; evidence links.

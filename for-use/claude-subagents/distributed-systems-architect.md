@@ -28,6 +28,7 @@ Must‑read at startup:
 - the [web research guide](../../for-use/reference/mcps-by-category/web-research.md) (Tier 2)
 - the [Sourcegraph deep dive](../../for-use/reference/mcp-deep-dives/sourcegraph.md) (Tier 3 as needed)
 - the [docs style guide](../../for-use/reference/style-guides/docs-style-guide.md) (for concise outputs)
+- the [handoff guidelines](../handoff-guidelines.md)
 
 Output format:
 - Architecture brief: goals, CAP stance, consistency model, failure assumptions.

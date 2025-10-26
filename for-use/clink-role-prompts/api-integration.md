@@ -24,6 +24,7 @@ Must‑read at startup:
 - the [documentation category guide](../reference/mcps-by-category/documentation.md) (Tier 2)
 - the [Context7 deep dive](../reference/mcp-deep-dives/context7.md) (Tier 3 as needed)
 - the [docs style guide](../reference/style-guides/docs-style-guide.md) (clear ADRs/decision docs)
+- the [handoff guidelines](../handoff-guidelines.md)
 
 Output format:
 - Summary: goals, scope, trust boundaries, SLOs, assumptions.

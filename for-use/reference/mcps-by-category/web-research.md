@@ -1,6 +1,6 @@
-# Web Research Tools: Comparison & Usage Guide
+# Web research tools: comparison & usage guides
 
-## Quick Selection Table
+## Quick selection table
 
 | Tool | Best For | Limit | When to Use | Avoid When |
 |------|----------|-------|-------------|-----------|
@@ -10,9 +10,9 @@
 | **Fetch** | Simple URL fetch | ∞ | Known URL, simple content | Need search/crawl |
 | **Firecrawl** | Complex crawl/extract | 500 total | Multi-page deep crawl ONLY | Anything else possible |
 
-## Tool Deep-Dives
+## Tool usage guides
 
-### Tavily (Primary Choice)
+### Tavily (primary choice)
 
 **Strengths:**
 - Citations included (critical for credibility)
@@ -35,7 +35,7 @@
 
 **When NOT to use:** Credits < 100 remaining → switch to Brave
 
-### Brave (Secondary Choice)
+### Brave (secondary choice)
 
 **Strengths:**
 - Privacy-focused, no tracking
@@ -57,7 +57,7 @@
 
 **When to use:** After Tavily credits exhausted, need basic search
 
-### Exa (Specialized Semantic)
+### Exa (specialized semantic saerch)
 
 **Strengths:**
 - Neural search optimized for AI/LLMs
@@ -78,7 +78,7 @@
 
 **When NOT to use:** Simple factual lookup, keyword search sufficient
 
-### Fetch (Simple Fallback)
+### Fetch (simple fallback)
 
 **Strengths:**
 - Unlimited usage
@@ -128,7 +128,7 @@ Extract structured data across site
 
 **When NOT to use:** Anything Tavily/Brave/Fetch/Exa can handle
 
-## Decision Workflow
+## Decision tree
 
 ```
 Need web content?
@@ -152,7 +152,7 @@ Deep crawl needed? (10+ pages)
        └─ Still need more? → Firecrawl (track usage!)
 ```
 
-## Best Practices
+## Best practices
 
 **Always start with:** Tavily (best balance of features + limits)
 
@@ -166,7 +166,7 @@ Deep crawl needed? (10+ pages)
 
 **Track limits:** Check monthly resets (Tavily: 1st, Brave: varies)
 
-## Common Mistakes to Avoid
+## Common mistakes to avoid
 
 ❌ Using Firecrawl for single-page scraping (use Fetch)
 ❌ Using Exa for simple keyword search (use Tavily/Brave)
@@ -174,9 +174,9 @@ Deep crawl needed? (10+ pages)
 ❌ Not checking credit balance before complex Tavily operations
 ❌ Using Fetch against GitHub when you need raw file contents (use raw.githubusercontent.com or gh CLI). For HTML repo pages, Fetch is fine.
 
-## Quick Reference Links
+## Links to deep dives
 
-- [Full decision guide](../../mcps/tools-decision-guide.md#web-research)
-- [Firecrawl deep dive](../mcps/firecrawl.md) *(tier 3)*
-- [Brave deep dive](../mcps/brave.md) *(tier 3)*
-- [Compact tool list](../compact-mcp-list.md) *(tier 1)*
+- [Tavily deep dive](../mcp-deep-dives/tavily.md)
+- [Exa deep dive](../mcp-deep-dives/exa.md)
+- [Firecrawl deep dive](../mcp-deep-dives/firecrawl.md)
+- [Brave deep dive](../mcp-deep-dives/brave.md)

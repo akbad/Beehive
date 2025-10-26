@@ -1,6 +1,6 @@
-# Code Search Tools: Comparison & Usage Guide
+# Code search tools: comparison & usage guides
 
-## Quick Selection Table
+## Quick selection table
 
 | Tool | Best For | Scope | When to Use | Strengths |
 |------|----------|-------|-------------|-----------|
@@ -8,9 +8,9 @@
 | **Serena** | Local semantic ops | Your codebase | Refactor, navigate symbols | LSP-powered, 20+ langs |
 | **Grep / ripgrep (rg)** | Fast text search | Local files | Known pattern, simple search | Very fast, glob/type filters (rg), context lines |
 
-## Tool Deep-Dives
+## Tool usage guides
 
-### Sourcegraph (Primary for Public Code)
+### Sourcegraph (primary for public code)
 
 **What it does:** "Google for code" across public open-source repositories on sourcegraph.com; also supports private repositories when you run a Sourcegraph instance (self-hosted or cloud) and connect your repos.
 
@@ -52,7 +52,7 @@ Find Dockerfile patterns → file:Dockerfile FROM.*alpine
 
 **Supports many code hosts for private repos:** GitHub, GitLab, Bitbucket, Azure DevOps, Perforce, and more (when connected to your Sourcegraph instance).
 
-### Serena (Primary for Local Code)
+### Serena (primary for local code)
 
 **What it does:** Language-server-powered semantic navigation/refactoring
 
@@ -88,7 +88,7 @@ replace_symbol_body → swap implementation
 
 **When NOT to use:** Simple text find/replace (use Grep/Edit)
 
-### CLI Text Search (ripgrep `rg` and `grep`)
+### CLI text search (ripgrep `rg` and `grep`)
 
 **What it does:** Fast text/regex search in local files.
 
@@ -137,7 +137,7 @@ grep -R -n -E '^PORT=.*' --include='*.env' .
 
 **When NOT to use:** Need semantic understanding or refactoring (use Serena)
 
-## Decision Workflow
+## Decision tree
 
 ```
 Need code search?
@@ -161,7 +161,7 @@ Simple text search?
     └─ Use Grep (instant, no overhead)
 ```
 
-## Comparison: When to Use Each
+## Comparison: when to use each
 
 **Use Sourcegraph when:**
 - Need examples from public repos
@@ -183,7 +183,7 @@ Simple text search?
 - Searching comments/strings
 - No semantic analysis needed
 
-## Best Practices
+## Best practices
 
 **Start with appropriate scope:**
 - Public examples? → Sourcegraph
@@ -200,7 +200,7 @@ Simple text search?
 - ❌ Using Serena for simple text search (use Grep)
 - ❌ Not using Sourcegraph guided prompts
 
-## Common Use Cases
+## Common use cases
 
 **Finding implementation patterns:**
 → Sourcegraph (`repo:.*react.* useEffect`)
@@ -217,8 +217,7 @@ Simple text search?
 **Learning API usage:**
 → Sourcegraph (`lang:python requests.post`)
 
-## Quick Reference Links
+## Links to deep dives
 
-- [Full decision guide](../../mcps/tools-decision-guide.md#code-search)
-- [Sourcegraph deep dive](../mcps/sourcegraph.md) *(tier 3)*
-- [Compact tool list](../compact-mcp-list.md) *(tier 1)*
+- [Sourcegraph deep dive](../mcp-deep-dives/sourcegraph.md)
+- [Serena deep dive](../mcp-deep-dives/serena.md)

@@ -1,6 +1,6 @@
-# Memory Tools: Comparison & Usage Guide
+# Memory tools: comparison & usage guides
 
-## Quick Selection Table
+## Quick selection table
 
 | Tool | Type | Best For | Access Pattern | Availability |
 |------|------|----------|----------------|--------------|
@@ -8,9 +8,9 @@
 | **Memory MCP** | Knowledge graph | Track relationships | "X relates to Y" | MCP-enabled clients (configured per client) |
 | **claude-mem** | Auto context (example) | Persistent sessions | Automatic (implementation-specific) | Commonly used with Claude clients |
 
-## Tool Deep-Dives
+## Tool usage guides
 
-### Qdrant (Semantic Memory)
+### Qdrant (semantic memory)
 
 **What it does:** Vector-based semantic memory using embeddings
 

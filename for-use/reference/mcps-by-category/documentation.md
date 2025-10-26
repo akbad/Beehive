@@ -1,10 +1,10 @@
-# Documentation Tools: Context7 Usage Guide
+# API documentation tools: Context7 usage guide
 
 ## Overview
 
 **Context7** is the primary tool for retrieving up-to-date, version-specific API documentation and code examples.
 
-## Quick Reference
+## Quick reference
 
 | Aspect | Details |
 |--------|---------|
@@ -13,7 +13,7 @@
 | **Rate limits** | Plan-based: Free lower, Pro higher, Enterprise custom |
 | **Strengths** | Version-specific, official sources, code examples |
 
-## What Context7 Does
+## What Context7 does
 
 **Fetches:**
 - Up-to-date API documentation
@@ -27,7 +27,7 @@
 - Libraries and SDKs
 - API documentation sites
 
-## When to Use
+## When to use
 
 **Primary use cases:**
 - Learning a new library/framework
@@ -85,7 +85,7 @@ Step 2: get-library-docs("/vercel/next.js", topic="routing")
 - `topic` - Focus area (e.g., "hooks", "routing") (optional)
 - `tokens` - Max tokens to return (default: 5000) (optional)
 
-## Best Practices
+## Best practices
 
 **Always resolve first:** Must call `resolve-library-id` before `get-library-docs` (unless user provides ID in `/org/project` format)
 
@@ -103,7 +103,7 @@ Step 2: get-library-docs("/vercel/next.js", topic="routing")
 - Specify version when known: "React 18", "Next.js 14"
 - Context7 returns version-appropriate docs
 
-## When NOT to Use
+## When *not* to use
 
 **Use other tools when:**
 - Need code examples from real projects → Sourcegraph
@@ -112,7 +112,7 @@ Step 2: get-library-docs("/vercel/next.js", topic="routing")
 - Need private repo docs → Not supported (requires paid tier)
 - Simple web search → Web research tools
 
-## Common Use Cases
+## Common use cases
 
 **API syntax lookup:**
 → Context7 (`resolve-library-id` + `get-library-docs`)
@@ -126,7 +126,7 @@ Step 2: get-library-docs("/vercel/next.js", topic="routing")
 **Version migration guides:**
 → Context7 (official docs) + Web research (community guides)
 
-## Integration with Other Tools
+## Integration with other tools
 
 **Typical workflow:**
 1. Context7 → Get official API docs
@@ -153,7 +153,7 @@ Task: "Learn how to use React Server Components"
 - Web tutorials (use Tavily/Brave)
 - Community Q&A (use web research)
 
-## Quick Decision
+## Quick decision tree
 
 ```
 Need documentation?
@@ -166,7 +166,7 @@ Official API docs?
             └─ YES → Web research (Tavily)
 ```
 
-## Common Mistakes to Avoid
+## Common mistakes to avoid
 
 ❌ Skipping `resolve-library-id` (required first step)
 ❌ Using for community content (use web research)
@@ -174,9 +174,7 @@ Official API docs?
 ❌ Not specifying topic (get irrelevant broad docs)
 ❌ Using for real-world repo examples (use Sourcegraph). Context7 is for official docs and examples
 
-## Quick Reference Links
+## Links to deep dives
 
-- [Full decision guide](../../mcps/tools-decision-guide.md#context7)
-- [Web research tools](web-research.md) *(tier 2)*
-- [Code search tools](code-search.md) *(tier 2)*
-- [Compact tool list](../compact-mcp-list.md) *(tier 1)*
+- [Context7: *full guide*](../mcp-deep-dives/context7.md)
+

@@ -153,3 +153,104 @@
 > | Depth available | Tier 3 provides comprehensive guidance for complex tools |
 > | Maintenance decoupled | Update complex tool docs without touching simple ones |
 > | Token efficient | Most tasks complete with tier 1 + tier 2 (~1,200-1,500 tokens total) |
+
+## Using with Zen's `clink`
+
+This repo’s role bodies in `for-use/clink-role-prompts/` can be used as clink roles across any project. See the detailed how‑to in `agents/how-tos/using-with-clink.md`.
+
+- Prereqs
+  - Run Zen MCP with clink enabled (for example via this repo’s setup script). Endpoint typically: `http://localhost:8781/mcp/`.
+  - Create user‑level CLI client configs under `~/.zen/cli_clients/*.json` (or point `CLI_CLIENTS_CONFIG_PATH` to your configs).
+
+- Map roles to these prompt files
+  - Option A (absolute paths): point `prompt_path` at files in `for-use/clink-role-prompts/`.
+  - Option B (symlink + relative): symlink this folder under `~/.zen/cli_clients/systemprompts/` and use a relative `prompt_path`.
+
+Example (`~/.zen/cli_clients/gemini.json`):
+
+```json
+{
+  "name": "gemini",
+  "command": "gemini",
+  "additional_args": ["--yolo", "-o", "json"],
+  "env": {},
+  "roles": {
+    "frontend": {
+      "prompt_path": "/ABSOLUTE/PATH/TO/REPO/my-agent-files/for-use/clink-role-prompts/frontend.md"
+    },
+    "testing": {
+      "prompt_path": "/ABSOLUTE/PATH/TO/REPO/my-agent-files/for-use/clink-role-prompts/testing.md"
+    }
+  }
+}
+```
+
+Or using a symlinked layout:
+
+```bash
+mkdir -p ~/.zen/cli_clients/systemprompts/clink
+ln -s "$PWD/my-agent-files/for-use/clink-role-prompts" \
+      ~/.zen/cli_clients/systemprompts/clink/for-use-prompts
+```
+
+```json
+{
+  "name": "codex",
+  "command": "codex",
+  "additional_args": ["--json", "--dangerously-bypass-approvals-and-sandbox"],
+  "roles": {
+    "architecture_audit": {
+      "prompt_path": "systemprompts/clink/for-use-prompts/architecture-audit.md"
+    }
+  }
+}
+```
+
+- Prompt resolution rules
+  - Relative `prompt_path` resolves relative to the JSON’s directory, then falls back to the Zen project root.
+  - Absolute paths are used as‑is.
+
+- Verify and use
+  - Restart the Zen server to reload configs.
+  - Invoke from your agent: `clink with gemini role=frontend to assess UI components in src/ui/`.
+  - Troubleshoot: bad paths raise “Prompt file not found: …”. Server logs (if using the setup script): `/tmp/mcp-Zen MCP-server.log`.
+
+Tip: Keep role bodies short and reference Tier‑1/2/3 docs from `for-use/reference/` in the prompt text (don’t inline).
+
+## Using with Claude Code subagents
+
+This repo’s subagent files in `for-use/claude-subagents/` are ready to install. See `agents/how-tos/using-with-claude-code.md` for the full guide.
+
+- Where they live (precedence)
+  - Project: `.claude/agents/` (overrides user for same `name`)
+  - User: `~/.claude/agents/` (available everywhere)
+
+- Install (copy or symlink)
+
+```bash
+mkdir -p ~/.claude/agents
+ln -s "$PWD/my-agent-files/for-use/claude-subagents/frontend.md" ~/.claude/agents/frontend.md
+ln -s "$PWD/my-agent-files/for-use/claude-subagents/testing.md" ~/.claude/agents/testing.md
+```
+
+- Minimal, correct frontmatter (already included):
+
+```markdown
+---
+name: frontend
+description: Use for frontend implementation reviews and UI architecture decisions; prefer concrete, file:line guidance and least‑invasive fixes.
+tools: Read, Grep, Glob, Bash
+model: inherit
+---
+```
+
+- Make delegation proactive
+  - Write specific triggers in `description` (for example, “Use after UI code changes; review only the diff.”).
+  - Grant only the tools the role needs (omit `tools` to inherit all; include to restrict).
+  - Prefer `model: inherit`; set default via `CLAUDE_CODE_SUBAGENT_MODEL` if desired.
+
+- Verify and use
+  - Run `/agents` in Claude to confirm the subagents appear.
+  - Use natural prompts and let Claude auto‑delegate, or explicitly invoke a subagent by name.
+
+Note: Role bodies should reference `for-use/reference/compact-mcp-list.md` (Tier 1) and any relevant Tier‑2/3 guides. We’ll add `for-use/handoff-guidelines.md` next and reference it as a must‑read for delegation rules.

@@ -55,6 +55,46 @@
     - What requires explicit approval (commits, deployments, deletions)
     - Decision matrix: `"If X, then delegate to Y agent with Z role"`
 
+> ### Integrating must-read files within role prompts
+> 
+> Reference must‑read files in role prompts *without* including their content.
+> 
+> #### Claude Code subagent frontmatter example:
+> 
+> ```markdown
+> ---
+> name: code-reviewer
+> description: Reviews code for quality, security, maintainability
+> tools: Read, Grep, Glob, Bash, mcp__semgrep
+> model: sonnet
+> ---
+> 
+> You are a senior code reviewer. Before starting, read these files:
+> - `for-use/reference/compact-tool-list.md` – Tier 1 tool quick ref
+> - `for-use/must-reads/style-guide.md` – Project coding standards
+> - `for-use/must-reads/handoff-guidelines.md` – When to delegate
+> 
+> If you need detailed Semgrep usage, read:
+> - `for-use/reference/mcps/semgrep.md` – Tier 3 deep dive
+> 
+> [Rest of role prompt body...]
+> ```
+> 
+> #### `clink` role prompt example:
+> 
+> ```markdown
+> You are a research synthesis specialist.
+> 
+> At startup, read:
+> - for-use/reference/compact-tool-list.md (tier 1: tool selection)
+> - for-use/must-reads/handoff-guidelines.md (delegation rules)
+> 
+> When comparing web research tools, read:
+> - for-use/reference/category/web-research.md (tier 2: Tavily vs Exa vs Fetch)
+> 
+> [Rest of role prompt body...]
+> ```
+
 ### Must-read (for certain roles only)
 
 - **Style guides** (in `style-guides/`):
@@ -103,7 +143,7 @@
 
 - **Read when**: deep understanding of an MCP being used is required ("tier 3")
 
-> Benefits of progressive disclosure for tool docs
+> ### Benefits of progressive disclosure for tool docs
 >
 > | Benefit | Description |
 > | :------ | :---------- |

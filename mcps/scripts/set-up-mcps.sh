@@ -1091,11 +1091,11 @@ log_empty_line
 TAKE_DOWN_FILE="take_down_mcps.sh"
 echo "#!/usr/bin/env bash" > "$TAKE_DOWN_FILE"
 echo "$KILL_HTTPS_CMD; $QDRANT_STOP_CMD" >> "$TAKE_DOWN_FILE"
-log_info "✔︎ Stop commands also saved to $RED $TAKE_DOWN_FILE $NC for convenience"
+log_info "✔︎ Stop commands also saved to $RED$TAKE_DOWN_FILE$NC for convenience"
 
 if [[ "$AUTO_APPROVE_MCP" == true ]]; then
     log_empty_line
-    log_success "All agents configured to auto-approve MCP tools"
+    log_success "All agents configured to auto-approve MCP tools (requested using -y/--yes option)"
     log_info "  → Updated: ~/.claude/settings.json"
     log_info "  → Updated: ~/.codex/config.toml"
     log_info "  → Updated: ~/.gemini/settings.json"

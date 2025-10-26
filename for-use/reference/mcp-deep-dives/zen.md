@@ -16,10 +16,10 @@ CLI-to-CLI bridge enabling multi-model orchestration, sub-agent spawning, and co
 
 **Parameters:**
 - `prompt` (required) - User request forwarded to CLI
-- `cli_name` (required) - Which CLI to use: "claude" | "codex" | "gemini"
+- `cli_name` (optional; required if multiple CLIs are configured) - Which CLI to use: "claude" | "codex" | "gemini". Defaults to "gemini" if present, otherwise the first configured CLI.
 - `role` (optional, default "default") - Role preset for selected CLI
 - `continuation_id` (optional) - Thread ID for multi-turn conversations
-- `files` (optional) - Array of absolute file/folder paths
+- `absolute_file_paths` (optional) - Array of absolute file/folder paths (must be full absolute paths; do not shorten)
 - `images` (optional) - Array of image paths or base64 blobs
 
 **Available roles per CLI:**
@@ -69,9 +69,9 @@ CLI-to-CLI bridge enabling multi-model orchestration, sub-agent spawning, and co
 ✅ **Seamless handoff** (agent resumes with full context)
 
 ### Disadvantages
-❌ **clink only** (not available to individual CLIs directly)
+❌ **clink bridge required** (invoked from your agent CLI)
 ❌ **Requires Zen setup** (local server running)
-❌ **No direct agent access** (orchestration layer only)
+❌ **Accessed via agent clients** (e.g., Claude Code, Gemini CLI)
 
 ## Common Pitfalls: When NOT to Use
 
@@ -154,7 +154,7 @@ clink(
   cli_name: "claude",
   role: "planner"
 )
-→ Returns: {response, continuation_id: "abc123"}
+→ Returns: status: continuation_available with continuation_offer.continuation_id: "abc123"
 
 Second call (REUSE continuation_id):
 clink(

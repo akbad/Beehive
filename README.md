@@ -58,7 +58,7 @@ The two sections below set up the same agent roles on different platforms:
 
 3. Copy the JSON configs:
    ```bash
-   cp agent-ecosystem/agents/zen-client-cli-configs/*.json ~/.zen/cli_clients/
+   cp agent-ecosystem/agents/configs/*.json ~/.zen/cli_clients/
    ```
 
 4. Restart Zen MCP server to reload configs

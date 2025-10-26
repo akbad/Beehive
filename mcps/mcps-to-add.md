@@ -1,4 +1,4 @@
-# Tools not in the script yet that will definitely be included
+# Tools not in the script yet to add later
 
 ## Playwright/Puppeteer MCP
 

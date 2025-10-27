@@ -56,6 +56,30 @@
         },
         "testing": {
             "prompt_path": "systemprompts/clink-role-prompts/testing.md"
+        },
+        "auth-specialist": {
+            "prompt_path": "systemprompts/clink-role-prompts/auth-specialist.md"
+        },
+        "api-client-designer": {
+            "prompt_path": "systemprompts/clink-role-prompts/api-client-designer.md"
+        },
+        "caching-specialist": {
+            "prompt_path": "systemprompts/clink-role-prompts/caching-specialist.md"
+        },
+        "chaos-engineer": {
+            "prompt_path": "systemprompts/clink-role-prompts/chaos-engineer.md"
+        },
+        "code-reviewer": {
+            "prompt_path": "systemprompts/clink-role-prompts/code-reviewer.md"
+        },
+        "debugger": {
+            "prompt_path": "systemprompts/clink-role-prompts/debugger.md"
+        },
+        "event-driven": {
+            "prompt_path": "systemprompts/clink-role-prompts/event-driven.md"
+        },
+        "schema-evolution": {
+            "prompt_path": "systemprompts/clink-role-prompts/schema-evolution.md"
         }
     }
 }

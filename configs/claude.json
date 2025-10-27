@@ -39,6 +39,15 @@
         },
         "tech-debt": {
             "prompt_path": "systemprompts/clink-role-prompts/tech-debt.md"
+        },
+        "incident-commander": {
+            "prompt_path": "systemprompts/clink-role-prompts/incident-commander.md"
+        },
+        "interviewer": {
+            "prompt_path": "systemprompts/clink-role-prompts/interviewer.md"
+        },
+        "task-decomposer": {
+            "prompt_path": "systemprompts/clink-role-prompts/task-decomposer.md"
         }
     }
 }

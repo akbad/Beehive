@@ -21,6 +21,12 @@
         },
         "optimization": {
             "prompt_path": "systemprompts/clink-role-prompts/optimization.md"
+        },
+        "data-eng": {
+            "prompt_path": "systemprompts/clink-role-prompts/data-eng.md"
+        },
+        "historian": {
+            "prompt_path": "systemprompts/clink-role-prompts/historian.md"
         }
     }
 }

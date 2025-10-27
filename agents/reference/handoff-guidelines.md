@@ -1,4 +1,4 @@
-# Handoff Guidelines for Agents (Trimmed)
+# Handoff Guidelines for Agents
 
 > Purpose: A concise guide for when to delegate work vs. when to ask the user for guidance. This trimmed version consolidates duplicated guidance into single canonical sections and removes repeated reminders.
 
@@ -11,12 +11,15 @@
   - [Which Mechanism to Use](#which-mechanism-to-use)
 - [Context Window Guidance](#context-window-guidance)
 - [When to Use Clink](#when-to-use-clink)
+  - [Available Roles by CLI](#available-roles-by-cli)
 - [When to Use Task Tool (Claude Code)](#when-to-use-task-tool-claude-code)
 - [When to Ask the User (AskUserQuestion)](#when-to-ask-the-user-askuserquestion)
 - [Model Selection Guide](#model-selection-guide)
+  - [Thinking Level Optimization](#thinking-level-optimization)
 - [Handoff Patterns](#handoff-patterns)
 - [What Requires Explicit Approval](#what-requires-explicit-approval)
 - [Decision Matrix](#decision-matrix)
+  - [Critical Edge Cases](#critical-edge-cases)
 - [Practical Examples](#practical-examples)
 - [Key Takeaways](#key-takeaways)
 
@@ -73,13 +76,13 @@ How to use `clink` (canonical specifics):
 
 ### Available Roles by CLI
 
-**codex**: api-integration, cpp-pro, devops-infra-as-code, frontend, golang-pro, implementation-helper, migration-refactoring, mobile-eng-architect, networking-edge-infra, realtime, rust-pro, testing
+**codex**: api-client-designer, api-integration, auth-specialist, caching-specialist, chaos-engineer, code-reviewer, cpp-pro, debugger, devops-infra-as-code, event-driven, frontend, golang-pro, implementation-helper, migration-refactoring, mobile-eng-architect, networking-edge-infra, realtime, rust-pro, schema-evolution, testing
 
-**gemini**: ai-ml-eng, db-internals, explainer, implementation-helper, optimization
+**gemini**: ai-ml-eng, data-eng, db-internals, explainer, historian, implementation-helper, optimization
 
 **claude**:
 - Haiku: implementation-helper, platform-eng (+ any role for speed)
-- Sonnet: architect, architecture-audit, cost-optimization-finops, distributed-systems, explainer, implementation-helper, observability, scalability-reliability, security-compliance, tech-debt
+- Sonnet: architect, architecture-audit, cost-optimization-finops, distributed-systems, explainer, implementation-helper, incident-commander, interviewer, observability, scalability-reliability, security-compliance, task-decomposer, tech-debt
 - Opus: architect, architecture-audit, security-compliance, tech-debt (+ any role for max rigor)
 
 ---
@@ -149,6 +152,20 @@ Quick reference (first picks by task category; defer to [Context Window Guidance
 | Networking / edge infrastructure | GPT‑5‑Codex | `codex` | `networking-edge-infra` | CDN; load balancing; edge compute patterns |
 | Mobile engineering | GPT‑5‑Codex | `codex` | `mobile-eng-architect` | iOS/Android architecture; mobile‑specific patterns |
 | Whole‑repo analysis >400K tokens | Gemini 2.5 Pro | `gemini` | `explainer` | 1M‑token context |
+| API client SDK design | GPT‑5‑Codex | `codex` | `api-client-designer` | Idiomatic SDKs; retries/pagination/auth; contract‑driven |
+| Authentication engineering | Sonnet 4.5 | `claude` | `auth-specialist` | Secure flows (sessions/OAuth/JWT); OWASP; least privilege |
+| Caching strategy & implementation | Gemini 2.5 Pro | `gemini` | `caching-specialist` | Layering, TTL/invalidations, cache keys, metrics |
+| Chaos engineering & resilience drills | Sonnet 4.5 | `claude` | `chaos-engineer` | Plan experiments, limit blast radius, SLOs; coordinate runs |
+| Code review | GPT‑5‑Codex | `codex` | `code-reviewer` | Quality, security, maintainability; actionable diffs |
+| Data engineering pipelines | Gemini 2.5 Pro | `gemini` | `data-eng` | ETL/ELT, SQL tuning, batch/stream jobs |
+| Debugging and triage | GPT‑5‑Codex | `codex` | `debugger` | Cross‑file fault isolation; logs/traces; reproduction |
+| Event‑driven design/implementation | GPT‑5‑Codex | `codex` | `event-driven` | Topics/queues, idempotency, backpressure, ordering |
+| Engineering historian | Sonnet 4.5 | `claude` | `historian` | Change timelines, root causes, commit/story synthesis |
+| Incident command | Sonnet 4.5 | `claude` | `incident-commander` | Runbooks, comms, decision logs, mitigations |
+| Interviewer (requirements) | Sonnet 4.5 | `claude` | `interviewer` | Clarify constraints/trade‑offs; elicit missing info |
+| Schema evolution & migrations | GPT‑5‑Codex | `codex` | `schema-evolution` | Backward‑compatible changes, migrations, rollout/rollback |
+| Repository/code search | Haiku 4.5 | `claude` | `searcher` | Fast exploration; summarize findings; pointers |
+| Task decomposition | Sonnet 4.5 | `claude` | `task-decomposer` | Break goals into verifiable steps, deps, risks |
 
 Model‑specific notes:
 - Codex (GPT‑5‑Codex): multi‑file refactoring, mechanical changes, contract/testing, and cross‑file code accuracy.
@@ -179,15 +196,15 @@ Sequential flow with references to canonical sections rather than repeating rule
 
 2) Planning
 - Objectives: design the approach, break down tasks, identify risks.
-- Actions: outline steps; note trade‑offs; delegate complex architecture to Claude (`architect`) or refactoring planning to Codex (`migration-refactoring`) via `clink`. Resolve ambiguities via [AskUserQuestion](#when-to-ask-the-user-askuserquestion). Obtain approval before implementation when needed (see [Explicit Approval](#what-requires-explicit-approval)).
+- Actions: outline steps; note trade‑offs; delegate complex architecture to Claude (`architect`) or refactoring planning to Codex (`migration-refactoring`) via `clink`. For large goals, use `task-decomposer` to produce verifiable substeps and dependencies. Resolve ambiguities via [AskUserQuestion](#when-to-ask-the-user-askuserquestion). Obtain approval before implementation when needed (see [Explicit Approval](#what-requires-explicit-approval)).
 
 3) Implementation
 - Objectives: execute the plan and write changes.
-- Actions: track tasks; use Codex for wide refactors/testing; use Claude for coordination; use Gemini for long‑context codebase analysis. For approval gates (commits/deploys/destructive ops), see [Explicit Approval](#what-requires-explicit-approval).
+- Actions: track tasks; use Codex for wide refactors/testing; use Claude for coordination; use Gemini for long‑context codebase analysis. Leverage specialist roles as needed (e.g., `schema-evolution`, `auth-specialist`, `caching-specialist`, `event-driven`, `debugger`). For approval gates (commits/deploys/destructive ops), see [Explicit Approval](#what-requires-explicit-approval).
 
 4) Review/Verification (optional)
 - Objectives: verify changes, run tests, prepare for commit.
-- Actions: request code review (any model with a reviewer role); run tests; follow the [Approval Pattern](#what-requires-explicit-approval) before committing/pushing.
+- Actions: request code review (use `code-reviewer` for structured guidance); run tests; follow the [Approval Pattern](#what-requires-explicit-approval) before committing/pushing.
 
 ---
 

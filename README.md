@@ -10,7 +10,7 @@ See [`SETUP.md`](SETUP.md) for setup instructions.
 
 ### Consistent agent roles across 3 CLI platforms
 
-- 20+ specialized roles (architect, frontend, security, observability, etc.)
+- 39 specialized roles (architect, frontend, security, observability, debugger, data-eng, etc.)
 - Same role definitions work everywhere via shared prompt sources
 - Choose model per task (e.g. Claude for architecture, Gemini for broad code search)
 

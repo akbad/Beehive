@@ -11,12 +11,16 @@ You don't technically have to learn what the different agents and MCPs available
    mcps/scripts/set-up-mcps.sh [options]
    ```
 
-3. Set up the [`claude-mem` automatic context management plugin](https://github.com/thedotmack/claude-mem) by starting up Claude Code and running these commands:
+3. **Claude Code only:** install the [`claude-mem` automatic context management plugin](https://github.com/thedotmack/claude-mem) and the [Obra Superpowers plugin](https://github.com/obra/superpowers) via Claude's `/plugin` commands:
 
    ```
    > /plugin marketplace add thedotmack/claude-mem
    > /plugin install claude-mem
+   > /plugin marketplace add obra/superpowers-marketplace
+   > /plugin install superpowers@superpowers-marketplace
    ```
+
+4. **Codex only:** the setup script automatically installs the Superpowers skills library (no manual command needed). When `mcps/scripts/set-up-mcps.sh` runs, it clones or updates `obra/superpowers` under `~/.codex/superpowers`, installs dependencies, and verifies the bootstrap CLI so Codex sessions immediately load the skills. The process is idempotent, so rerunning the setup reuses the existing checkout safely.
 
 > **Overview of the MCP tools installed:**
 >
@@ -72,6 +76,7 @@ This generates config files from templates ([`AGENTS.md.template`](configs/AGENT
 1. Relaunch Codex
 2. Ask Codex: `What must-read files were you told to read at startup?`
 3. It should reference the clink tool and delegation rules
+4. Run `~/.codex/superpowers/.codex/superpowers-codex find-skills` to confirm the Superpowers skills list renders without errors
 
 > **Note**: `/status` currently shows `Agents.md: <none>` (even when correclty set up) due to [a known bug](https://github.com/openai/codex/issues/3793), but the `~/.codex/AGENTS.md` file created in the setup script **is** loaded and used, as the testing steps above should confirm.
 

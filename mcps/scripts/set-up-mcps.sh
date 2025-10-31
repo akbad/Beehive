@@ -1070,6 +1070,20 @@ if [[ "$SERENA_AVAILABLE" == true ]]; then
     log_info "  • Serena MCP: /tmp/mcp-Serena MCP-server.log"
 fi
 
+codex_selected=false
+for agent in "${AGENTS[@]}"; do
+    if [[ "$agent" == "$CODEX" ]]; then
+        codex_selected=true
+        break
+    fi
+done
+
+if [[ "$codex_selected" == true ]]; then
+    log_separator
+    log_info "Ensuring Superpowers skills are installed for Codex..."
+    "$SCRIPT_DIR/../../agents/scripts/set-up-codex-superpowers.sh"
+fi
+
 log_empty_line
 log_info "To verify setup:"
 log_info "  1. cd into a git repo"

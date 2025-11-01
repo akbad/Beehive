@@ -10,7 +10,22 @@
 - [Using agents](#using-agents)
   - [Direct use](#direct-use)
   - [As subagents](#as-subagents)
-- [MCPs available](#mcps-available)
+- [Tools available](#tools-available)
+  - [MCP servers and plugins](#mcp-servers-and-plugins)
+  - [Non-MCP CLI tools](#non-mcp-cli-tools)
+- [Using Superpowers *(Claude Code/Codex CLI only)*](#using-superpowers-claude-codecodex-cli-only)
+  - [What it is](#what-it-is)
+  - [How it integrates with this repo](#how-it-integrates-with-this-repo)
+  - [How skills activate](#how-skills-activate)
+- [Preserving context \& memories across sessions](#preserving-context--memories-across-sessions)
+  - [Memory + Qdrant MCPs: core workflow for cross-CLI memory sharing](#memory--qdrant-mcps-core-workflow-for-cross-cli-memory-sharing)
+  - [Using `claude-mem` *(Claude Code only)*](#using-claude-mem-claude-code-only)
+- [Using GitHub SpecKit CLI](#using-github-speckit-cli)
+  - [What it is](#what-it-is-2)
+  - [How it integrates with this repo](#how-it-integrates-with-this-repo-1)
+  - [Key commands](#key-commands)
+  - [File structure](#file-structure)
+  - [When to use SpecKit](#when-to-use-speckit)
 
 ---
 
@@ -144,10 +159,12 @@ Simply explicitly mention the subagent you want to use and it will automatically
 > > Have the `code-reviewer` subagent review the changes 
 >   in `src/main.py` for best practices and potential bugs.
 
-## MCPs available
+## Tools available
 
 > [!IMPORTANT]
 > You should **not** need to explicitly use these tools most of the time; after reading the startup guidance provided by the config files, **agents will automatically select and use the appropriate MCP tools** based on the task.
+
+### MCP servers and plugins
 
 - **Code & security**:
 
@@ -207,3 +224,321 @@ Simply explicitly mention the subagent you want to use and it will automatically
 > - [`mcp-deep-dives/`](agents/reference/mcp-deep-dives/): 
 > 
 >     - Collection of in-depth guides for each MCP, detailing their capabilities and advanced usage patterns. Only read by agents when necessary to preserve context
+
+### Non-MCP CLI tools
+
+- **GitHub SpecKit:** for devising detailed specifications and subsequently using them to devise development plans and tasks *(your agents will never hallucinate or get distracted again)*
+
+## Using Superpowers *(Claude Code/Codex CLI only)*
+
+### What it is
+
+A skills library that enforces mandatory workflows for common engineering tasks *(the following list is taken straight from the [Superpowers repo README](https://github.com/obra/superpowers/blob/main/README.md))*:
+
+<ins>**Testing** (`skills/testing/`):</ins>
+- **test-driven-development** - RED-GREEN-REFACTOR cycle
+- **condition-based-waiting** - Async test patterns
+- **testing-anti-patterns** - Common pitfalls to avoid
+
+<ins>**Debugging** (`skills/debugging/`):</ins>
+- **systematic-debugging** - 4-phase root cause process
+- **root-cause-tracing** - Find the real problem
+- **verification-before-completion** - Ensure it's actually fixed
+- **defense-in-depth** - Multiple validation layers
+
+<ins>**Collaboration** (`skills/collaboration/`):</ins>
+- **brainstorming** - Socratic design refinement
+- **writing-plans** - Detailed implementation plans
+- **executing-plans** - Batch execution with checkpoints
+- **dispatching-parallel-agents** - Concurrent subagent workflows
+- **requesting-code-review** - Pre-review checklist
+- **receiving-code-review** - Responding to feedback
+- **using-git-worktrees** - Parallel development branches
+- **finishing-a-development-branch** - Merge/PR decision workflow
+- **subagent-driven-development** - Fast iteration with quality gates
+
+<ins>**Meta** (`skills/meta/`):</ins>
+- **writing-skills** - Create new skills following best practices
+- **sharing-skills** - Contribute skills back via branch and PR
+- **testing-skills-with-subagents** - Validate skill quality
+- **using-superpowers** - Introduction to the skills system
+
+> [!NOTE]
+> Workflows defined by the *Superpowers* plugin are **bottom-up**: it provides skills that enforce a specific *process* for building/fixing individual pieces of a codebase. 
+> 
+> In other words, it's less concerned with the overall feature spec; instead, it focuses more on the grassroots implementation quality.
+>
+
+### How it integrates with this repo
+
+| Feature/tool/guide | What it defines/handles |
+| :--- | :--- |
+| **GitHub SpecKit** *(optional user-called CLI tool)* | **What** to build and **why** (i.e. top-down planning & specification) |
+| ***Superpowers*-defined** (and other) **skills** | **How** to perform a task *(if defined for that task)*
+| [**Handoff guidelines**](agents/reference/handoff-guidelines.md) | **Who** performs each task *(i.e. when to delegate to subagents + recommended agent/model combos)* |
+| [**Tool guidance**](agents/reference/compact-mcp-list.md) | **Tools to use** for a task |
+
+> [!NOTE]
+> The [handoff guidelines](agents/reference/handoff-guidelines.md) and [tool guidance](agents/reference/compact-mcp-list.md) are part of the required files agents must read upon startup (as directed in the [config files set up by this repo](configs/)).
+
+### How skills activate 
+
+#### Automatically
+
+Skills activate automatically when tasks match their descriptions: in the startup guidance agents read, they are ordered to check for applicable skills before starting any task.
+
+#### Manual activation (Claude Code only, via slash commands)
+
+The following commands can be used in Claude Code:
+
+| Command | What it does |
+| :--- | :--- |
+| **`/superpowers:brainstorm`** | Interactive design refinement using Socratic questioning |
+| **`/superpowers:write-plan`** | Create detailed implementation plan with bite-sized tasks |
+| **`/superpowers:execute-plan`** | Execute plan in batches with review checkpoints |
+
+> [!NOTE]
+> There is currently no way to *manually* activate skills in Codex CLI (since slash commands don't exist in Codex). Instead, all skills activate automatically. 
+> 
+> You can check which skills are available to (be automatically loaded by) Codex by running:
+> ```bash
+> ~/.codex/superpowers/.codex/superpowers-codex find-skills`
+> ```
+
+## Preserving context & memories across sessions
+
+There are 2 methods for this:
+
+| Method | Description |
+| :--- | :--- |
+| **Memory + Qdrant MCPs** | Allow creating and retrieving **semantic (Qdrant)** and **structural (Memory)** memories via <ins>manual</ins> tool calls |
+| **`claude-mem` plugin *(Claude Code only)*** | <ins>Automatically</ins> injects context into *only* Claude Code sessions, based on memories gathered *only* from previous Claude Code sessions |
+
+### Memory + Qdrant MCPs: core workflow for cross-CLI memory sharing
+
+> [!IMPORTANT]
+> **It is extraordinarily helpful for Claude Code, Gemini CLI and Codex CLI to share memories** with one another to avoid repeating work (and, if using a less powerful model, to benefit automatically from analyses/memories saved from smarter models).
+
+<ins>All</ins> CLIs should consistently and scrupulously:
+
+- **Explicitly save discoveries/decisions** to Qdrant after reading code
+- **Create session summaries** before ending work
+- **Search for relevant memories when starting tasks** in order to benefit from past work/analysis
+
+### Using `claude-mem` *(Claude Code only)*
+
+#### What it is
+
+- A **<ins>fully automatic</ins> context management plugin** that preserves conversation memory across Claude Code sessions **without manual intervention** 
+
+    - *Adds extra convenience on top of the Memory + Qdrant MCP combination for Claude Code specifically*
+
+- Unlike Qdrant/Memory MCPs which require explicit saving, claude-mem operates entirely through Claude Code's plugin hook system.
+
+#### Automatic features
+
+| Feature | Description |
+| :--- | :--- |
+| **Session summaries** | Every conversation is automatically summarized (request, completed, learned, next steps) |
+| **Observation extraction** | Captures structured learnings after each tool use: decisions, bugfixes, features, refactors, discoveries
+| **Full-text search** | All data indexed with FTS5 for fast retrieval across files, concepts, and sessions |
+| **Auto-injected timeline of recent work w/ progressive disclosure** | At session start, shows layered timeline consisting of (1) Critical observations, (2) Decisions & architecture changes, and (3) Informational notes (with token costs of requesting further info included for each) |
+
+> [!TIP]
+> If `claude-mem` is properly set up, every time you start Claude Code, you should see output that looks like:
+> ```bash
+> $ claude
+>   # ... Claude startup graphics ...
+>  ⎿ SessionStart:startup says: Plugin hook error: 
+>
+>    📝 Claude-Mem Context Loaded
+>       ℹ️  Note: This appears as stderr but is informational
+>     only
+>
+>
+>    📝 [my-agent-files] recent context
+>    ─────────────────────────────────────────────────────
+>
+>    Legend: 🎯 session-request | 🔴 gotcha | 🟡 
+>    problem-solution | 🔵 how-it-works | 🟢 what-changed | 
+>    🟣 discovery | 🟠 why-it-exists | 🟤 decision | ⚖️ 
+>    trade-off
+>    
+>   💡 Progressive Disclosure: This index shows WHAT exists 
+>   (titles) and retrieval COST (token counts).
+>      → Use MCP search tools to fetch full observation 
+>   details on-demand (Layer 2)
+>      → Prefer searching observations over re-reading code 
+>   for past decisions and learnings
+>      → Critical types (🔴 gotcha, 🟤 decision, ⚖️ 
+>   trade-off) often worth fetching immediately
+>    # ... individual context entries will follow
+> ```
+
+#### Manual search (when needed)
+
+While claude-mem works automatically, you can manually search its database using MCP tools:
+
+| Search for... | Tool to use |
+| :--- | :--- |
+| Observations (decisions, bugs, features) | `search_observations` |
+| Past session summaries | `search_sessions` |
+| What the user originally asked | `search_user_prompts` |
+| Work related to specific files | `find_by_file` |
+| Observations by type (decision/bugfix/etc.) | `find_by_type` |
+| Observations tagged with concepts | `find_by_concept` |
+
+> [!IMPORTANT]
+> **Always start searches with `format: "index"`** (50-100 tokens/result) to see what exists, then use `format: "full"` (500-1000 tokens/result) only for specific items of interest.
+
+**Example use case:**
+```
+> Search claude-mem for past decisions about authentication
+# Agent uses search_observations with format: "index", sees 3 relevant results
+# Agent then fetches full details for the most relevant one
+```
+
+## Using GitHub SpecKit CLI
+
+### What it is
+
+[GitHub SpecKit](https://github.github.io/spec-kit/) is an open-source toolkit for [**Spec-Driven Development (SDD)**](https://github.com/github/spec-kit/blob/main/spec-driven.md), which emphasizes creating extensive, exhaustive specifications that are then treated as executable roadmaps that drive implementation.
+
+> [!NOTE]
+> SpecKit is <ins>not</ins> an MCP tool; it's a simple CLI tool that uses available agentic coding CLIs. It's installed automatically by the [tool setup script](tools/scripts/set-up-tools.sh); verify installation (and its connection to your various CLIs) by running `specify check`.
+
+#### SDD workflow overview
+
+There are 4 phases:
+1. **Specify**: Turns requirements into detailed specifications
+2. **Plan**: Turns architecture & constraints into a clear implementation plan
+3. **Tasks**: Turns specification breakdown into concrete, reviewable tasks
+4. **Implement**: Executes tasks sequentially and/or in parallel, with focused reviews
+
+### How it integrates with this repo
+
+| Feature/tool/guide | What it defines/handles |
+| :--- | :--- |
+| **GitHub SpecKit** *(optional user-called CLI tool)* | **What** to build and **why** (i.e. top-down planning & specification) |
+| ***Superpowers*-defined** (and other) **skills** | **How** to perform a task *(if defined for that task)*
+| [**Handoff guidelines**](agents/reference/handoff-guidelines.md) | **Who** performs each task *(i.e. when to delegate to subagents + recommended agent/model combos)* |
+| [**Tool guidance**](agents/reference/compact-mcp-list.md) | **Tools to use** for a task |
+
+> [!NOTE]
+> The [handoff guidelines](agents/reference/handoff-guidelines.md) and [tool guidance](agents/reference/compact-mcp-list.md) are part of the required files agents must read upon startup (as directed in the [config files set up by this repo](configs/)).
+
+#### Sample comprehensive workflow
+
+1. Use `/speckit.specify` and `/speckit.tasks` to define feature and generate task list
+2. Read `specs/<new-feature>/tasks.md` and delegate tasks to specialized agents via `clink`
+3. Within each agent session:
+    
+    - [Tool guidance doc](agents/reference/compact-mcp-list.md) ensures agents know appropriate tools to use for their task
+    - [Handoff guidelines doc](agents/reference/handoff-guidelines.md) teaches agents:
+        
+        - When to delegate *(i.e. recursively)*
+        - The *right* agents to delegate subtasks to
+
+    - *Superpowers* skills activate automatically (e.g., `test-driven-development`)
+
+### Key commands
+
+> [!TIP]
+> **Run once per project** to establish project's engineering foundations/principles to follow:
+>
+> ```bash
+> /speckit.constitution  
+> ```
+
+1. **Specification phase:**
+    - **`/speckit.specify`** to create specs, requirements, user stories
+
+        > [!IMPORTANT]
+        > *File generated:* **`specs/<xxx>/spec.md`**
+  
+    -  **`/speckit.clarify`** to resolve underspecified requirements
+
+2. **Planning phase:**
+
+    - **`/speckit.plan`** to create technical implementation plan from spec
+
+        > [!IMPORTANT]
+        > *Files generated:*
+        >
+        > | File | What it contains |
+        > | :--- | :--- |
+        > | **`plan.md`** | Technical approach & implementation strategy |
+        > | **`data-model.md`** | Database schemas & data structures |
+        > | **`api.md`** | API contracts & endpoint definitions |
+        > | **`component.md`** | Component architecture & dependencies |
+
+    - **`/speckit.analyze`** to perform cross-artifact consistency checks
+
+        - What this command checks:
+            
+            - Technical plan actually implements all requirements from the spec
+            - Data model supports the architecture described in the plan
+            - API contracts match the data structures defined
+            - Tasks cover all implementation steps from the plan
+            - Completing all tasks will satisfy all acceptance criteria
+
+        - Examples of when to run this command:
+       
+            | Run after | What `analyze`  ensures |
+            | --- | --- |
+            | Updating requirements in `spec.md` | `plan.md` and `tasks.md` still align |
+            | Modifying data model in `data-model.md` | `api.md` and `component.md` are still consistent |
+            | Adding new user stories | That tasks cover all new requirements | 
+
+3. **Task creation phase:**
+
+  - **`/speckit.tasks`** to generate actionable task breakdown
+
+    > [!IMPORTANT]
+    > *File generated:* **`tasks.md`**
+
+  - **`/speckit.checklist`** to generate quality validation checklists
+
+    > [!IMPORTANT]
+    > *File generated:* **`checklists/requirements.md`**
+
+4. **Implementation phase:**
+
+  - **`/speckit.implement`** to execute tasks (<ins>will modify code</ins>)
+
+> [!IMPORTANT]
+> Read through the [**full guide to using GitHub SpecKit commands and workflow**](https://github.com/github/spec-kit/blob/main/spec-driven.md) at least once.
+
+### File structure
+
+SpecKit creates this structure in your project:
+
+```
+my-project/
+├── .specify/
+│   └── memory/constitution.md    # Project principles
+├── specs/
+│   └── 001-feature/
+│       ├── spec.md               # Requirements & user stories
+│       ├── plan.md               # Technical plan
+│       ├── tasks.md              # Task breakdown
+│       ├── data-model.md         # Schemas
+│       ├── api.md                # API contracts
+│       └── component.md          # Architecture
+└── checklists/
+    └── requirements.md           # Validation gates
+```
+
+### When to use SpecKit
+
+**Best for:**
+- New features that need clear requirements documented
+- Team projects where specs must be reviewed
+- Complex features with multiple phases/subsystems
+- When you need an audit trail allowing tracing up from code → tasks → spec → requirements
+
+**Skip for:**
+- Trivially simple changes
+- Quick bug fixes, experimental prototypes
+- Small-scale tools/scripts where specs are overkill and would slow iteration
+

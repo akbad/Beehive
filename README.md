@@ -2,11 +2,24 @@
 
 Unified agent infrastructure across Claude Code, Gemini CLI, and Codex CLI with shared tooling (MCPs) and role definitions.
 
-## Setup guide
+> [!IMPORTANT]
+>
+> Quick links to key resources:
+> - [**Setup guide**](SETUP.md)
+> - [**Usage guide**](USAGE.md)
 
-See [`SETUP.md`](SETUP.md) for setup instructions.
+## Purpose
 
-## What this repo enables
+- Agentic coding CLIs are fragmented: Claude Code, Gemini CLI, and Codex CLI each have unique strengths but incompatible tooling.
+- Power users using multiple of these (as is often the best option, given unpredictable model throttling and capricious rate limit changes for paid plans by providers) lose time rebuilding and reconfiguring context, tools, and custom workflows.
+
+This repo solves that by:
+- **Unifying 14 MCP servers (+ extra plugins)** across all 3 platforms (Sourcegraph, Semgrep, Brave, Tavily, Context7, etc.)
+- **Defining 39 specialized agent roles** once, usable everywhere (debugger, architect, security-compliance, etc.) and spawnable as <ins>*cross-CLI subagents*</ins>
+- **Automating context injection** teaching agents when to delegate, which tools to use, and which model fits the task
+- **Reducing task delegation overhead** from ~5 minutes of setup to <30 seconds
+
+## Feature list
 
 ### Consistent agent roles across 3 CLI platforms
 

@@ -10,14 +10,19 @@ Unified agent infrastructure across Claude Code, Gemini CLI, and Codex CLI with 
 
 ## Purpose
 
-- Agentic coding CLIs are fragmented: Claude Code, Gemini CLI, and Codex CLI each have unique strengths but incompatible tooling.
-- Power users using multiple of these (as is often the best option, given unpredictable model throttling and capricious rate limit changes for paid plans by providers) lose time rebuilding and reconfiguring context, tools, and custom workflows.
+Agentic coding CLIs are fragmented: Claude Code, Gemini CLI, and Codex CLI each have unique strengths but incompatible tooling. 
 
-This repo solves that by:
-- **Unifying 14 MCP servers (+ extra plugins)** across all 3 platforms (Sourcegraph, Semgrep, Brave, Tavily, Context7, etc.)
+Power users rotating between these (as is often the best option, given providers' unpredictable model throttling and capricious rate limit changes, even for paid plans) **lose time rebuilding and reconfiguring context, tools, and custom workflows**. At the same time, **many (solo- or multi-agent) orchestration frameworks have considerable learning curves and enforce opinionated orchestration patterns** (e.g. graphs, crews, pipelines), rather than adapting to users' ad-hoc workflows or permitting open-ended exploration/building.
+
+**This repo solves that** by:
+
+- **Providing a unified, consistent set of 14 MCP servers (+ extra plugins)** across all 3 platforms (Sourcegraph, Semgrep, Brave, Tavily, Context7, etc.)
 - **Defining 39 specialized agent roles** once, usable everywhere (debugger, architect, security-compliance, etc.) and spawnable as <ins>*cross-CLI subagents*</ins>
 - **Automating context injection** teaching agents when to delegate, which tools to use, and which model fits the task
-- **Reducing task delegation overhead** from ~5 minutes of setup to <30 seconds
+- **Minimizing task delegation overhead** from ~5 minutes of setup to <30 seconds
+- **Reducing the learning curve to <ins>near-zero</ins>**
+    
+    - Context injection teaches agents to automatically and judiciously use all functionality made available here, with minimal explicit directions needed from the user.
 
 ## Feature list
 

@@ -38,10 +38,21 @@ A few of these servers have redundant/duplicate roles. This is on purpose so we 
 
 ### MCP memory servers
 
+> [!IMPORTANT]
+> **MANDATORY USAGE REQUIREMENT**
+>
+> **ALL agents (Codex, Gemini, Claude Code) MUST store memories after ANY task involving:**
+> - Analysis, investigation, thinking, reasoning, derivation
+> - Problem-solving, debugging, optimization
+> - Discovery of patterns, gotchas, undocumented behavior
+> - Architectural decisions, trade-offs, design choices
+>
+> **This is NOT OPTIONAL. Memory storage = part of completing the task.**
+
 | Server | Functionality | How it's run/talked to by agents | Restrictions |
 | :----- | :------------ | :------------ | :----------- |
-| **Qdrant MCP** | *semantic memory* layer: allows agent to save things it learns/produces (code snippets, notes, links) and later retrieve them by searching *semantically* (i.e. not just by keyword); uses FastEmbed models w/ HNSW index for search | HTTP with locally-running server, backed by *Qdrant DB instance running in a local Docker container* | None |
-| **Memory MCP** | *structured memory* layer (knowledge graph): stores entities, relations, and observations to track *relationships* between concepts and maintain context across sessions; complements Qdrant's semantic search with explicit relationship tracking | Stdio with private client-managed instances | None (completely free, local JSONL storage) | 
+| **Qdrant MCP** | **[MANDATORY]** *semantic memory* layer: MUST save discoveries, solutions, insights, patterns after EVERY analytical task; retrieves by semantic meaning using FastEmbed HNSW vector search | HTTP with locally-running server, backed by *Qdrant DB instance running in a local Docker container* | None |
+| **Memory MCP** | **[MANDATORY]** *structured memory* layer (knowledge graph): MUST track entities/relations when working on projects; stores who/what/how relationships, system architecture, dependencies | Stdio with private client-managed instances | None (completely free, local JSONL storage) | 
 
 #### Claude-only: `claude-mem` context management plugin
 
@@ -83,11 +94,15 @@ A few of these servers have redundant/duplicate roles. This is on purpose so we 
 
 Since Codex/Gemini lack Claude Code's hook system, they must manually implement similar patterns:
 
-- **Manual observation logging** (replaces automatic hooks):
-  - After reading code: Explicitly save discoveries to Qdrant (semantic search) + Memory MCP (knowledge graph)
-  - After decisions: Create entities in Memory MCP with relations (e.g., "JWT" -[chosen_for]→ "authentication" -[because]→ "stateless design")
-  - After fixes: Store bugfix observations in Qdrant with metadata (file, type, concepts)
+- **MANDATORY OBSERVATION LOGGING** (supplements automatic hooks):
+  - **After investigating code**: MUST save discoveries to Qdrant (patterns, gotchas, insights) + Memory MCP (component relationships)
+  - **After making decisions**: MUST create entities in Memory MCP with relations (e.g., "JWT" -[chosen_for]→ "authentication" -[because]→ "stateless design")
+  - **After fixing bugs**: MUST store in Qdrant: root cause, symptoms, fix approach, prevention tips, with metadata (file, type, concepts)
+  - **After solving problems**: MUST store solution + why it worked in Qdrant
+  - **After optimizing**: MUST store bottleneck found, optimization applied, metrics in Qdrant
+  - **After analyzing architecture**: MUST create entities/relations in Memory MCP for system structure
   - Use Qdrant for semantic retrieval ("find work related to authentication") and Memory MCP for relationship traversal
+  - **Not storing = incomplete task**
 
 - **Session summaries** (replaces Stop hook):
   - Before ending work, manually create summary and store in Qdrant

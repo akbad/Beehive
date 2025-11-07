@@ -4,6 +4,28 @@ You ***must* read these essential files** using the appropriate read tool:
 - before starting any task
 - at the beginning of any conversation
 
+## MANDATORY MEMORY STORAGE PROTOCOL
+
+**CRITICAL & NON-NEGOTIABLE REQUIREMENT FOR *ALL* AGENTS**
+
+After completing ANY task involving analysis, thinking, problem-solving, or discovery, you MUST:
+
+1. **Store insights in Qdrant MCP** (`qdrant-store`):
+   - Solutions found and why they worked
+   - Patterns discovered, gotchas learned, insights gained
+   - Root causes, symptoms, fix approaches for bugs
+   - Performance bottlenecks, optimizations, metrics
+   - Design decisions, trade-offs, alternatives rejected
+
+2. **Track relationships in Memory MCP** (`create_entities`, `create_relations`):
+   - Project components, modules, dependencies
+   - System architecture, data flows, integration points
+   - Who owns what, what tools are used where
+
+3. **Ask before completing:** "Would future agents benefit from this?" → YES = STORE IT
+
+**Failure to store memories = failure to complete the task.**
+
 ## [MCP tools available: quick reference]({{REPO_ROOT}}/agents/reference/compact-mcp-list.md)
 
 > **Read**: `@{{REPO_ROOT}}/agents/reference/compact-mcp-list.md`

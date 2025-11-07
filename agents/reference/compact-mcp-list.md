@@ -34,20 +34,39 @@
 
 ## Memory ⭐
 
-> **CRITICAL DIRECTIVE:** Use/update the following MCPs as much as possible:
-> 
-> - Search these as often as possible for clues left by previous agents when working on problems.
-> - Update these regularly and scrupulously so that you and other agents can optimally and efficiently benefit from yours and each others' past experiences.
+> [!IMPORTANT]
+> **MANDATORY MEMORY STORAGE PROTOCOL**
+>
+> **You MUST store memories after ANY task involving:**
+> - Analysis/investigation (code patterns, bugs, performance issues)
+> - Thinking/reasoning (design decisions, trade-offs, alternatives considered)
+> - Derivation of results (calculations, conclusions, recommendations)
+> - Problem-solving (solutions found, approaches that failed, workarounds)
+> - Discovery (undocumented behavior, quirks, gotchas, lessons learned)
+>
+> **This is NOT OPTIONAL. This is NOT NEGOTIABLE.**
+>
+> **Before completing ANY task, ask yourself:**
+> 1. Did I analyze something? → Store in Qdrant
+> 2. Did I discover relationships? → Store in Memory MCP
+> 3. Would future agents benefit from knowing this? → Store it
+>
+> **Failure to store memories = failure to complete the task.**
 
-> For ***Claude Code only***: use `claude‑mem` (works mostly automatically) ([deep dive](mcp-deep-dives/claude-mem.md)). 
-> 
-> Claude should still *regularly and scrupulously keep the memory MCPs below updated* so that the Gemini and Codex CLIs' agents can benefit from its knowledge/discoveries (and vice versa).
- 
+> For ***Claude Code only***: use `claude‑mem` (works mostly automatically) ([deep dive](mcp-deep-dives/claude-mem.md)).
+>
+> Claude should still *scrupulously keep the memory MCPs below updated* so that Gemini and Codex CLI agents can benefit from its knowledge/discoveries (and vice versa).
+
 - For each of Gemini CLI, Codex CLI, and Claude Code:
 
-    - For **semantic memory**: use Qdrant MCP (vector search; no limits) ([deep dive](mcp-deep-dives/qdrant.md))
-    - For **structured memory**: use Memory MCP (knowledge graph; no limits) ([deep dive](mcp-deep-dives/memory.md))
+    - For **semantic memory**: use Qdrant MCP — `qdrant-store` after every analysis/discovery ([deep dive](mcp-deep-dives/qdrant.md))
+    - For **structured memory**: use Memory MCP — track entities/relations for project context ([deep dive](mcp-deep-dives/memory.md))
 
+> **Storage decision tree:**
+> - **Qdrant**: Code patterns, solutions, gotchas, insights, "how I solved X"
+> - **Memory MCP**: Who/what/how relationships, project structure, dependencies
+> - **Both**: Complex problems (store solution in Qdrant, track entities/relations in Memory MCP)
+>
 > Link: [full category guide - *memory MCPs*](mcps-by-category/memory.md)
 
 ## Code analysis and editing

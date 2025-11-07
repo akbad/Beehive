@@ -169,6 +169,17 @@
 
 ### Memory & knowledge tools
 
+> [!IMPORTANT]
+> **MANDATORY STORAGE REQUIREMENT**
+>
+> **After completing ANY task involving analysis, thinking, problem-solving, or discovery, you MUST:**
+>
+> 1. **Store insights in Qdrant MCP** using `qdrant-store`
+> 2. **Track relationships in Memory MCP** using `create_entities`/`create_relations`
+> 3. **Ask yourself:** "Would future agents benefit from this?" → YES = STORE IT
+>
+> **This is MANDATORY, not optional. Skipping memory storage = incomplete task.**
+
 #### Qdrant MCP ⭐ **[PRIMARY FOR SEMANTIC MEMORY]**
 
 **What it does:**
@@ -184,21 +195,25 @@
 1.  `qdrant-store` - Store information with optional metadata
 2.  `qdrant-find` - Retrieve semantically similar information by query
 
-**When to use:**
+**When to use (MANDATORY for these scenarios):**
 
--   Storing code snippets, notes, or links for later retrieval
+-   **After solving ANY problem** - Store the solution, approach, and why it worked
+-   **After investigating code** - Store patterns discovered, gotchas found, insights gained
+-   **After making decisions** - Store trade-offs considered, alternatives rejected, rationale
+-   **After debugging** - Store root cause, symptoms, fix approach, prevention tips
+-   **After analyzing performance** - Store bottlenecks found, optimizations applied, metrics
+-   **After discovering undocumented behavior** - Store quirks, edge cases, workarounds
+-   Storing code snippets, examples, or reusable patterns for later retrieval
 -   Building a personal knowledge base across sessions
 -   Need to find information by *meaning* rather than exact keywords
--   Want to search by concept or similarity (e.g., "authentication patterns" finds OAuth, JWT, etc.)
 -   Storing learned insights from previous conversations
--   Building a semantic search layer for your own data
 
 **When NOT to use:**
 
 -   Need to track explicit relationships between items → Use Memory MCP instead
 -   Need structured graph queries → Use Memory MCP instead
 -   Simple keyword search is sufficient → Use grep/filesystem tools
--   One-time lookup (not worth storing) → Use web search tools directly
+-   Truly trivial one-time lookups with zero learning value → Skip (rare)
 
 **Rate limits:** None (local Docker container or self-hosted)
 
@@ -243,15 +258,18 @@
 8.  `search_nodes` - Search entities by name/type/observation content
 9.  `open_nodes` - Retrieve specific entities by name
 
-**When to use:**
+**When to use (MANDATORY for these scenarios):**
 
+-   **After working on a project** - Create/update entities for components, modules, dependencies
+-   **After discovering relationships** - Map how components interact, depend on each other
+-   **After identifying key people/tools** - Track who owns what, what tools are used where
+-   **After analyzing architecture** - Store system structure, data flows, integration points
+-   **When project context emerges** - Capture facts about the codebase, team, processes
+-   **After making architectural decisions** - Store what components exist and how they relate
 -   Need to track *who* relates to *what* and *how*
 -   Building a structured knowledge base with explicit relationships
--   Tracking project context (people, components, dependencies)
 -   Maintaining facts about users/preferences/history
--   Creating a personal CRM or project memory
--   Need to query relationships (e.g., "who works at company X?")
--   Storing learnings with clear connections between concepts
+-   Need to query relationships (e.g., "which components depend on module X?")
 
 **When NOT to use:**
 

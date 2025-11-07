@@ -6,9 +6,8 @@
 #
 # Prerequisites: Node.js, Python 3.8+, git
 
-# Change to repo root (where this script lives)
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-cd "$SCRIPT_DIR" || exit 1
+# Change to repo root
+cd "$(dirname "${BASH_SOURCE[0]}")/.." || exit 1
 
 agents/scripts/set-up-agents.sh && \
 configs/scripts/set-up-configs.sh && \

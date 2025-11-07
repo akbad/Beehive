@@ -114,8 +114,7 @@ Privacy-focused search engine with 5 search types and generous free tier (2,000 
 
 ### Disadvantages
 ❌ Local Search and Summarizer require Pro plan
-❌ No advanced crawling/extraction (use Tavily/Firecrawl)
-❌ Less AI-optimized than Exa
+❌ No advanced crawling/extraction (use Tavily)
 ❌ Pro features require paid plan
 ❌ No citations included (unlike Tavily)
 
@@ -133,12 +132,12 @@ Good: tavily_search("climate change facts")  # Returns with citations
 
 ### ❌ Semantic/Conceptual Search
 **Problem:** Brave uses keyword matching, not semantic understanding
-**Alternative:** Exa (neural search) or Tavily
+**Alternative:** Tavily (better semantic understanding)
 
 **Example:**
 ```
 Bad:  brave_web_search("concepts similar to event sourcing")
-Good: exa_search("concepts similar to event sourcing")
+Good: tavily_search("concepts similar to event sourcing")
 ```
 
 ### ❌ Content Extraction
@@ -153,7 +152,7 @@ Good: tavily_extract(["url1", "url2"])
 
 ### ❌ Multi-Page Crawling
 **Problem:** Brave doesn't crawl websites
-**Alternative:** Tavily crawl or Firecrawl (last resort)
+**Alternative:** Tavily crawl
 
 **Example:**
 ```

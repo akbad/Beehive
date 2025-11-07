@@ -111,19 +111,19 @@ Bad:  tavily_extract(["https://example.com/article"])
 Good: fetch("https://example.com/article")
 ```
 
-### ❌ Semantic/Conceptual Search
-**Problem:** Tavily uses keyword matching, not semantic
-**Alternative:** Exa (neural search)
+### ❌ Highly Specific Semantic Queries
+**Problem:** While Tavily has good general understanding, extremely specific semantic queries may need refinement
+**Alternative:** Refine query with more keywords or use broader search
 
 **Example:**
 ```
-Bad:  tavily_search("concepts similar to CQRS")
-Good: exa_search("concepts similar to CQRS")
+Less ideal: tavily_search("concepts similar to CQRS")
+Better:     tavily_search("CQRS event sourcing saga pattern microservices")
 ```
 
 ### ❌ Deep Multi-Page Crawl (50+ pages)
 **Problem:** Crawl truncates content to 500 chars/page
-**Alternative:** Map first, then extract specific pages OR Firecrawl (last resort)
+**Alternative:** Map first, then extract specific pages for better control
 
 **Example:**
 ```
@@ -176,8 +176,7 @@ Good: brave_web_search
 | Task | Instead of Tavily | Use This |
 |------|------------------|----------|
 | Single URL | extract | Fetch MCP |
-| Semantic search | search | Exa |
-| Deep crawl (50+) | crawl | Map + extract OR Firecrawl |
+| Deep crawl (50+) | crawl | Map + extract for better control |
 | Code search | search | Sourcegraph |
 | API docs | search | Context7 |
 | Credits low | any tool | Brave |

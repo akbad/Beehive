@@ -1,13 +1,13 @@
 # Tools not in the script yet to add later
 
-## Playwright/Puppeteer MCP
+## Playwright MCP
 
 **Package**: `@modelcontextprotocol/server-puppeteer` or `@cloudflare/playwright-mcp`
 
 **Purpose**: Browser automation, interactive web testing, dynamic scraping
 
 **Why add it**:
-- Firecrawl/Tavily can't handle **interactive web tasks** (clicking buttons, filling forms, navigating)
+- Tavily can't handle **interactive web tasks** (clicking buttons, filling forms, navigating)
 - Enables E2E testing automation
 - Can handle JavaScript-heavy dynamic sites
 - Take screenshots, simulate user interactions
@@ -35,7 +35,7 @@
 - Eliminates manual terminal juggling for `docker compose up`, `docker logs`, and other container chores by exposing them as MCP tools
 - Gives agents first-class control over local stacks for smoke tests, preview environments, and background services
 - 100% open source with zero recurring cost; rides on the Docker Engine/Desktop you already run
-- Works great alongside Git MCP to spin up deps before running checks or migrations
+- Works great alongside git (Bash) to spin up deps before running checks or migrations
 
 **How it's run**: Stdio with private client-managed instance that talks to the local Docker daemon
 

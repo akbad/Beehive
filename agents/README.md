@@ -90,7 +90,7 @@
 > - agents/must-reads/handoff-guidelines.md (delegation rules)
 > 
 > When comparing web research tools, read:
-> - agents/reference/category/web-research.md (tier 2: Tavily vs Exa vs Fetch)
+> - agents/reference/category/web-research.md (tier 2: Tavily vs Brave vs Fetch)
 > 
 > [Rest of role prompt body...]
 > ```
@@ -112,7 +112,7 @@
 
 - **Categories**:
 
-    - `web-research.md` - Tavily, Exa, Fetch, Brave (simple/medium tools)
+    - `web-research.md` - Tavily, Brave, Fetch (simple/medium tools)
     - `code-search.md` - Serena, Grep patterns (simple tools)
     - `memory.md` - Qdrant, Memory MCP, claude-mem (simple/medium tools)
     - `documentation.md` - Context7 (simple tool)

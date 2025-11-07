@@ -11,9 +11,9 @@ Essential command-line tools that brilliantly complement the MCP server suite.
 | **ast-grep** | 🔥 Must have | Structural code refactoring | Semgrep MCP (security) |
 | **just** | 🔥 Must have | Task automation | GitHub SpecKit (specs) |
 | **jq** (+yq) | 🔥 Must have | JSON/YAML processing | All web MCPs |
-| **lazygit** | ⭐ Highly recommended | Visual git UI | Git MCP |
-| **httpie/xh** | ⭐ Highly recommended | API testing | Fetch/Firecrawl MCP |
-| **delta** | ⭐ Highly recommended | Better git diffs | Git MCP |
+| **lazygit** | ⭐ Highly recommended | Visual git UI | git (Bash) |
+| **httpie/xh** | ⭐ Highly recommended | API testing | Fetch MCP |
+| **delta** | ⭐ Highly recommended | Better git diffs | git (Bash) |
 | **bat** | Nice to have | Syntax-highlighted file viewing | Filesystem MCP |
 | **fd** | Nice to have | Fast file finding | Filesystem MCP |
 
@@ -113,7 +113,7 @@ ci: test lint build
 **Why it's brilliant for your stack:**
 
 - **Essential for API work**: Parse/filter/transform JSON from APIs
-- **Complements web MCPs**: Process data fetched by Firecrawl/Tavily/Fetch MCP
+- **Complements web MCPs**: Process data fetched by Tavily/Fetch MCP
 - **Universal**: Works with any JSON data
 - **Powerful querying**: Like SQL for JSON
 
@@ -154,7 +154,7 @@ echo '[{"id":1,"active":true},{"id":2,"active":false}]' | jq '.[] | select(.acti
 
 **Why it's brilliant for your stack:**
 
-- **Visual complement to Git MCP**: See diffs, branches, commits visually
+- **Visual complement to git CLI**: See diffs, branches, commits visually
 - **Interactive staging**: Easier than `git add -p`
 - **Better for learning**: Agents can explain git concepts by showing lazygit UI
 - **Fast workflows**: Keyboard-driven, no mouse needed
@@ -172,7 +172,7 @@ echo '[{"id":1,"active":true},{"id":2,"active":false}]' | jq '.[] | select(.acti
 
 - [GitHub](https://github.com/jesseduffield/lazygit)
 
-**Note:** Works alongside Git MCP (use MCP for automation, lazygit for exploration)
+**Note:** Works alongside git CLI (use git commands for automation, lazygit for exploration)
 
 ---
 
@@ -183,7 +183,7 @@ echo '[{"id":1,"active":true},{"id":2,"active":false}]' | jq '.[] | select(.acti
 **Why it's brilliant for your stack:**
 
 - **Better than curl**: Cleaner syntax, automatic JSON formatting, colored output
-- **Complements Fetch/Firecrawl MCP**: Quick API testing before automating
+- **Complements Fetch MCP**: Quick API testing before automating
 - **Session support**: Save auth tokens, headers
 - **xh is Rust rewrite**: Faster, single binary, curl-compatible
 
@@ -224,7 +224,7 @@ http GET api.com/protected Authorization:"Bearer token123"
 **Why it's brilliant for your stack:**
 
 - **Better git diffs**: Syntax highlighting, line numbers, side-by-side view
-- **Complements Git MCP**: Makes diff output more readable for agents
+- **Complements git CLI**: Makes diff output more readable for agents
 - **Language-aware**: Highlights based on file type
 
 **Install:** `brew install git-delta` or `cargo install git-delta`
@@ -367,7 +367,7 @@ fd -e js -x prettier --write
 
 **Git stack:**
 
-- Git MCP → Automation
+- git (Bash) → Automation
 - lazygit → Visual exploration
 - delta → Beautiful diffs
 
@@ -385,7 +385,7 @@ fd -e js -x prettier --write
 
 **API/web stack:**
 
-- Fetch/Firecrawl/Tavily MCP → Automated fetching
+- Fetch/Tavily MCP → Automated fetching
 - httpie/xh → Interactive testing
 
 **Task running:**

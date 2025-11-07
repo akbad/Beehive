@@ -28,12 +28,10 @@
 **Tier 2: Specialized Tools (Conditional Use)**
 
 4.  **Brave MCP** - Privacy-focused search (2000 queries/month)
-5.  **Exa MCP** - Neural/semantic search optimized for AI ($10 one-time credit)
-6.  **Firecrawl MCP** - Advanced crawling (**CRITICAL: 500 lifetime limit**)
 
 **Tier 3: Fallback Tools (Last Resort)**
 
-7.  **Fetch MCP** - Simple URL fetching (no rate limits)
+5.  **Fetch MCP** - Simple URL fetching (no rate limits)
 
 ### Memory & coding tools (use as needed)
 
@@ -141,54 +139,6 @@
 **Rate limits:** 2000 queries/month (basic web search only on free tier)
 
 **Why use here:** Good fallback when Tavily exhausted, but limited to basic search
-
----
-
-#### Exa MCP **[SPECIALIZED SEARCH]**
-
-**What it does:**
-
--   Neural search optimized for LLMs
--   Better semantic understanding than keyword search
--   AI-native result formatting
--   Superior for research and knowledge discovery
-
-**When to use:**
-
--   Need semantic/conceptual search (not just keywords)
--   Research requiring deep understanding
--   Tavily and Brave don't find what you need
--   Task justifies using limited credits
-
-**Rate limits:** $10 one-time credit (new account needed after exhaustion)
-
-**Why use conditionally:** Limited credits, but excellent semantic capabilities
-
----
-
-#### Firecrawl MCP ⚠️ **[LAST RESORT]**
-
-**What it does:**
-
--   Advanced website crawling/scraping
--   Batch operations
--   Deep extraction and mapping
--   "Better" web search
-
-**When to use:**
-
--   **ONLY** when other tools cannot handle the task
--   Need deep multi-page crawling
--   Require batch processing
--   Complex extraction that Tavily/Fetch can't do
-
-**Rate limits:**
-
--   10 `/scrape` calls/min
--   1 `/crawl` call/min
--   **CRITICAL: 500 lifetime limit before new account required**
-
-**Why use last:** Severe lifetime limit - reserve for tasks requiring unique capabilities
 
 ---
 
@@ -413,27 +363,12 @@ Entity: Anthropic (type: company)
 
 #### Filesystem MCP
 
-**What it does:** File operations (read/write/edit/create/list/delete/move)
+**What it does:** Bulk file reads (filtered to `read_multiple_files` only)
 
 **When to use:**
-- Batch reading 10+ files (`read_multiple_files` - 30-60% token savings vs multiple Read calls)
-- Analyzing project structures / directory trees (`directory_tree` returns JSON)
-
-**When NOT to use:** Built-ins (Read/Write/Edit/Glob/Grep) already provide structured operations for 1-5 files and basic CRUD. Using the MCP in these cases simply adds overhead without benefit.
+- Batch reading 10+ files (30-60% token savings vs multiple Read calls)
 
 **Rate limits:** None (local)
-
----
-
-#### Git MCP
-
-**What it does:** All Git operations (status/diff/log/add/commit/branch/etc.)
-
-**When to use:** Any Git-related task
-
-**Rate limits:** None (local)
-
-**Note:** Parent agent must run at repo root
 
 ---
 
@@ -459,9 +394,7 @@ START
 What type of information?
     ├─ API docs/library info → Context7 MCP
     ├─ Current events/general web → Tavily MCP
-    ├─ Semantic/conceptual search → Check Tavily first
-    │                                ↓ If insufficient
-    │                                Exa MCP (mind credits!)
+    ├─ Basic search (Tavily exhausted) → Brave MCP
     └─ Simple URL content → Fetch MCP
 ```
 
@@ -471,15 +404,13 @@ What type of information?
 START
     ↓
 Single URL or simple extraction?
-    ├─ YES → Tavily extract or Fetch MCP
+    ├─ YES → Fetch MCP (unlimited) or Tavily extract
     └─ NO  → Multiple pages/complex?
         ↓
-        Try Tavily search/extract first
+        Try Tavily search/extract/map/crawl
         ↓ Still need more?
         ↓
-        Check if worth 1-10 Firecrawl credits
-        ├─ YES → Use Firecrawl (track usage!)
-        └─ NO  → Rethink approach or use Fetch iteratively
+        Use Fetch iteratively on known URLs
 ```
 
 ### Code manipulation
@@ -532,8 +463,6 @@ Example: Code snippet library
 
 | Tool | Limit Type | Amount | Reset | Severity |
 |------|-----------|---------|-------|----------|
-| Firecrawl | One-time credit | 500 total | Never | 🟠 HIGH |
-| Exa | One-time credit | $10 | Never | 🟠 HIGH |
 | Tavily | Monthly | 1000 credits | 1st of month | 🟡 MEDIUM |
 | Brave | Monthly | 2000 queries | Monthly | 🟡 MEDIUM |
 | Sourcegraph | None | ∞ | N/A | 🟢 SAFE |
@@ -542,25 +471,17 @@ Example: Code snippet library
 ### Strategies
 
 1.  **Always exhaust unlimited tools first** (Sourcegraph, Fetch)
-2.  **Use monthly-reset tools before one-time credits** (Tavily/Brave before Exa)
-3.  **Treat Firecrawl as emergency-only** - every use is permanent
-4.  **Track Firecrawl usage manually** - no built-in counter
-5.  **Front-load Tavily early in month** - will reset on 1st
+2.  **Use monthly-reset tools wisely** (Tavily/Brave) - both reset monthly
+3.  **Front-load Tavily early in month** - will reset on 1st
 
 ### Cost-benefit analysis before using limited tools
 
-**Before using Firecrawl, ask:**
+**Before using Tavily (1k/month):**
 
--   Can Tavily do this? (Usually yes for search/extract)
--   Can Fetch do this iteratively? (Usually yes for known URLs)
--   Is this worth 1-10 permanent credits?
--   Is this a one-time need or recurring?
-
-**Before using Exa, ask:**
-
--   Did Tavily fail to find it?
--   Do I need semantic search specifically?
--   Is this worth $X from one-time credit?
+-   Can Fetch do this for known URLs? (Unlimited)
+-   Can Brave do this basic search? (2k/month)
+-   Is this worth using monthly quota?
+-   Early in month vs. late in month?
 
 ---
 
@@ -587,12 +508,12 @@ Example: Code snippet library
 
 ### Multi-page content extraction
 
-**Don't default to Firecrawl! Try this sequence:**
+**Recommended sequence:**
 
 1.  Tavily search to find relevant pages
 2.  Tavily extract on specific URLs
-3.  If still insufficient, Fetch iteratively on known URLs
-4.  **Last resort:** Firecrawl crawl (costs 1+ credits permanently)
+3.  Tavily map/crawl for site structure
+4.  If still insufficient, Fetch iteratively on known URLs
 
 ### Memory & knowledge storage
 
@@ -633,24 +554,22 @@ Example: Code snippet library
 **Default to this order:**
 
 1.  Unlimited tools (Sourcegraph, Fetch)
-2.  Monthly-reset tools (Tavily, Brave)
-3.  One-time credit tools (Exa)
-4.  Lifetime-limited tools (Firecrawl - **avoid unless critical**)
+2.  Monthly-reset tools (Tavily, Brave) - prefer Tavily for citations
 
 ---
 
 ## Summary: golden rules
 
 ### Search & research
+
 1.  **Sourcegraph first for code**, Tavily first for web
-2.  **Never use Firecrawl without checking if Tavily/Fetch can do it**
-3.  **Track Firecrawl usage manually** - 500 limit is forever
-4.  **Exa is powerful but limited** - use only when semantic search is critical
-5.  **Fetch is unlimited** - use liberally for simple fetches
-6.  **Context7 for official docs**, Sourcegraph for real examples
-7.  **Front-load Tavily early each month** before credits run out
+2.  **Fetch is unlimited** - use liberally for simple fetches
+3.  **Context7 for official docs**, Sourcegraph for real examples
+4.  **Tavily for citations**, Brave as fallback when Tavily exhausted
+5.  **Front-load Tavily early each month** before credits run out
 
 ### Memory & knowledge
+
 8.  **Qdrant for "find similar"**, Memory for "X relates to Y"
 9.  **Both memory tools have no rate limits** - use freely for persistent storage
 10. **Qdrant needs Docker OR cloud**, Memory works out of the box

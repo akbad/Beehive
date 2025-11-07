@@ -19,12 +19,10 @@
 ## Web research
 
 - For **general web info**: use Tavily (cited results; 1k/mo) ([deep dive](mcp-deep-dives/tavily.md))
-    
+
     - Fallback if *Tavily is exhausted*: use Brave (2k/mo) ([deep dive](mcp-deep-dives/brave.md))
 
-- For **semantic discovery**: use Exa (semantic; $10 one‑time credit) ([deep dive](mcp-deep-dives/exa.md))
 - For **simple URL fetches**: use Fetch (unlimited) ([deep dive](mcp-deep-dives/fetch.md))
-- For **deep crawling (last resort)**: use Firecrawl (500 lifetime; prefer Tavily/Fetch first) ([deep dive](mcp-deep-dives/firecrawl.md))
 
 > Link: [full category guide - *web research*](mcps-by-category/web-research.md)
 
@@ -59,21 +57,27 @@
 
 ## Files and Git
 
-- For files: use Filesystem MCP *only* for
+> **⚠️ CRITICAL for ALL CLIs:** Default to **native tools** (Read/Write/Edit) for file operations.
 
-    - **Batch reading 10+ files** (`read_multiple_files` - 30-60% token savings vs multiple Read calls)
-    - **Analyzing project structures / directory trees** (`directory_tree` returns JSON)
+- **Read files (1-9)**: use native Read tool — NOT `serena.read_file` (adds overhead)
+- **Read files (10+)**: use Filesystem MCP `read_multiple_files` (30-60% token savings)
+- **Write/Edit files**: use native Write/Edit — use Serena ONLY for symbol-level operations
+- **Directory trees**: use `ls -R` or `find` via Bash (Filesystem MCP now filtered to read_multiple_files only)
 
-- For **Git operations**: use Git MCP — status/diff/branch/commit (run at repo root)
+> **When to use Serena for files:**
+> - Understanding code **symbols** (classes/methods): `find_symbol` with `include_body=true`
+> - Replacing **entire symbol**: `replace_symbol_body` (NOT for 1-line edits)
+> - Adding **new symbol**: `insert_after_symbol` / `insert_before_symbol`
+> - **Renaming symbol** codebase-wide: `rename_symbol`
+>
+> See [Serena deep dive](mcp-deep-dives/serena.md) for symbol vs text-based editing decision tree.
 
-- See: [mcp-deep-dives/filesystem.md](mcp-deep-dives/filesystem.md) · [mcp-deep-dives/git.md](mcp-deep-dives/git.md)
+- For **Git operations**: use `git` via Bash tool — git status/diff/log/add/commit/branch/checkout
 
 ## Limits
 
 | Tool        | Limit                    | Reset/Notes                                    |
 |-------------|--------------------------|------------------------------------------------|
-| Firecrawl   | 500 lifetime             | 10 scrape/min, 1 crawl/min; permanent credits |
-| Exa         | $10 one‑time credit      | New account/API key after exhaustion          |
 | Tavily      | 1,000 credits/month      | Resets on 1st of month                        |
 | Brave       | 2,000 queries/month      | Free tier; basic web search                    |
 | Sourcegraph | Interactive limits       | use count:all to make the search exhaustive, bump timeout if needed; switch to src-cli for very large result sets beyond the UI display limit. |

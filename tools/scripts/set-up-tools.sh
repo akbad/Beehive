@@ -11,9 +11,7 @@
 #
 #   API keys (for cloud-based MCP servers' free tiers):
 #       - Tavily API key in $TAVILY_API_KEY
-#       - Firecrawl API key in $FIRECRAWL_API_KEY
 #       - Brave Search API key in $BRAVE_API_KEY
-#       - Exa API key in $EXA_API_KEY
 #
 #   Optional but recommended:
 #       - Set up Zen clink config:
@@ -45,13 +43,11 @@
 #      - Serena MCP (local server, semantic code analysis and editing with LSP)
 #      - Context7 MCP (remote Upstash server, always-fresh API docs)
 #      - Tavily MCP (remote Tavily server, web search/extract/map/crawl)
-#      - Firecrawl MCP (remote Firecrawl server, web scraping and crawling)
-#      - Exa MCP (remote Exa server, neural search optimized for AI agents)
+#      - Brave MCP (remote Brave server, web/image/video/news search)
 #  2. Sets up the following MCP servers in stdio mode
 #     (i.e. each agent runs its own server)
 #      - Filesystem MCP (necessary since only supports stdio transport)
 #      - Fetch MCP (necessary since only supports stdio transport)
-#      - Git MCP (necessary since needs to run specifically within *one* Git repo)
 #      - Memory MCP (knowledge graph for persistent structured memory)
 #      - Brave Search MCP (privacy-focused web search)
 #  3. Connects coding agent CLI clients:
@@ -95,10 +91,6 @@ RANCHER_TIMEOUT=120    # timeout specific for Rancher Desktop startup (can take 
 export SOURCEGRAPH_ENDPOINT="https://sourcegraph.com"
 export CONTEXT7_URL="https://mcp.context7.com/mcp"
 export TAVILY_URL="https://mcp.tavily.com/mcp/?tavilyApiKey=\${TAVILY_API_KEY}"
-export FIRECRAWL_BASE_URL="https://mcp.firecrawl.dev"
-export FIRECRAWL_HTTP_PATH="v2/mcp"
-export EXA_BASE_URL="https://mcp.exa.ai"
-export EXA_HTTP_PATH_AND_PARAMS="mcp?exaApiKey="
 
 # Zen MCP: disable all tools except clink (since they need an API key)
 export ZEN_CLINK_DISABLED_TOOLS='analyze,apilookup,challenge,chat,codereview,consensus,debug,docgen,planner,precommit,refactor,secaudit,testgen,thinkdeep,tracer'
@@ -236,43 +228,6 @@ kill_port() {
         lsof -ti:"$port" | xargs kill -9 2>/dev/null || true
         sleep 1
     fi
-}
-
-# Build a streamable HTTP URL for cloud-hosted MCP servers with API key authentication 
-#   and outputs it via `echo` (does *not* return it)
-# Supports different URL patterns:
-#   - Firecrawl: API key embedded in path (base/api_key/path)
-#   - Exa: API key as query parameter (base/path?exaApiKey=api_key)
-# Returns without outputting anything if no API key is provided, so callers can detect the issue
-# without the script exiting (since set -e is enabled globally).
-#
-# Usage: build_mcp_http_url <service> <api_key>
-#   service: "firecrawl" or "exa"
-#   api_key: The API key to embed in the URL
-build_mcp_http_url() {
-    local service=$1
-    local api_key=$2
-    local url
-
-    if [[ -z "$api_key" ]]; then
-        log_empty_line
-        return 0
-    fi
-
-    case "$service" in
-        firecrawl)
-            url="${FIRECRAWL_BASE_URL%/}/$api_key/$FIRECRAWL_HTTP_PATH"
-            ;;
-        exa)
-            url="${EXA_BASE_URL}/${EXA_HTTP_PATH_AND_PARAMS}$api_key"
-            ;;
-        *)
-            log_error "Unknown service: $service"
-            return 1
-            ;;
-    esac
-
-    echo "$url"
 }
 
 # Start Qdrant Docker container idempotently
@@ -697,9 +652,7 @@ configure_auto_approve() {
     [[ "$SERENA_AVAILABLE" == true ]] && mcp_servers+=("serena")
     [[ "$CONTEXT7_AVAILABLE" == true ]] && mcp_servers+=("context7")
     [[ "$TAVILY_AVAILABLE" == true ]] && mcp_servers+=("tavily")
-    [[ "$FIRECRAWL_AVAILABLE" == true ]] && mcp_servers+=("firecrawl")
     [[ "$BRAVE_AVAILABLE" == true ]] && mcp_servers+=("brave")
-    [[ "$EXA_AVAILABLE" == true ]] && mcp_servers+=("exa")
 
     # Configure each agent
     for agent in "${AGENTS[@]}"; do
@@ -731,7 +684,7 @@ log_info "Checking dependencies..."
 
 check_dependency "npx" "Please install Node.js first."
 check_dependency "uvx" "Please install uv first: https://docs.astral.sh/uv/getting-started/installation/" \
-    "uvx found, will use for Git MCP (stdio mode) and Zen MCP"
+    "uvx found, will use for Fetch MCP (stdio mode)"
 check_dependency "docker" "Please install Docker first: https://docs.docker.com/get-docker/" \
     "docker found, will use for Qdrant container"
 
@@ -762,9 +715,7 @@ log_info "Checking API keys..."
 
 CONTEXT7_AVAILABLE=false
 TAVILY_AVAILABLE=false
-FIRECRAWL_AVAILABLE=false
 BRAVE_AVAILABLE=false
-EXA_AVAILABLE=false
 SOURCEGRAPH_AVAILABLE=false
 
 if check_env_var "CONTEXT7_API_KEY" "Context7 MCP will not work. Get a key at https://console.upstash.com/"; then
@@ -775,16 +726,8 @@ if check_env_var "TAVILY_API_KEY" "Tavily MCP will not work. Get a key at https:
     TAVILY_AVAILABLE=true
 fi
 
-if check_env_var "FIRECRAWL_API_KEY" "Firecrawl MCP will not work. Get a key at https://firecrawl.dev/app/api-keys"; then
-    FIRECRAWL_AVAILABLE=true
-fi
-
 if check_env_var "BRAVE_API_KEY" "Brave Search MCP will not work. Get a key at https://brave.com/search/api/"; then
     BRAVE_AVAILABLE=true
-fi
-
-if check_env_var "EXA_API_KEY" "Exa MCP will not work. Get a key at https://exa.ai/"; then
-    EXA_AVAILABLE=true
 fi
 
 log_success "API key check complete."
@@ -873,7 +816,6 @@ fi
 # - Serena MCP (local, semantic code analysis and editing)
 # - Context7 MCP (remote Upstash - for Gemini & Claude only)
 # - Tavily MCP (remote Tavily - all agents)
-# - Firecrawl MCP (remote Firecrawl - Claude & Codex)
 log_separator
 log_info "Configuring agents to use Zen MCP for clink (HTTP)..."
 setup_http_mcp "zen" "http://localhost:$ZEN_MCP_PORT/mcp/"
@@ -914,55 +856,19 @@ if [[ "$TAVILY_AVAILABLE" == true ]]; then
     setup_http_mcp "tavily" "$TAVILY_URL"
 fi
 
-if [[ "$FIRECRAWL_AVAILABLE" == true ]]; then
-    log_separator
-    firecrawl_http_url="$(build_mcp_http_url "firecrawl" "$FIRECRAWL_API_KEY")"
-    if [[ -z "$firecrawl_http_url" ]]; then
-        log_warning "Firecrawl API key missing; skipping Firecrawl HTTP configuration."
-    else
-        for agent in "${AGENTS[@]}"; do
-        log_info "Configuring $agent to use Firecrawl MCP..."
-            case "$agent" in
-                "$CLAUDE" | "$CODEX")
-                    (add_http_mcp_to_agent "$CLAUDE" "firecrawl" "$firecrawl_http_url") || log_warning "Already exists"
-                    ;;
-                "$GEMINI")
-                    (add_stdio_mcp_to_agent "$GEMINI" "firecrawl" "env" "FIRECRAWL_API_KEY=$FIRECRAWL_API_KEY" "npx" "-y" "firecrawl-mcp") || log_warning "Already exists"
-                    ;;
-            esac
-        done
-    fi
-fi
-
-if [[ "$EXA_AVAILABLE" == true ]]; then
-    log_separator
-    exa_http_url="$(build_mcp_http_url "exa" "$EXA_API_KEY")"
-    if [[ -z "$exa_http_url" ]]; then
-        log_warning "Exa API key missing; skipping Exa HTTP configuration."
-    else
-        log_info "Configuring all agents to use Exa MCP (HTTP - remote)..."
-        setup_http_mcp "exa" "$exa_http_url"
-    fi
-fi
 
 # Servers to use in stdio mode
-# - Filesystem MCP (per-agent, only supports stdio transport)
+# - Filesystem MCP (per-agent, filtered to read_multiple_files only via mcp-filter)
 # - Fetch MCP (per-agent, only supports stdio transport)
-# - Git MCP (per-agent)
 # - Context7 MCP (for Codex only, since Codex HTTP doesn't support custom headers)
-# - Firecrawl MCP (Gemini only, runs local stdio launcher)
 log_separator
-log_info "Configuring agents to use Filesystem MCP (stdio)..."
+log_info "Configuring agents to use Filesystem MCP (stdio, filtered to read_multiple_files only)..."
 log_info "Allowed directory for Filesystem MCP: $FS_ALLOWED_DIR"
-setup_stdio_mcp "fs" "npx" "-y" "@modelcontextprotocol/server-filesystem" "$FS_ALLOWED_DIR"
+setup_stdio_mcp "fs" "npx" "-y" "mcp-filter" "-s" "npx -y @modelcontextprotocol/server-filesystem $FS_ALLOWED_DIR" "-a" "read_multiple_files"
 
 log_separator
 log_info "Configuring agents to use Fetch MCP (stdio)..."
 setup_stdio_mcp "fetch" "uvx" "mcp-server-fetch"
-
-log_separator
-log_info "Configuring agents to use Git MCP (stdio)..."
-setup_stdio_mcp "git" "uvx" "mcp-server-git" "--repository" "."
 
 log_separator
 log_info "Configuring agents to use Memory MCP (stdio)..."
@@ -1011,7 +917,7 @@ fi
 log_empty_line
 
 # Only show remote servers section if at least one is configured
-if [[ "$CONTEXT7_AVAILABLE" == true || "$TAVILY_AVAILABLE" == true || "$FIRECRAWL_AVAILABLE" == true ]]; then
+if [[ "$CONTEXT7_AVAILABLE" == true || "$TAVILY_AVAILABLE" == true ]]; then
     log_info "Remote HTTP servers configured:"
 
     if [[ "$CONTEXT7_AVAILABLE" == true ]]; then
@@ -1026,28 +932,16 @@ if [[ "$CONTEXT7_AVAILABLE" == true || "$TAVILY_AVAILABLE" == true || "$FIRECRAW
         log_info "    └─ All agents: Configured via HTTP with API key in URL"
     fi
 
-    if [[ "$FIRECRAWL_AVAILABLE" == true ]]; then
-        log_info "  • Firecrawl MCP: https://mcp.firecrawl.dev/<firecrawl-api-key>/v2/mcp"
-        log_info "    └─ Claude & Codex: Configured via HTTP streamable transport"
-        log_info "    └─ Gemini: Uses stdio with local proxy (env FIRECRAWL_API_KEY=... npx -y firecrawl-mcp)"
-    fi
-
-    if [[ "$EXA_AVAILABLE" == true ]]; then
-        log_info "  • Exa MCP: https://mcp.exa.ai/mcp?exaApiKey=<exa-api-key>"
-        log_info "    └─ All agents: Neural search optimized for AI agents (\$10 free credits)"
-    fi
-
     log_empty_line
 fi
 
 log_info "Configured stdio servers:"
 log_info "  → Each agent starts its own server when launched, stops when exited."
 log_info "  • Filesystem MCP (all agents)"
+log_info "    └─ Filtered to read_multiple_files only (30-60% token savings on bulk reads)"
 log_info "    └─ Allowed directory: $FS_ALLOWED_DIR"
 log_info "  • Fetch MCP (all agents)"
 log_info "    └─ HTML to Markdown conversion"
-log_info "  • Git MCP (all agents)"
-log_info "    └─ Uses current directory when agent is launched"
 log_info "  • Memory MCP (all agents)"
 log_info "    └─ Knowledge graph for persistent structured memory (entities, relations, observations)"
 
@@ -1061,10 +955,6 @@ if [[ "$CONTEXT7_AVAILABLE" == true ]]; then
     log_info "    └─ Codex HTTP doesn't support custom headers, so using stdio mode"
 fi
 
-if [[ "$FIRECRAWL_AVAILABLE" == true ]]; then
-    log_info "  • Firecrawl MCP (Gemini only)"
-    log_info "    └─ Launches via env FIRECRAWL_API_KEY=... npx -y firecrawl-mcp"
-fi
 log_empty_line
 log_info "Logs:"
 log_info "  • Zen MCP: /tmp/mcp-Zen MCP-server.log"

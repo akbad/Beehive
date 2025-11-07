@@ -39,13 +39,6 @@ See [`tools.md`](tools.md) for:
      
      - Best to *always do this* when launching an agent, since Serena makes agents much more reliable & efficient at static analysis and syntax-related stuff
 
- - API keys (used for free tiers of cloud-hosted MCP servers) for the following services need to be replaced with an API key from a **new account** once credits have been used up *(since these services' free tiers provide one-time free trial usage rather than monthly limits)*:
-
-     | Cloud service used via MCP | Free tier allowance (need to make new account after using this up) |
-     | :--- | :--- |
-     | [**Firecrawl**](https://www.firecrawl.dev/) | 500 free scrapes/crawls total |
-     | [**EXA**](https://exa.ai/) | $10 in one-time usage, then pay-as-you-go afterwards |
-
 ## Using the script
 
 ### Prerequisites
@@ -94,17 +87,13 @@ Needed for running the local Qdrant container.
 1. Create API key at these services' websites
 
     - [Tavily](https://www.tavily.com/)
-    - [Firecrawl](https://firecrawl.dev/app/api-keys)
     - [Brave](https://brave.com/search/api/)
-    - [Exa](https://exa.ai/)
 
 2. Add to as exports from shell config (`.zshrc` or `.bashrc`) **with these variable names**:
 
     ```bash
     export TAVILY_API_KEY=<...>
-    export FIRECRAWL_API_KEY=<...>
     export BRAVE_API_KEY=<...>
-    export EXA_API_KEY=<...>
     ```
 
 3. `source` your shell config to ensure they're available

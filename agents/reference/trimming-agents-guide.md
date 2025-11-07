@@ -104,7 +104,7 @@ Use this mapping to relocate content out of the long template into concise secti
     
     - Tier‑1: the [compact MCP list](./compact-mcp-list.md)
     - Tier‑2 categories: [web research](./mcps-by-category/web-research.md), [code search](./mcps-by-category/code-search.md), [memory](./mcps-by-category/memory.md), [documentation](./mcps-by-category/documentation.md)
-    - Tier‑3 deep dives: see [deep dives](./mcp-deep-dives/) such as [tavily](./mcp-deep-dives/tavily.md), [brave](./mcp-deep-dives/brave.md), [exa](./mcp-deep-dives/exa.md), [fetch](./mcp-deep-dives/fetch.md), [firecrawl](./mcp-deep-dives/firecrawl.md), [serena](./mcp-deep-dives/serena.md), [sourcegraph](./mcp-deep-dives/sourcegraph.md), [context7](./mcp-deep-dives/context7.md), [semgrep](./mcp-deep-dives/semgrep.md), [memory](./mcp-deep-dives/memory.md), [qdrant](./mcp-deep-dives/qdrant.md), [zen](./mcp-deep-dives/zen.md)
+    - Tier‑3 deep dives: see [deep dives](./mcp-deep-dives/) such as [tavily](./mcp-deep-dives/tavily.md), [brave](./mcp-deep-dives/brave.md), [fetch](./mcp-deep-dives/fetch.md), [serena](./mcp-deep-dives/serena.md), [sourcegraph](./mcp-deep-dives/sourcegraph.md), [context7](./mcp-deep-dives/context7.md), [semgrep](./mcp-deep-dives/semgrep.md), [memory](./mcp-deep-dives/memory.md), [qdrant](./mcp-deep-dives/qdrant.md), [zen](./mcp-deep-dives/zen.md)
 
 - Delegation and handoff logic → Must‑read handoff guidelines (if present in your project)
     

@@ -171,22 +171,16 @@ Simply explicitly mention the subagent you want to use and it will automatically
       security scans with a vast library of rules.
 
 - **Web research & documentation**:
-    - **Tavily**: A comprehensive search API built for AI 
-      agents, capable of searching, crawling, and 
+    - **Tavily**: A comprehensive search API built for AI
+      agents, capable of searching, crawling, and
       extracting web content.
-    - **Brave**: A privacy-focused web search engine for 
+    - **Brave**: A privacy-focused web search engine for
       general queries.
-    - **Firecrawl**: A high-performance web scraping and 
-      crawling service for reliably extracting content 
-      from websites.
-    - **Exa**: A "neural search" engine that understands 
-      concepts, assisting with finding relevant information 
-      even if exact keywords aren't known.
-    - **Context7**: For fetching up-to-date, versioned 
-      documentation for a wide range of libraries and 
+    - **Context7**: For fetching up-to-date, versioned
+      documentation for a wide range of libraries and
       APIs.
-    - **Fetch**: A simple, reliable tool for fetching the 
-      content of a single URL and converting it to 
+    - **Fetch**: A simple, reliable tool for fetching the
+      content of a single URL and converting it to
       Markdown.
 
 - **Memory & knowledge**:
@@ -201,12 +195,8 @@ Simply explicitly mention the subagent you want to use and it will automatically
       context management and conversation memory.
 
 - **Local dev tools**:
-    - **Git**: For performing version control operations like
-      status, diff, commit, and branch directly within 
-      your repository.
-    - **Filesystem**: For efficient batch file 
-      operations, directory analysis, and other filesystem
-      interactions.
+    - **Filesystem**: For efficient batch file
+      operations (read_multiple_files only).
 
 - **Orchestration**:
     - **Zen (`clink` tool only)**: enables cross-CLI collaboration/subagent spawning, [as discussed above](#spawning-subagents-using-any-cli-from-any-cli-via-clink)

@@ -125,7 +125,7 @@ Good: fetch("https://raw.githubusercontent.com/user/repo/main/README.md")
 
 ### ❌ Semantic/Conceptual Search
 **Problem:** Sourcegraph uses regex/text matching, not semantic
-**Alternative:** Exa (for concepts) or natural language in guide
+**Alternative:** Use natural language in guide or Tavily for broader search
 
 **Example:**
 ```
@@ -215,7 +215,7 @@ search("\"async def.*request\" lang:python file:api/")
 | API documentation | search | Context7 |
 | Private repos | search | Clone + Serena |
 | Non-code files | search | Clone + Filesystem |
-| Semantic search | search | Exa / use guided prompts |
+| Semantic search | search | Tavily / use guided prompts |
 
 ## Best Practices
 

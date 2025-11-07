@@ -22,7 +22,7 @@
 #   ./set-up-tools.sh [options]
 #
 # Options:
-#   -a, --agent <str>     Choose specific agents to configure (c=Claude, x=Codex, g=Gemini).
+#   -a, --agents <str>    Choose specific agents to configure (c=Claude, x=Codex, g=Gemini).
 #                         Example: -a cg (Claude + Gemini), -a x (Codex only).
 #                         Defaults to all supported agents (Claude Code, Codex, Gemini).
 #   -f, --fsdir <path>    The directory to allow the Filesystem MCP to access.
@@ -282,7 +282,7 @@ start_http_server() {
 
     if check_port "$port"; then
         log_success "$server_name already running on port $port"
-        pid=$(lsof -ti:"$port" | head -1)
+        pid=$(lsof -ti:"$port" -sTCP:LISTEN | head -1)
         log_info "Using existing server (PID: $pid)"
         
         # Expands to `eval "SERVER_PID=1234"`, then executes that (global) assignment

@@ -84,6 +84,12 @@
 
 **Failure to store memories = failure to complete the task.**
 
+> [!INFO]
+> **Storage decision tree:**
+>  - **Qdrant**: Code patterns, solutions, gotchas, insights, "how I solved X"
+>  - **Memory MCP**: Who/what/how relationships, project structure, dependencies
+>  - **Both**: Complex problems (store solution in Qdrant, track entities/relations in Memory MCP)
+
 > Link: [full category guide - *memory MCPs*](mcps-by-category/memory.md)
 
 ## Code analysis and editing

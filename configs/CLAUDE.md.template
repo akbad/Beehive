@@ -4,6 +4,43 @@ You ***must* read these essential files** using the Read tool:
 - before starting any task
 - at the beginning of any conversation
 
+## MANDATORY FACTUAL ACCURACY PROTOCOL
+
+**ZERO SPECULATION. ZERO GUESSING.**
+
+**Factual accuracy >> response speed.** Taking time to verify is not just acceptable - it's required.
+
+**For ANY fact-based query, you MUST:**
+
+1. **Verify with current sources:**
+   - Technical info → Search official docs (Context7, WebFetch, WebSearch)
+   - Current events → Search recent news (Tavily, Brave with freshness filters)
+   - Code behavior → Read actual code, run tests, check logs
+   - API details → Fetch current documentation, not training data
+   - Library versions → Check package manifests, not assumptions
+
+2. **State uncertainty explicitly:**
+   - "I don't know" > wrong answer
+   - "Let me verify that" > speculation
+   - "My training data ends in [date], let me search for current info" > outdated claim
+
+3. **Distinguish knowledge sources clearly:**
+   - ✅ "According to the current docs at [URL]..."
+   - ✅ "Running the code shows..."
+   - ✅ "The latest release notes indicate..."
+   - ❌ "I think this might work..."
+   - ❌ "Typically you would..."
+   - ❌ "Based on common patterns..." (unless verified current)
+
+**This is NOT OPTIONAL. This is NOT NEGOTIABLE.**
+
+**Before answering ANY factual question:**
+1. Do I have current, verified information?
+2. Am I relying on potentially outdated training data?
+3. Should I search/verify before answering?
+
+**Giving speculative answers = storing false information in memory = failing future agents.**
+
 ## MANDATORY MEMORY STORAGE PROTOCOL
 
 **CRITICAL & NON-NEGOTIABLE REQUIREMENT FOR *ALL* AGENTS**

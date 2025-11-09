@@ -32,41 +32,58 @@
 
 > Link: [full category guide - *API docs*](mcps-by-category/documentation.md) 
 
-## Memory ⭐
+## Memory
+
+### MANDATORY MEMORY RETRIEVAL PROTOCOL
 
 > [!IMPORTANT]
-> **MANDATORY MEMORY STORAGE PROTOCOL**
->
-> **You MUST store memories after ANY task involving:**
-> - Analysis/investigation (code patterns, bugs, performance issues)
-> - Thinking/reasoning (design decisions, trade-offs, alternatives considered)
-> - Derivation of results (calculations, conclusions, recommendations)
-> - Problem-solving (solutions found, approaches that failed, workarounds)
-> - Discovery (undocumented behavior, quirks, gotchas, lessons learned)
->
-> **This is NOT OPTIONAL. This is NOT NEGOTIABLE.**
->
-> **Before completing ANY task, ask yourself:**
-> 1. Did I analyze something? → Store in Qdrant
-> 2. Did I discover relationships? → Store in Memory MCP
-> 3. Would future agents benefit from knowing this? → Store it
->
-> **Failure to store memories = failure to complete the task.**
+> **You MUST check memories at the START of EVERY task.**
 
-> For ***Claude Code only***: use `claude‑mem` (works mostly automatically) ([deep dive](mcp-deep-dives/claude-mem.md)).
->
-> Claude should still *scrupulously keep the memory MCPs below updated* so that Gemini and Codex agents can benefit from its knowledge/discoveries (and vice versa).
+**Before starting ANY task, you MUST:**
 
-- For each of Gemini CLI, Codex, and Claude Code:
+1. **Query all memory systems for relevant context:**
+- Memory MCP (`read_graph`, `search_nodes`) - for architectural relationships, component structure
+- Qdrant MCP (`qdrant-find`) - for past solutions, patterns, gotchas, learnings
+- claude-mem (`get_recent_context`, `search_observations`, `find_by_type`) **(*ONLY* if you are Claude Code)** for recent session history, file changes
 
-    - For **semantic memory**: use Qdrant MCP — `qdrant-store` after every analysis/discovery ([deep dive](mcp-deep-dives/qdrant.md))
-    - For **structured memory**: use Memory MCP — track entities/relations for project context ([deep dive](mcp-deep-dives/memory.md))
+2. **Verify memory accuracy BEFORE trusting it:**
+- Compare memory timestamps with file modification dates
+- If memory references specific files/code → Read those files to verify
+- If memory describes system behavior → Test/verify it's still true
+- **Older memories are MORE LIKELY to be stale** - verify aggressively
 
-> **Storage decision tree:**
-> - **Qdrant**: Code patterns, solutions, gotchas, insights, "how I solved X"
-> - **Memory MCP**: Who/what/how relationships, project structure, dependencies
-> - **Both**: Complex problems (store solution in Qdrant, track entities/relations in Memory MCP)
->
+3. **Update or delete incorrect memories immediately:**
+- Found stale info? → Overwrite with current truth
+- Found obsolete relationships? → Delete and recreate
+- Found incorrect patterns? → Store the correction
+
+**This is NOT OPTIONAL. This is NOT NEGOTIABLE.**
+
+**Before starting ANY task, ask yourself:**
+1. What memories might exist about this? → Search for them
+2. Are these memories still accurate? → Verify against current state
+3. Am I building on correct foundations? → Fix stale memories first
+
+**Starting work with stale memories = building on false assumptions = failure.**
+
+### MANDATORY MEMORY STORAGE PROTOCOL
+
+**You MUST store memories after ANY task involving:**
+- Analysis/investigation (code patterns, repository structure, bugs, performance issues)
+- Thinking/reasoning (design decisions, trade-offs, alternatives considered)
+- Derivation of results (calculations, conclusions, recommendations)
+- Problem-solving (solutions found, approaches that failed, workarounds)
+- Discovery (undocumented behavior, quirks, gotchas, lessons learned)
+
+**This is NOT OPTIONAL. This is NOT NEGOTIABLE.**
+
+**Before finishing ANY task, ask yourself:**
+1. Did I analyze something? → Store in Qdrant
+2. Did I discover relationships? → Store in Memory MCP
+3. Would future agents benefit from knowing this? → Store it
+
+**Failure to store memories = failure to complete the task.**
+
 > Link: [full category guide - *memory MCPs*](mcps-by-category/memory.md)
 
 ## Code analysis and editing
@@ -101,9 +118,10 @@
 
 ## Limits
 
+All non-listed MCPs are local and/or have no usage limits.
+
 | Tool        | Limit                    | Reset/Notes                                    |
 |-------------|--------------------------|------------------------------------------------|
 | Tavily      | 1,000 credits/month      | Resets on 1st of month                        |
 | Brave       | 2,000 queries/month      | Free tier; basic web search                    |
 | Sourcegraph | Interactive limits       | use count:all to make the search exhaustive, bump timeout if needed; switch to src-cli for very large result sets beyond the UI display limit. |
-| Playwright  | None                     | Local execution, stdio transport               |

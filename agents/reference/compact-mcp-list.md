@@ -84,7 +84,7 @@
 
 **Failure to store memories = failure to complete the task.**
 
-> [!INFO]
+> [!NOTE]
 > **Storage decision tree:**
 >  - **Qdrant**: Code patterns, solutions, gotchas, insights, "how I solved X"
 >  - **Memory MCP**: Who/what/how relationships, project structure, dependencies

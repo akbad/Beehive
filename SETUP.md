@@ -49,27 +49,27 @@ All setup scripts automatically detect which CLIs are installed based on these d
    > /plugin install superpowers@superpowers-marketplace
    ```
 
-   > [!TIP]
-   > If `claude-mem` is properly set up, every time you start Claude Code, you should see output that looks like:
-   > ```bash
-   > $ claude
-   >   # ... Claude startup graphics ...
-   >  ⎿ SessionStart:startup says: Plugin hook error: 
-   >
-   >    📝 Claude-Mem Context Loaded
-   >       ℹ️  Note: This appears as stderr but is informational
-   >     only
-   >
-   >
-   >    📝 [beehive] recent context
-   >    ────────────────────────────────────────────────────────
-   >
-   >    Legend: 🎯 session-request | 🔴 gotcha | 🟡 
-   >    problem-solution | 🔵 how-it-works | 🟢 what-changed | 
-   >    🟣 discovery | 🟠 why-it-exists | 🟤 decision | ⚖️ 
-   >    trade-off
-   >    # ... individual context entries will follow
-   > ```
+> [!TIP]
+> If `claude-mem` is properly set up, every time you start Claude Code, you should see output that looks like:
+> ```bash
+> $ claude
+>   # ... Claude startup graphics ...
+>  ⎿ SessionStart:startup says: Plugin hook error: 
+>
+>    📝 Claude-Mem Context Loaded
+>       ℹ️  Note: This appears as stderr but is informational
+>     only
+>
+>
+>    📝 [beehive] recent context
+>    ────────────────────────────────────────────────────────
+>
+>    Legend: 🎯 session-request | 🔴 gotcha | 🟡 
+>    problem-solution | 🔵 how-it-works | 🟢 what-changed | 
+>    🟣 discovery | 🟠 why-it-exists | 🟤 decision | ⚖️ 
+>    trade-off
+>    # ... individual context entries will follow
+> ```
 
 4. **Codex only:** the setup script automatically installs the Superpowers skills library (no manual command needed). When `tools/scripts/set-up-tools.sh` runs, it clones or updates `obra/superpowers` under `~/.codex/superpowers`, installs dependencies, and verifies the bootstrap CLI so Codex sessions immediately load the skills. The process is idempotent, so rerunning the setup reuses the existing checkout safely.
 
@@ -205,7 +205,8 @@ The two sections below set up the same agent roles on different platforms:
 
 3. Verify in Claude Code by running `/agents` to confirm the subagents appear
 
-> **How to spawn subagents in Claude Code:**
+> [!TIP]
+> **To spawn subagents in Claude Code:**
 > 
 > 1. **Mention the agent explicitly** by name in your prompt, e.g. `Have the debugger subagent investigate this error`
 > 2. Claude **automatically** invokes subagents when tasks match their descriptions*
@@ -217,6 +218,7 @@ The two sections below set up the same agent roles on different platforms:
 
 ## Agents
 
+> [!NOTE]
 > The instructions/scripts in this section set up the ability to **launch Claude Code, Codex and Gemini CLI using a particular agent *from launch for the main conversation*** (instead of as *subagents* that you can't interact with directly).
 
 ### Strategy

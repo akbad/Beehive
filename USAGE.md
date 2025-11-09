@@ -360,7 +360,7 @@ A skills library that enforces mandatory workflows for common engineering tasks 
 > 
 > You can check which skills are available to (be automatically loaded by) Codex by running:
 > ```bash
-> ~/.codex/superpowers/.codex/superpowers-codex find-skills`
+> ~/.codex/superpowers/.codex/superpowers-codex find-skills
 > ```
 
 ### Using `claude-mem` *(Claude Code only)*

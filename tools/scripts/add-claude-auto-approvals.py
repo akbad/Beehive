@@ -30,6 +30,7 @@ BUILTIN_TOOLS_AUTO_APPROVE = [
     "Glob",           # File pattern matching (read-only)
     "Skill",          # User-defined skills
     "SlashCommand",   # User-defined slash commands
+    "mcp__plugin_claude-mem_claude-mem-search__*",  # Claude-Mem search tools wildcard
 ]
 
 

@@ -2,7 +2,7 @@
 set -euo pipefail
 
 # Bootstrap: Initial setup for Beehive across Claude Code, Codex, and Gemini CLI
-# > Run once: ./bootstrap.sh
+# > Run once: ./start-beehive
 # > Idempotent (safe to re-run; won't duplicate resources)
 #
 # Prerequisites: Node.js, Python 3.8+, git
@@ -56,5 +56,5 @@ echo ""
 echo "To add/remove CLIs in the future:"
 echo "  - Add: Create user-scoped config directory (e.g., mkdir -p ~/.gemini)"
 echo "  - Remove: Delete user-scoped config directory (e.g., rm -rf ~/.codex)"
-echo "  - Then re-run: ./scripts/bootstrap.sh"
+echo "  - Then re-run: ./scripts/start-beehive"
 echo ""

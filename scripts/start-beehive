@@ -32,16 +32,16 @@ echo ""
 load_agent_selection
 echo ""
 
-# Run tools setup
-echo -e "${BLUE}Setting up tools...${NC}"
-echo ""
-tools/scripts/set-up-tools.sh -y
-
 # Run remaining setup scripts (all use directory-based detection)
 echo ""
 echo -e "${BLUE}Setting up agents and agent launchers...${NC}"
 echo ""
 agents/scripts/set-up-agents.sh
+
+# Run tools setup
+echo -e "${BLUE}Setting up tools...${NC}"
+echo ""
+tools/scripts/set-up-tools.sh -y
 
 echo ""
 echo -e "${BLUE}Setting up config files...${NC}"

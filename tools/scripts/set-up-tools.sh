@@ -1002,7 +1002,7 @@ log_info "To stop Qdrant Docker container:"
 log_info "  $QDRANT_STOP_CMD"
 
 log_empty_line
-TAKE_DOWN_FILE="take_down_mcps.sh"
+TAKE_DOWN_FILE="$REPO_ROOT/scripts/stop-beehive"
 echo "#!/usr/bin/env bash" > "$TAKE_DOWN_FILE"
 echo "$KILL_HTTPS_CMD; $QDRANT_STOP_CMD" >> "$TAKE_DOWN_FILE"
 log_info "✔︎ Stop commands also saved to $RED$TAKE_DOWN_FILE$NC for convenience"

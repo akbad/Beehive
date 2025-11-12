@@ -445,9 +445,9 @@ add_http_mcp_to_agent() {
             ;;
         "$CODEX")
             # Codex HTTP mode doesn't support custom headers, only bearer_token
-            # Skip if headers are required
+            # Skip if headers are required (usually checked by caller but repeat here for safety)
             if [[ ${#headers[@]} -gt 0 ]]; then
-                return 1  # Cannot configure - headers not supported
+                return 2  # Cannot configure - headers not supported
             fi
             add_mcp_to_codex "$server" "http" "$url"
             ;;
@@ -494,6 +494,12 @@ setup_http_mcp() {
 
     for agent in "${AGENTS[@]}"; do
         log_info "Configuring $agent..."
+
+        if [[ $agent == "$CODEX" && ${#headers[@]} -gt 0 ]]; then
+            log_warning "Skipping setting up ${CODEX} with ${server} via HTTP since it does not support custom headers beyond bearer_token"
+            return
+        fi
+        
         (add_http_mcp_to_agent "$agent" "$server" "$url" "${headers[@]}" && log_success "$agent configured") || log_warning "Already exists"
     done
 }

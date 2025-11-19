@@ -69,10 +69,9 @@ source "$REPO_ROOT/scripts/lib/agent-selection.sh"
 
 # --- CONFIG ---
 
-# Parent repo (best if it contains all projects you want to use these agents with)
-DEFAULT_DIR="$HOME/Code"
-PARENT_DIR=$DEFAULT_DIR
-CLONE_DIR="$DEFAULT_DIR/mcp-servers"
+# Determine relevant paths (best if it contains all projects you want to use these agents with)
+PROJECTS_DIR="$HOME/Code"
+CLONE_DIR="$PROJECTS_DIR/mcp-servers"
 
 # Where to place needed clones of MCP server repos
 export SOURCEGRAPH_REPO_PATH="$CLONE_DIR/sourcegraph-mcp"
@@ -114,10 +113,10 @@ export SERENA_MCP_PORT=8785
 export QDRANT_URL="http://127.0.0.1:$QDRANT_DB_PORT"
 export QDRANT_COLLECTION_NAME="coding-memory"
 export QDRANT_EMBEDDING_PROVIDER="fastembed"
-export QDRANT_DATA_DIR="$PARENT_DIR/qdrant-data"
+export QDRANT_DATA_DIR="$PROJECTS_DIR/qdrant-data"
 
 # Directories
-FS_ALLOWED_DIR="${FS_ALLOWED_DIR:-$PARENT_DIR}"
+FS_ALLOWED_DIR="${FS_ALLOWED_DIR:-$PROJECTS_DIR}"
 
 # Colors
 GREEN='\033[0;32m'

@@ -1,8 +1,41 @@
 # Global context for Gemini CLI & Codex (always read first)
 
+## MUST-READ FILES
+
 You ***must* read these essential files** using the appropriate read tool:
 - before starting any task
 - at the beginning of any conversation
+
+### [MCP tools available: quick reference]({{REPO_ROOT}}/agents/reference/compact-mcp-list.md)
+
+> **Read**: `@{{REPO_ROOT}}/agents/reference/compact-mcp-list.md`
+
+Contains:
+
+   - Fast tool selection guide (Tier 1)
+   - ~330 tokens, always worth reading
+   - Covers: code search, web research, API docs, memory, file operations
+
+### [Handoff guidelines]({{REPO_ROOT}}/agents/reference/handoff-guidelines.md)
+
+> **Read**: `@{{REPO_ROOT}}/agents/reference/handoff-guidelines.md`
+
+Covers:
+
+   - When to delegate work to other agents/models using Zen's `clink` MCP tool
+   - How to select the model/CLI to use when spawning agents (Codex/Gemini/Claude)
+   - When to ask user vs handle directly
+   - What requires explicit approval
+
+> [!IMPORTANT]
+> You must read these files *every time* (even when spawned with a specialized role) since they provide:
+> 
+> - Critical orchestration context
+> - Up-to-date tool limits and quotas
+> - Delegation decision trees
+> - Model-specific strengths and use cases
+> 
+> If a specialized role is being used, it may reference additional must-read files specific to its domain: always check the role prompt for domain-specific references.
 
 ## MANDATORY FACTUAL ACCURACY PROTOCOL
 
@@ -43,61 +76,25 @@ You ***must* read these essential files** using the appropriate read tool:
 
 ## MANDATORY MEMORY STORAGE PROTOCOL
 
-**CRITICAL & NON-NEGOTIABLE REQUIREMENT FOR *ALL* AGENTS**
+**CRITICAL & NON-NEGOTIABLE: Store insights incrementally throughout work** (not just at end).
 
-After completing ANY task involving analysis, thinking, problem-solving, or discovery, you MUST:
+For ANY task involving analysis, thinking, problem-solving, or discovery:
 
-1. **Store insights in Qdrant MCP** (`qdrant-store`):
+1. **Qdrant MCP** (`qdrant-store`) after each major step:
    - Solutions found and why they worked
-   - Patterns discovered, gotchas learned, insights gained
-   - Root causes, symptoms, fix approaches for bugs
+   - Patterns, gotchas, insights; root causes, symptoms, fixes
    - Performance bottlenecks, optimizations, metrics
    - Design decisions, trade-offs, alternatives rejected
 
-2. **Track relationships in Memory MCP** (`create_entities`, `create_relations`):
+2. **Memory MCP** (`create_entities`, `create_relations`):
    - Project components, modules, dependencies
    - System architecture, data flows, integration points
-   - Who owns what, what tools are used where
 
-3. **Ask before completing:** "Would future agents benefit from this?" → YES = STORE IT
+3. **Before completing:** "Would future agents benefit?" → YES = STORE IT
 
 **Failure to store memories = failure to complete the task.**
 
-## [MCP tools available: quick reference]({{REPO_ROOT}}/agents/reference/compact-mcp-list.md)
-
-> **Read**: `@{{REPO_ROOT}}/agents/reference/compact-mcp-list.md`
-
-Contains:
-
-   - Fast tool selection guide (Tier 1)
-   - ~330 tokens, always worth reading
-   - Covers: code search, web research, API docs, memory, file operations
-
-## [Handoff guidelines]({{REPO_ROOT}}/agents/reference/handoff-guidelines.md)
-
-> **Read**: `@{{REPO_ROOT}}/agents/reference/handoff-guidelines.md`
-
-Covers:
-
-   - When to delegate work to other agents/models using Zen's `clink` MCP tool
-   - How to select the model/CLI to use when spawning agents (Codex/Gemini/Claude)
-   - When to ask user vs handle directly
-   - What requires explicit approval
-
-## Further must-read notes
-
-### Read these every time, even when spawned with a specific role
-
-Even when using specialized roles, these files provide:
-
-- Critical orchestration context
-- Up-to-date tool limits and quotas
-- Delegation decision trees
-- Model-specific strengths and use cases
-
-If a specialized role is being used, it may reference additional must-read files specific to its domain. Always check the role prompt for domain-specific references.
-
-### Note for Gemini & Codex (GPT)
+## Note for Gemini & Codex (GPT)
 
 You are running via Gemini CLI or Codex, not Claude Code. This means:
 

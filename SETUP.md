@@ -91,8 +91,8 @@ All setup scripts automatically detect which CLIs are installed based on these d
 >
 > If these files already exist in your system, instead of running the script:
 > 
-> - append the contents of [`CLAUDE.md.template`](configs/CLAUDE.md.template) to your `CLAUDE.md`
-> - append the contents of [`AGENTS.md.template`](configs/AGENTS.md.template) to your `AGENTS.md` and `GEMINI.md`
+> - append the contents of [`CLAUDE.template.md`](configs/CLAUDE.template.md) to your `CLAUDE.md`
+> - append the contents of [`AGENTS.template.md`](configs/AGENTS.template.md) to your `AGENTS.md` and `GEMINI.md`
 
 Run the config setup script:
 
@@ -100,7 +100,7 @@ Run the config setup script:
 configs/scripts/set-up-configs.sh
 ```
 
-This generates config files from templates ([`AGENTS.md.template`](configs/AGENTS.md.template) and [`CLAUDE.md.template`](configs/CLAUDE.md.template)) with absolute paths to the repository, writing them directly to:
+This generates config files from templates ([`AGENTS.template.md`](configs/AGENTS.template.md) and [`CLAUDE.template.md`](configs/CLAUDE.template.md)) with absolute paths to the repository, writing them directly to:
 - `~/.gemini/GEMINI.md` (for Gemini CLI)
 - `~/.codex/AGENTS.md` (for Codex)
 - `~/.claude/CLAUDE.md` (for Claude Code)
@@ -120,7 +120,7 @@ This generates config files from templates ([`AGENTS.md.template`](configs/AGENT
 
 1. Relaunch Gemini CLI
 2. You should see a line under `Using:` saying `1 GEMINI.md file` (or however many you had before + 1)
-3. To be fully sure, run **`/memory show`**; you should see the content from the [`AGENTS.md.template`](configs/AGENTS.md.template) written to `~/.gemini/GEMINI.md`
+3. To be fully sure, run **`/memory show`**; you should see the content from the [`AGENTS.template.md`](configs/AGENTS.template.md) written to `~/.gemini/GEMINI.md`
 
 #### Codex
 

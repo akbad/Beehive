@@ -105,7 +105,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 
 # Source agent selection library
-source "$REPO_ROOT/scripts/lib/agent-selection.sh"
+source "$REPO_ROOT/bin/lib/agent-selection.sh"
 
 # Supported agents' printable string names 
 CLAUDE="Claude Code"
@@ -1025,7 +1025,7 @@ log_info "To stop Qdrant Docker container:"
 log_info "  $QDRANT_STOP_CMD"
 
 log_empty_line
-TAKE_DOWN_FILE="$REPO_ROOT/scripts/stop-beehive"
+TAKE_DOWN_FILE="$REPO_ROOT/bin/stop-beehive"
 echo "#!/usr/bin/env bash" > "$TAKE_DOWN_FILE"
 echo -e "# Run this script to stop servers and containers launched by Beehive's tools script\n" >> "$TAKE_DOWN_FILE"
 echo -e "$KILL_HTTPS_CMD\n$QDRANT_STOP_CMD" >> "$TAKE_DOWN_FILE"

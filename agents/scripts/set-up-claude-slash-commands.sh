@@ -18,7 +18,7 @@ REPO_ROOT="$(cd "$AGENTS_DIR/.." && pwd)"
 CLAUDE_SUBAGENTS_DIR="$AGENTS_DIR/claude-subagents"
 
 # Source agent selection library
-source "$REPO_ROOT/scripts/lib/agent-selection.sh"
+source "$REPO_ROOT/bin/lib/agent-selection.sh"
 
 # Detect installed CLIs (exits if none found, logs detected CLIs)
 discover_agents

@@ -27,7 +27,7 @@ REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$REPO_ROOT" || exit 1
 
 # Source agent selection library
-source "$REPO_ROOT/scripts/lib/agent-selection.sh"
+source "$REPO_ROOT/bin/lib/agent-selection.sh"
 
 echo -e "${BLUE}====================================================${NC}"
 echo -e "${BLUE}  Beehive: user-scoped bootstrap setup${NC}"
@@ -74,5 +74,5 @@ echo ""
 echo "To add or remove CLIs in the future:"
 echo "  - Add: Create user-scoped config directory (e.g., mkdir -p ~/.gemini)"
 echo "  - Remove: Delete user-scoped config directory (e.g., rm -rf ~/.codex)"
-echo "  - Then re-run: ./scripts/start-beehive"
+echo "  - Then re-run: ./bin/start-beehive"
 echo ""

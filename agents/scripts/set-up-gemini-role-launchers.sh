@@ -18,7 +18,7 @@ REPO_ROOT="$(cd "$AGENTS_DIR/.." && pwd)"
 CLINK_ROLES_DIR="$AGENTS_DIR/role-prompts"
 
 # Source agent selection library
-source "$REPO_ROOT/scripts/lib/agent-selection.sh"
+source "$REPO_ROOT/bin/lib/agent-selection.sh"
 
 # Detect installed CLIs (exits if none found, logs detected CLIs)
 discover_agents

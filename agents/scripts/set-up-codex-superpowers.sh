@@ -15,7 +15,7 @@ AGENTS_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 REPO_ROOT="$(cd "$AGENTS_DIR/.." && pwd)"
 
 # Source agent selection library
-source "$REPO_ROOT/scripts/lib/agent-selection.sh"
+source "$REPO_ROOT/bin/lib/agent-selection.sh"
 
 # Load agent selection from profile
 discover_agents

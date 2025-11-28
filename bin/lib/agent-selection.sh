@@ -8,6 +8,7 @@
 CLAUDE="Claude Code"
 CODEX="Codex"
 GEMINI="Gemini CLI"
+OPENCODE="OpenCode"
 
 # Colors for logging (define individually if not already set)
 [[ -z "${GREEN:-}" ]] && GREEN='\033[0;32m'
@@ -57,6 +58,9 @@ agent_enabled() {
         "Codex")
             [[ -d "$HOME/.codex" ]]
             ;;
+        "OpenCode")
+            [[ -d "$HOME/.config/opencode" || -d "$HOME/.opencode" ]]
+            ;;
         *)
             log_error "Unknown agent: $agent_name"
             return 1
@@ -75,6 +79,7 @@ discover_agents() {
     agent_enabled "$CLAUDE" && AGENTS+=("$CLAUDE")
     agent_enabled "$GEMINI" && AGENTS+=("$GEMINI")
     agent_enabled "$CODEX" && AGENTS+=("$CODEX")
+    agent_enabled "$OPENCODE" && AGENTS+=("$OPENCODE")
 
     if [[ ${#AGENTS[@]} -eq 0 ]]; then
         log_error "No CLI config directories found!"
@@ -83,6 +88,7 @@ discover_agents() {
         echo "  - Claude Code: mkdir -p ~/.claude"
         echo "  - Gemini CLI:  mkdir -p ~/.gemini"
         echo "  - Codex:       mkdir -p ~/.codex"
+        echo "  - OpenCode:    mkdir -p ~/.config/opencode"
         echo ""
         echo "Then re-run this script."
         exit 1

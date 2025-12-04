@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-
+#
 # Tools setup script for Beehive (for MCP servers, backing Docker containers, etc.)
 #
 # Prerequisites:

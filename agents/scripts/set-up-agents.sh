@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
-set -euo pipefail
-
+#
 # Setup script for agent files and configurations
 # Run from the agents/ directory (or anywhere in the repo)
+
+set -euo pipefail
 
 # Color codes for output
 RED='\033[0;31m'

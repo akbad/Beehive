@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
-set -euo pipefail
-
+#
 # Setup script for global config files
 # Generates config files from templates and creates symlinks for portability
-# Run from anywhere in the repo
+
+set -euo pipefail
 
 # Color codes for output
 RED='\033[0;31m'

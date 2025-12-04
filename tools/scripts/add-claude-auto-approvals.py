@@ -1,10 +1,10 @@
-#!/usr/bin/env python3
+#!/usr/bin/env -S uv run
 """
 Helper script to update Claude Code settings.json with tool auto-approval configuration
 (only if the user specifies the appropriate flag in the calling script).
 
 Usage:
-    python3 add-claude-auto-approvals.py <settings_file_path> <server_name_1> <server_name_2> ...
+    uv run add-claude-auto-approvals.py <settings_file_path> <server_name_1> <server_name_2> ...
 
 This script:
 1. Creates the settings file if it doesn't exist
@@ -13,12 +13,8 @@ This script:
 """
 
 import sys
-from pathlib import Path
 
-# Ensure shared config utils are importable
-sys.path.append(str(Path(__file__).resolve().parent.parent.parent / "lib"))
-
-from pollen.config_utils import load_json_config, save_json_config
+from lib.pollen.config_utils import load_json_config, save_json_config
 
 
 # Built-in Claude Code tools to auto-approve (non-destructive tools only)
@@ -92,7 +88,7 @@ def update_claude_settings(settings_path: str, mcp_servers: list[str]) -> None:
 
 if __name__ == '__main__':
     if len(sys.argv) < 2:
-        print("Usage: python3 add-claude-auto-approvals.py <settings_file_path> [server_name_1] [server_name_2] ...")
+        print("Usage: uv run add-claude-auto-approvals.py <settings_file_path> [server_name_1] [server_name_2] ...")
         sys.exit(1)
 
     settings_path = sys.argv[1]

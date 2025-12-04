@@ -5,9 +5,8 @@
 # Prerequisites:
 #   Required:
 #       - Node.js/npm (for npx)
-#       - uv/uvx with Python 3.12 (for Python-based MCP servers)
+#       - uv/uvx with Python 3.12 (for Python-based MCP servers and Semgrep)
 #       - Docker Desktop or Rancher Desktop (for Qdrant container)
-#       - Homebrew (for installing Semgrep binary)
 #
 #   API keys (for cloud-based MCP servers' free tiers):
 #       - Tavily API key in $TAVILY_API_KEY
@@ -378,7 +377,7 @@ add_mcp_to_gemini() {
         return 1
     fi
 
-    python3 "$SCRIPT_DIR/add-mcp-to-gemini.py" "$transport" "$server_name" "$GEMINI_CONFIG" "$@"
+    uv run "$SCRIPT_DIR/add-mcp-to-gemini.py" "$transport" "$server_name" "$GEMINI_CONFIG" "$@"
 }
 
 # Add server to Codex config file
@@ -522,22 +521,6 @@ setup_stdio_mcp() {
     done
 }
 
-# Check for required dependency and exit if not found
-check_dependency() {
-    local cmd=$1
-    local install_msg=$2
-    local success_msg=${3:-""}
-
-    if ! command -v "$cmd" &> /dev/null; then
-        log_error "$cmd not found. $install_msg"
-        exit 1
-    fi
-
-    if [[ -n "$success_msg" ]]; then
-        log_info "$success_msg"
-    fi
-}
-
 # Check for required environment variable and warn if not set
 check_env_var() {
     local var_name=$1
@@ -674,13 +657,13 @@ configure_auto_approve() {
         log_info "→ Configuring $agent..."
         case "$agent" in
             "$CLAUDE")
-                python3 "$SCRIPT_DIR/add-claude-auto-approvals.py" "$CLAUDE_CONFIG" "${mcp_servers[@]}"
+                uv run "$SCRIPT_DIR/add-claude-auto-approvals.py" "$CLAUDE_CONFIG" "${mcp_servers[@]}"
                 ;;
             "$CODEX")
-                python3 "$SCRIPT_DIR/add-codex-auto-approvals.py" "$CODEX_CONFIG"
+                uv run "$SCRIPT_DIR/add-codex-auto-approvals.py" "$CODEX_CONFIG"
                 ;;
             "$GEMINI")
-                python3 "$SCRIPT_DIR/add-gemini-auto-approvals.py" "$GEMINI_CONFIG" "${mcp_servers[@]}"
+                uv run "$SCRIPT_DIR/add-gemini-auto-approvals.py" "$GEMINI_CONFIG" "${mcp_servers[@]}"
                 ;;
             *)
                 log_warning "  Unknown agent: $agent (skipping)"
@@ -695,31 +678,19 @@ configure_auto_approve() {
 
 # --- CHECK DEPENDENCIES ---
 
-log_info "Checking dependencies..."
+log_info "Checking prerequisites..."
 
-check_dependency "npx" "Please install Node.js first."
-check_dependency "uvx" "Please install uv first: https://docs.astral.sh/uv/getting-started/installation/" \
-    "uvx found, will use for Fetch MCP (stdio mode)"
-check_dependency "docker" "Please install Docker first: https://docs.docker.com/get-docker/" \
-    "docker found, will use for Qdrant container"
-
-if [[ "$(uname)" == "Darwin" ]]; then
-    # macOS
-    check_dependency "brew" "Please install Homebrew first: https://brew.sh/" \
-        "brew found, will use for Semgrep installation"
-
-    # idempotently install Semgrep binary (used to launch MCP)
-    brew install semgrep
-elif [[ "$(uname)" == "Linux" ]]; then
-    # Linux
-    log_info "Installing Semgrep via uv..."
-    uv tool install semgrep
-else 
-    log_error "You are on an unsupported OS!"
+# Use centralized prereq checker (exits with error if any missing)
+if ! "$REPO_ROOT/bin/check-prereqs"; then
+    log_error "Missing prerequisites. Please install them and try again."
     exit 1
 fi
 
-log_success "Dependency check complete."
+log_success "All prerequisites available."
+
+# Install Semgrep via uv (works on all platforms)
+log_info "Installing/updating Semgrep..."
+uv tool install semgrep
 
 log_info "Checking/installing optional tools..."
 log_empty_line
@@ -784,7 +755,7 @@ log_info "Idempotently starting up HTTP MCP servers..."
 start_http_server "Zen MCP" "$ZEN_MCP_PORT" "ZEN_PID" \
     env DISABLED_TOOLS="$ZEN_CLINK_DISABLED_TOOLS" ZEN_MCP_PORT="$ZEN_MCP_PORT" \
     uvx --from git+https://github.com/BeehiveInnovations/zen-mcp-server.git \
-    python3 "$SCRIPT_DIR/start-zen-http.py"
+    uv run "$SCRIPT_DIR/start-zen-http.py"
 
 log_info "Ensuring Rancher Desktop is running..."
 ensure_rancher_running
@@ -1008,7 +979,7 @@ if agent_enabled "OpenCode"; then
         mkdir -p "$(dirname "$TARGET_OC")"
 
         if [[ -n "$GENERATED_OC" && -f "$GENERATED_OC" ]]; then
-            if PYTHONPATH="$REPO_ROOT/lib" python3 "$SCRIPT_DIR/configure-opencode.py" --target "$TARGET_OC" --generated "$GENERATED_OC"; then
+            if UV_PYTHONPATH="$REPO_ROOT/lib" uv run "$SCRIPT_DIR/configure-opencode.py" --target "$TARGET_OC" --generated "$GENERATED_OC"; then
                 log_success "OpenCode config merged into $TARGET_OC (preserved user overrides)"
             else
                 log_warning "OpenCode merge failed; leaving $TARGET_OC unchanged"

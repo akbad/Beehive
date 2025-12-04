@@ -53,6 +53,7 @@ class CleanupHandler(ABC):
     def cleanup(self, retention: str | None = None, dry_run: bool = False) -> dict[str, Any]:
         """Runs cleanup for the given storage backend and returns stats."""
         if retention is None:
+            # retrieve retention period for the given storage backend
             retention = get_retention(self.config, self.name)
 
         if retention.lower() == "never":

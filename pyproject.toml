@@ -1,0 +1,14 @@
+[project]
+name = "beehive"
+version = "1.0.0"
+description = "Multi-agent AI orchestration framework"
+requires-python = ">=3.12"
+dependencies = [
+    "pyyaml>=6.0",
+]
+
+[project.scripts]
+get-config = "lib.pollen.get_config:main"
+
+[dependency-groups]
+dev = []

@@ -1,19 +1,15 @@
-#!/usr/bin/env python3
+#!/usr/bin/env -S uv run
 """
 Helper script to update Gemini settings.json with auto-approved MCP tools
 (only if the user specifies the appropriate flag in the calling script).
 
 Usage:
-    python3 add-gemini-auto-approvals.py <settings_file_path> <tool1> [tool2] [tool3] ...
+    uv run add-gemini-auto-approvals.py <settings_file_path> <tool1> [tool2] [tool3] ...
 """
 
 import sys
-from pathlib import Path
 
-# Ensure shared config utils are importable
-sys.path.append(str(Path(__file__).resolve().parent.parent.parent / "lib"))
-
-from pollen.config_utils import load_json_config, save_json_config
+from lib.pollen.config_utils import load_json_config, save_json_config
 
 
 def update_gemini_settings(settings_path: str, tools: list[str]) -> None:
@@ -55,7 +51,7 @@ def update_gemini_settings(settings_path: str, tools: list[str]) -> None:
 
 if __name__ == '__main__':
     if len(sys.argv) < 2:
-        print("Usage: python3 update_gemini_settings.py <settings_file_path> [tool1] [tool2] ...")
+        print("Usage: uv run add-gemini-auto-approvals.py <settings_file_path> [tool1] [tool2] ...")
         sys.exit(1)
 
     settings_path = sys.argv[1]

@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env -S uv run
 """Beehive cleanup subpackage's CLI entrypoint"""
 import argparse
 import sys
@@ -150,8 +150,7 @@ def wipe_memory_backends(
     return {"results": results}
 
 
-# Entrypoint for cleanup CLI: called via `uv run -m lib.pollen.cleanup [args]` 
-# or `python3 -m lib.pollen.cleanup [args]`
+# Entrypoint for cleanup CLI: called via `uv run -m lib.pollen.cleanup [args]`
 def main():
     STORAGE_MAP = {
         "q": "qdrant",

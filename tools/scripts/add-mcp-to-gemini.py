@@ -1,13 +1,9 @@
-#!/usr/bin/env python3
+#!/usr/bin/env -S uv run
 
 import sys
 from typing import Any
-from pathlib import Path
 
-# Ensure shared config utils are importable
-sys.path.append(str(Path(__file__).resolve().parent.parent.parent / "lib"))
-
-from pollen.config_utils import load_json_config, save_json_config, expand_vars
+from lib.pollen.config_utils import load_json_config, save_json_config, expand_vars
 
 
 def build_entry(transport: str, payload: list[str]) -> dict:

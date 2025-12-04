@@ -1,0 +1,35 @@
+# =============================
+#  BEEHIVE FIXED CONFIGURATION
+# =============================
+#
+# This file stores configuration values that are either:
+#   - an immutable reflection of some upstream value
+#   - very unlikely to be changed by the user
+
+# Fixed endpoints for cloud-hosted HTTP MCPs
+endpoint_for:
+  sourcegraph: https://sourcegraph.com
+  context7: https://mcp.context7.com/mcp
+  tavily: https://mcp.tavily.com/mcp/?tavilyApiKey=${TAVILY_API_KEY}
+
+paths:
+  # Path to JSONL storage for Memory MCP's entity-relationship knowledge graph
+  # Override by setting $MEMORY_FILE_PATH
+  memory_mcp_file: ~/.memory-mcp/memory.jsonl  
+
+  # Path to SQLite database for claude-mem's session summaries & observations
+  # Override by setting $CLAUDE_MEM_DATA_DIR
+  claude_mem_db: ~/.claude-mem/claude-mem.db   
+
+qdrant:
+  # Name of the collection within the backing Qdrant DB in which to store semantic memories
+  # Override by setting $QDRANT_COLLECTION_NAME
+  collection: coding-memory
+
+  # Embedding model provider for generating vectors in Qdrant
+  # Override by setting $QDRANT_EMBEDDING_PROVIDER
+  embedding_provider: fastembed
+
+# Fixed clink tool disable list for Zen MCP
+# (all tools below require API keys, which Beehive assumes the user does not want to use)
+zen_clink_disabled_tools: analyze,apilookup,challenge,chat,codereview,consensus,debug,docgen,planner,precommit,refactor,secaudit,testgen,thinkdeep,tracer

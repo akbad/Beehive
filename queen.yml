@@ -1,0 +1,84 @@
+# ====================================
+#  BEEHIVE USER-TUNABLE CONFIGURATION
+# ====================================
+#
+# -----------------------------------------------------------------------------------
+# WARNING
+# This file (and any changes to it) directly controls Beehive's behavior, including:
+#   - Which AI agent CLIs get configured
+#   - When and how stale memory cleanup runs (retention periods, intervals)
+#   - Where data is stored and accessed (paths, URLs, accessable directories)
+#   - Data deletion policies (grace periods, trash behavior)
+# -----------------------------------------------------------------------------------
+#
+# This file is version-controlled and shared across all users.
+# For local overrides (not to be tracked by git), create and write to local.yml instead.
+
+# Agent CLIs that Beehive should configure
+# Available: claude, gemini, codex, opencode
+agents:
+  enabled:
+    - claude
+    - gemini
+    - codex
+    - opencode
+
+# Retention periods (per memory backend), after which memories older than this threshold
+#   will be moved to trash automatically by the cleanup process
+# Formats: 24h (hours), 30d (days), 2w (weeks), 3m (months), 1y (years), never
+retention:
+  claude_mem: 30d    # Claude-mem SQLite database (Claude Code only)
+  serena: 90d        # Serena project memories (.serena/memories/)
+  qdrant: 180d       # Qdrant vector database (used by all enabled CLIs)
+  memory_mcp: 365d   # Memory MCP JSONL file (used by all enabled CLIs)
+
+# Cleanup interval (for stale memories)
+cleanup:
+  min_interval: 24h
+
+# Trash grace period before permanent deletion
+trash:
+  grace_period: 30d
+
+# Timeouts (in seconds) to wait when starting up components (increase for slower machines)
+startup:
+  server_start_timeout: 200  # For all MCP servers
+  docker_timeout: 120        # For Docker daemon startup
+
+# Ports for locally-run servers & containers
+ports:
+  qdrant_db: 8780
+  zen_mcp: 8781
+  qdrant_mcp: 8782
+  sourcegraph_mcp: 8783
+  semgrep_mcp: 8784
+  serena_mcp: 8785
+
+# Storage paths and connection details
+# Environment variables take precedence over these values
+paths:
+  # Base workspace for user projects, used as follows:
+  #   - starting point for finding Serena memories during cleanup process
+  #   - required MCP server clones are placed in `projects_dir/mcp-servers`
+  #   - data directory for Qdrant MCP's backing (Qdrant) DB is placed at `projects_dir/qdrant-data`
+  #   - default whitelisted dir for Filesystem MCP 
+  # Override using: $BEEHIVE_PROJECTS_DIR
+  projects_dir: ~/Code
+
+  # Base for locating Serena memories
+  serena_projects: ~/Code
+
+  # Filesystem MCP security boundary (which directory it's allowed to modify)
+  # Typically matches projects_dir for convenience
+  fs_allowed_dir: ~/Code
+
+  # MCP server clone destination (defaults to projects_dir/mcp-servers)
+  clonedir: ~/Code/mcp-servers
+
+  # Qdrant Docker volume mount location (where vector DB data is persisted)
+  qdrant_data_dir: ~/Code/qdrant-data
+
+# MCP tool permissions
+# When true, agents won't prompt for permission before using MCP tools
+mcp:
+  auto_approve: no

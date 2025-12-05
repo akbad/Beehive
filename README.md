@@ -88,14 +88,14 @@ with each of the 3 files above generated from templates (for portability regardl
 
 ### Subagents (for isolated execution)
 
-**Claude Code OpenCode (native subagents):**
+**Claude Code & OpenCode** *(via native subagents):*
 ```
 "Have the architect subagent design this system"
 "Use the debugger agent to investigate this stack trace"
 "Spawn the security-compliance agent to audit these changes"
 ```
 
-**Any CLI (Zen clink):**
+**Any CLI** *(via Zen MCP's `clink`):*
 ```
 "clink with gemini architect to design API structure"
 "clink with codex observability to analyze these metrics"

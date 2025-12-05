@@ -3,6 +3,7 @@ stop-beehive
 *.pyc
 .serena/
 .vscode/
+.npm-cache/
 
 # Ignore machine-specific files that are generated (templates are source of truth)
 **/generated

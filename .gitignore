@@ -4,6 +4,7 @@ stop-beehive
 .serena/
 .vscode/
 .npm-cache/
+.worktrees/
 
 # Ignore machine-specific files that are generated (templates are source of truth)
 **/generated

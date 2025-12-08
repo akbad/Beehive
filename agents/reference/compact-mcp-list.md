@@ -84,11 +84,22 @@
 
 **Failure to store memories = failure to complete the task.**
 
-> [!NOTE]
+> [!TIP]
 > **Storage decision tree:**
->  - **Qdrant**: Code patterns, solutions, gotchas, insights, "how I solved X"
+>  - **Qdrant MCP**: Code patterns, solutions, gotchas, insights, "how I solved X"
 >  - **Memory MCP**: Who/what/how relationships, project structure, dependencies
 >  - **Both**: Complex problems (store solution in Qdrant, track entities/relations in Memory MCP)
+
+> [!IMPORTANT]
+> When storing memories, *always* include these metadata fields depending on the tool you're using
+> (to enable cleanup of stale memories by the system):
+> 
+> | Memory storage tool | Metadata field to include | 
+> | --- | --- |
+> | Qdrant MCP | `metadata.created_at` (ISO 8601, UTC with Z suffix) | 
+> | Memory MCP | `created_at` (ISO 8601, UTC with Z suffix) |
+> | Serena MCP | *None required; automatically created* |
+> | claude-mem (Claude Code *only*) | *None required; automatically created* |
 
 > Link: [full category guide - *memory MCPs*](mcps-by-category/memory.md)
 

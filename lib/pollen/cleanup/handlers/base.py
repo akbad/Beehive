@@ -45,8 +45,8 @@ class CleanupHandler(ABC):
         """Calculate cutoff datetime from retention period."""
         delta = parse_duration(retention)
         if delta == timedelta.max:
-            # retention period is "forever" - return a date far in the past (???) so nothing matches
-            # TODO: not future ???
+            # retention period is "forever": return a cutoff date far in the past so that
+            #   no stored memories are older than it
             return datetime.min
         return datetime.now(timezone.utc) - delta
 

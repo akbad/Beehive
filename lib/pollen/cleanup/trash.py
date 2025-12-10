@@ -5,13 +5,18 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Optional
 
-from .config import parse_duration, TRASH_DIR
+from ..config_loader import parse_duration, get_trash_dir as get_base_trash_dir
 from .state import now_as_iso
+
+BASE_TRASH_DIR = get_base_trash_dir()
 
 
 def get_trash_dir(backend_name: str) -> Path:
-    """Find trash directory for a specific memory backend."""
-    trash_path = TRASH_DIR / backend_name
+    """
+        Find trash directory for a specific memory backend.
+        Trash directories are defined per backend: .wax/trash/<backend-name>
+    """
+    trash_path = BASE_TRASH_DIR / backend_name
     trash_path.mkdir(parents=True, exist_ok=True)
     return trash_path
 
@@ -41,7 +46,7 @@ def write_manifest(trash_path: Path, storage_name: str, item_count: int,
 
     manifest_path = trash_path / ".manifest.json"
 
-    # Append to existing manifest or create new
+    # append to existing manifest or create new
     existing = []
     if manifest_path.exists():
         try:
@@ -79,7 +84,7 @@ def move_to_trash(source_path: Path,
 def empty_expired_trash(grace_period: str) -> int:
     """Remove items in the trash that are older than the grace period, 
         returning the count of items removed."""
-    if not TRASH_DIR.exists():
+    if not BASE_TRASH_DIR.exists():
         return 0
 
     grace_delta = parse_duration(grace_period)
@@ -88,7 +93,7 @@ def empty_expired_trash(grace_period: str) -> int:
     # delete everything moved to trash before this date
     cutoff = datetime.now(timezone.utc) - grace_delta
 
-    for storage_dir in TRASH_DIR.iterdir():
+    for storage_dir in BASE_TRASH_DIR.iterdir():
         if not storage_dir.is_dir():
             continue
 
@@ -111,7 +116,10 @@ def empty_expired_trash(grace_period: str) -> int:
             files = [Path(p) for p in entry.get("files", [])]
             try:
                 trashed_dt = datetime.fromisoformat(trashed_at)
-                expired = trashed_dt.replace(tzinfo=None) < cutoff
+                # Ensure timezone-aware comparison (assume UTC for naive datetimes)
+                if trashed_dt.tzinfo is None:
+                    trashed_dt = trashed_dt.replace(tzinfo=timezone.utc)
+                expired = trashed_dt < cutoff
             except (ValueError, TypeError):
                 expired = False
 
@@ -126,12 +134,14 @@ def empty_expired_trash(grace_period: str) -> int:
                             full_path = fpath
                     else:
                         full_path = storage_dir / fpath
-                    if full_path.exists():
+                    try:
                         if full_path.is_file():
-                            removed_count += 1
                             full_path.unlink()
+                            removed_count += 1
                         elif full_path.is_dir():
                             shutil.rmtree(full_path)
+                    except FileNotFoundError:
+                        pass  # Already deleted, continue
                 
                 # if files list is absent, fall back to deleting all non-manifest 
                 #   files whose last edited time is older than the cutoff
@@ -162,12 +172,12 @@ def empty_expired_trash(grace_period: str) -> int:
 
 def empty_all_trash() -> dict:
     """Immediately empty *all* trash, overriding the default grace period."""
-    if not TRASH_DIR.exists():
+    if not BASE_TRASH_DIR.exists():
         return {"emptied": 0, "message": "Trash directory does not exist"}
 
     # count items to be permanently deleted (excluding directories & manifest files)
     count = 0
-    for storage_dir in TRASH_DIR.iterdir():
+    for storage_dir in BASE_TRASH_DIR.iterdir():
         if storage_dir.is_dir():
             for item in storage_dir.rglob("*"):
                 if item.is_file() and item.name != ".manifest.json":

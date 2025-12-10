@@ -1,16 +1,23 @@
 #!/usr/bin/env -S uv run
-"""Beehive cleanup subpackage's CLI entrypoint"""
+"""Cleanup CLI entrypoint"""
 import argparse
 import sys
 
-from .config import load_config, get_retention, parse_duration
+from ..config_loader import (
+    get_config,
+    get_retention,
+    get_cleanup_interval,
+    get_trash_grace_period,
+    parse_duration,
+)
+from ..validate_config import full_validate
 from .state import load_state, save_state, did_recently_run, now_as_iso, State
 from .trash import empty_expired_trash, empty_all_trash
 from .handlers import HANDLERS
 
 # compute config-derived values once at module load
-_config = load_config()
-_min_interval = parse_duration(_config["cleanup"]["min_interval"])
+_config = get_config()
+_min_interval = parse_duration(get_cleanup_interval())
 _interval_hours = int(_min_interval.total_seconds() / 3600)
 
 
@@ -21,13 +28,23 @@ def run_cleanup(
     verbose: bool = False,
 ) -> dict:
     """Run cleanup for all or specific storage."""
+    # Validate configuration before running cleanup
+    validation_errors = full_validate(_config)
+    if validation_errors:
+        return {
+            "error": "Configuration validation failed",
+            "validation_errors": validation_errors,
+            "errors": [{"storage": "config", "error": e} for e in validation_errors],
+        }
+
     state = load_state()
+    errors: list[dict] = []
 
     # check if we ran recently (unless forced)
     if not force and did_recently_run(state, N=_interval_hours):
         return {
             "skipped": True,
-            "reason": f"Last run was <{_config['cleanup']['min_interval']} ago, skipping (override with --force/-f)",
+            "reason": f"Last run was <{get_cleanup_interval()} ago, skipping (override with --force/-f)",
             "last_run": state.get("last_cleanup_run"),
         }
 
@@ -39,12 +56,12 @@ def run_cleanup(
         requested = {s.replace("-", "_") for s in memory_backends}
         handlers_to_run = [h for h in HANDLERS if h.name.replace("-", "_") in requested]
         if not handlers_to_run:
-            return {"error": f"Unknown storage: {', '.join(memory_backends)}"}
+            return {"error": f"Unknown storage: {', '.join(memory_backends)}", "errors": errors}
 
     # run cleanup for each handler in the list (i.e. each memory backend selected)
     for handler_class in handlers_to_run:
         handler = handler_class(_config)
-        retention = get_retention(_config, handler.name)
+        retention = get_retention(handler.name)
 
         if verbose:
             print(f"Cleaning {handler.name} (retention: {retention})...")
@@ -52,6 +69,12 @@ def run_cleanup(
         try:
             result = handler.cleanup(retention, dry_run=dry_run)
             results.append(result)
+
+            if result.get("error"):
+                errors.append({
+                    "storage": handler.name,
+                    "error": result.get("error"),
+                })
 
             if verbose:
                 if result.get("skipped"):
@@ -63,7 +86,11 @@ def run_cleanup(
         except Exception as e:
             results.append({
                 "storage": handler.name,
-                "error": str(object=e),
+                "error": str(e),
+            })
+            errors.append({
+                "storage": handler.name,
+                "error": str(e),
             })
             if verbose:
                 print(f"  Error: {e}")
@@ -71,7 +98,7 @@ def run_cleanup(
     # empty expired trash (unless doing a dry run)
     trash_result = {"trash_emptied": 0}
     if not dry_run:
-        grace_period = _config["trash"]["grace_period"]
+        grace_period = get_trash_grace_period()
         deleted_count = empty_expired_trash(grace_period)
         trash_result = {"trash_emptied": deleted_count}
 
@@ -88,6 +115,7 @@ def run_cleanup(
         "results": results,
         **trash_result,
         "dry_run": dry_run,
+        "errors": errors,
     }
 
 
@@ -106,7 +134,17 @@ def wipe_memory_backends(
     Returns:
         Dict with results per storage
     """
-    config = load_config()
+    config = get_config()
+
+    # Validate configuration before wiping
+    validation_errors = full_validate(config)
+    if validation_errors:
+        return {
+            "error": "Configuration validation failed",
+            "validation_errors": validation_errors,
+            "results": [{"storage": "config", "error": e} for e in validation_errors],
+        }
+
     results = []
 
     # map storage names to handlers
@@ -150,7 +188,7 @@ def wipe_memory_backends(
     return {"results": results}
 
 
-# Entrypoint for cleanup CLI: called via `uv run -m lib.pollen.cleanup [args]`
+# Entrypoint for cleanup CLI: called via `uv run sweep-hive [args]`
 def main():
     STORAGE_MAP = {
         "q": "qdrant",
@@ -200,14 +238,66 @@ def main():
         action="store_true",
         help="Immediately empty all trash, bypassing grace period"
     )
+    parser.add_argument(
+        "--wipe",
+        nargs="+",
+        metavar="STORAGE",
+        help="Completely erase data from storage(s): claude-mem, serena, qdrant, memory-mcp"
+    )
+    parser.add_argument(
+        "--no-backup",
+        action="store_true",
+        help="Skip backup when wiping (DANGEROUS - data will be permanently lost)"
+    )
+    parser.add_argument(
+        "--validate",
+        action="store_true",
+        help="Validate configuration and exit"
+    )
 
     args = parser.parse_args()
+
+    # if CLI arg set, validate config and exit
+    if args.validate:
+        config = get_config()
+        errors = full_validate(config)
+        if errors:
+            print("Configuration validation failed:", file=sys.stderr)
+            for error in errors:
+                print(f"  - {error}", file=sys.stderr)
+            return 1
+        print("Configuration is valid.")
+        return 0
 
     # if CLI arg set, empty existing trash contents immediately (bypass grace period)
     if args.empty_trash:
         result = empty_all_trash()
         if not args.quiet:
             print(f"Emptied {result['emptied']} items from trash")
+        return 0
+
+    # if CLI arg set, wipe all data from specified storage(s)
+    if args.wipe:
+        result = wipe_memory_backends(
+            memory_backends=args.wipe,
+            backup=not args.no_backup,
+            verbose=args.verbose and not args.quiet
+        )
+
+        if not args.quiet:
+            total_wiped = sum(r.get('wiped', 0) for r in result['results'])
+            errors = [r for r in result['results'] if r.get('error')]
+
+            if errors:
+                for e in errors:
+                    print(f"Error ({e['storage']}): {e['error']}", file=sys.stderr)
+                return 1
+            elif args.verbose:
+                import json
+                print(json.dumps(result, indent=2, default=str))
+            else:
+                print(f"Wiped {total_wiped} items from {len(args.wipe)} storage(s)")
+
         return 0
 
     # core cleanup: execute handlers, collect results, and clean up trash/state
@@ -218,14 +308,25 @@ def main():
         verbose=args.verbose and not args.quiet,
     )
 
+    # top-level error (e.g., unknown storage)
+    if result.get("error"):
+        if not args.quiet:
+            print(f"Error: {result.get('error')}", file=sys.stderr)
+        return 1
+
     if not args.quiet:
         if result.get("skipped"):
             print(result.get("reason"))
-        elif result.get("error"):
-            print(f"Error: {result.get('error')}", file=sys.stderr)
-            return 1
-        elif args.verbose:
+            return 0
+        if args.verbose:
             import json
             print(json.dumps(result, indent=2, default=str))
+        if result.get("errors"):
+            for err in result["errors"]:
+                print(f"[{err.get('storage')}] {err.get('error')}", file=sys.stderr)
+            return 1
+    else:
+        if result.get("errors"):
+            return 1
 
     return 0

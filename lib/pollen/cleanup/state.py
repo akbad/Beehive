@@ -3,7 +3,7 @@ import json
 from datetime import datetime, timezone, timedelta
 from typing import TypedDict
 
-from .config import BEEHIVE_DIR, STATE_PATH
+from ..config_loader import get_wax_dir, get_state_path
 
 
 class State(TypedDict, total=False):
@@ -11,8 +11,12 @@ class State(TypedDict, total=False):
     last_trash_empty: str
 
 
+WAX_DIR = get_wax_dir()
+STATE_PATH = get_state_path()
+
+
 def load_state() -> State:
-    """Load state from ~/.beehive/state.json."""
+    """Load state from .wax/state.json."""
     if not STATE_PATH.exists():
         return {}
 
@@ -25,7 +29,7 @@ def load_state() -> State:
 
 def save_state(updates: State) -> None:
     """Update state file with latest values."""
-    BEEHIVE_DIR.mkdir(parents=True, exist_ok=True)
+    WAX_DIR.mkdir(parents=True, exist_ok=True)
 
     current = load_state()
     current.update(updates)

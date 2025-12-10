@@ -9,7 +9,7 @@ Usage:
 
 import sys
 
-from lib.pollen.config_utils import load_json_config, save_json_config
+from lib.pollen.json_config_utils import load_json_config, save_json_config
 
 
 def update_gemini_settings(settings_path: str, tools: list[str]) -> None:

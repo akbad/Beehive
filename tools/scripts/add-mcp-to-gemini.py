@@ -3,7 +3,7 @@
 import sys
 from typing import Any
 
-from lib.pollen.config_utils import load_json_config, save_json_config, expand_vars
+from lib.pollen.json_config_utils import load_json_config, save_json_config, expand_vars
 
 
 def build_entry(transport: str, payload: list[str]) -> dict:

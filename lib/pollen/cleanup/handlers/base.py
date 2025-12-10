@@ -3,14 +3,13 @@ from abc import ABC, abstractmethod
 from datetime import datetime, timedelta, timezone
 from typing import Any
 
-from ..config import Config, parse_duration, get_retention
+from ...config_loader import Config, parse_duration, get_retention
 
 
 class CleanupHandler(ABC):
     """Abstract base class for storage backend-specific cleanup handlers."""
 
-    name: str               # e.g. "qdrant", "claude-mem"
-    default_retention: str  # e.g. "180d"
+    name: str  # e.g. "qdrant", "claude-mem"
 
     def __init__(self, config: Config):
         self.config = config
@@ -46,7 +45,8 @@ class CleanupHandler(ABC):
         """Calculate cutoff datetime from retention period."""
         delta = parse_duration(retention)
         if delta == timedelta.max:
-            # "never" - return a date far in the past so nothing matches
+            # retention period is "forever" - return a date far in the past (???) so nothing matches
+            # TODO: not future ???
             return datetime.min
         return datetime.now(timezone.utc) - delta
 
@@ -54,7 +54,7 @@ class CleanupHandler(ABC):
         """Runs cleanup for the given storage backend and returns stats."""
         if retention is None:
             # retrieve retention period for the given storage backend
-            retention = get_retention(self.config, self.name)
+            retention = get_retention(self.name)
 
         if retention.lower() == "never":
             # memories are set to never expire for the given storage backend

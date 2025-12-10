@@ -8,7 +8,7 @@ dependencies = [
 ]
 
 [project.scripts]
-get-config = "lib.pollen.get_config:main"
+get-config = "lib.pollen.config_cli:main"
 
 [dependency-groups]
 dev = []

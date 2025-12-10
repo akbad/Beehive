@@ -17,16 +17,7 @@
 #       - Subagent prompts at `~/.zen/prompts`
 #
 # Usage:
-#   ./set-up-tools.sh [options]
-#
-# Options:
-#   -f, --fsdir <path>    The directory to allow the Filesystem MCP to access.
-#                         Defaults to ~/Code.
-#   -c, --clonedir <path> The directory to clone MCP server repositories into.
-#                         Defaults to ~/Code/mcp-servers/.
-#   -y, --yes             Auto-approve all MCP tools for detected agents.
-#                         Configures agents to skip permission prompts for MCP tools.
-#   -h, --help            Show this help message.
+#   ./set-up-tools.sh
 #
 # Agent discovery:
 #   Automatically configures any agentic CLI with a config directory
@@ -61,47 +52,54 @@ set -e  # exit on error
 
 # --- CONFIG ---
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
+
+# Helper to read from merged config (merge order: comb.yml → queen.yml → local.yml → env)
+cfg() {
+    local key="$1"
+    (cd "$REPO_ROOT" && uv run get-config "$key" 2>/dev/null) || true
+}
+
 # Determine relevant paths (best if it contains all projects you want to use these agents with)
-PROJECTS_DIR="$HOME/Code"
-CLONE_DIR="$PROJECTS_DIR/mcp-servers"
+PROJECTS_DIR="$(cfg paths.projects_dir)"
+CLONE_DIR="$(cfg paths.clonedir)"
 
 # Where to place needed clones of MCP server repos
 export SOURCEGRAPH_REPO_PATH="$CLONE_DIR/sourcegraph-mcp"
 export SERENA_REPO_PATH="$CLONE_DIR/serena"
 
-SERVER_START_TIMEOUT=200  # timeout when waiting for any server/daemon to start
-RANCHER_TIMEOUT=120       # timeout specific for Rancher Desktop startup (can take a while)
+SERVER_START_TIMEOUT="$(cfg startup_timeout_for.mcp_servers)"
+DOCKER_TIMEOUT="$(cfg startup_timeout_for.docker_daemon)"
 
 # Remote server URLs
-export SOURCEGRAPH_ENDPOINT="https://sourcegraph.com"
-export CONTEXT7_URL="https://mcp.context7.com/mcp"
-export TAVILY_URL="https://mcp.tavily.com/mcp/?tavilyApiKey=${TAVILY_API_KEY}"
+export SOURCEGRAPH_ENDPOINT="${SOURCEGRAPH_ENDPOINT:-$(cfg endpoint_for.sourcegraph)}"
+export CONTEXT7_URL="${CONTEXT7_URL:-$(cfg endpoint_for.context7)}"
+export TAVILY_URL="${TAVILY_URL:-$(cfg endpoint_for.tavily)}"
 
 # Zen MCP: disable all tools except clink (since they need an API key)
-export ZEN_CLINK_DISABLED_TOOLS='analyze,apilookup,challenge,chat,codereview,consensus,debug,docgen,planner,precommit,refactor,secaudit,testgen,thinkdeep,tracer'
+export ZEN_CLINK_DISABLED_TOOLS="${ZEN_CLINK_DISABLED_TOOLS:-$(cfg zen_clink_disabled_tools)}"
 
 # Ports for local HTTP servers
-export QDRANT_DB_PORT=8780
-export ZEN_MCP_PORT=8781
-export QDRANT_MCP_PORT=8782
-export SOURCEGRAPH_MCP_PORT=8783
-export SEMGREP_MCP_PORT=8784
-export SERENA_MCP_PORT=8785
+export QDRANT_DB_PORT="${QDRANT_DB_PORT:-$(cfg ports_for.qdrant_db)}"
+export ZEN_MCP_PORT="${ZEN_MCP_PORT:-$(cfg ports_for.zen_mcp)}"
+export QDRANT_MCP_PORT="${QDRANT_MCP_PORT:-$(cfg ports_for.qdrant_mcp)}"
+export SOURCEGRAPH_MCP_PORT="${SOURCEGRAPH_MCP_PORT:-$(cfg ports_for.sourcegraph_mcp)}"
+export SEMGREP_MCP_PORT="${SEMGREP_MCP_PORT:-$(cfg ports_for.semgrep_mcp)}"
+export SERENA_MCP_PORT="${SERENA_MCP_PORT:-$(cfg ports_for.serena_mcp)}"
 
-# Qdrant MCP: semantic memory configuration
-export QDRANT_URL="http://127.0.0.1:$QDRANT_DB_PORT"
-export QDRANT_COLLECTION_NAME="coding-memory"
-export QDRANT_EMBEDDING_PROVIDER="fastembed"
-export QDRANT_DATA_DIR="$PROJECTS_DIR/qdrant-data"
+# Configure Qdrant MCP (handles semantic memory)
+# Derive QDRANT_URL if not provided in env
+if [[ -z "${QDRANT_URL:-}" ]]; then
+    QDRANT_URL="http://127.0.0.1:$QDRANT_DB_PORT"
+fi
+export QDRANT_URL
+export QDRANT_COLLECTION_NAME="${QDRANT_COLLECTION_NAME:-$(cfg qdrant.collection)}"
+export QDRANT_EMBEDDING_PROVIDER="${QDRANT_EMBEDDING_PROVIDER:-$(cfg qdrant.embedding_provider)}"
+export QDRANT_DATA_DIR="${QDRANT_DATA_DIR:-$(cfg paths.qdrant_data_dir)}"
 
 # Directories
-FS_ALLOWED_DIR="${FS_ALLOWED_DIR:-$PROJECTS_DIR}"
-
-# --- INTERNAL SCRIPT CONSTANTS ---
-
-# For referencing adjacent files
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
+FS_ALLOWED_DIR="${FS_ALLOWED_DIR:-$(cfg paths.fs_allowed_dir)}"
 
 # Source agent selection library
 source "$REPO_ROOT/bin/lib/agent-selection.sh"
@@ -129,45 +127,14 @@ YELLOW='\033[1;33m'
 RED='\033[0;31m'
 NC='\033[0m'
 
-# --- ARGUMENT PARSING ---
+# --- CONFIG VALUES ---
 
-AUTO_APPROVE_MCP=false
-
-while [[ $# -gt 0 ]]; do
-    key="$1"
-    case $key in
-        -f|--fsdir)
-        FS_ALLOWED_DIR="$2"
-        shift # past argument
-        shift # past value
-        ;;
-
-        -c|--clonedir)
-        CLONE_DIR="$2"
-        shift # past argument
-        shift # past value
-        ;;
-
-        -y|--yes)
-        AUTO_APPROVE_MCP=true
-        shift # past argument
-        ;;
-
-        -h|--help)
-        # Extract the header comment block to show as help text:
-        # 1. selects lines from line 2 up until first blank line
-        # 2. removes leading `#` chars
-        # 3. prints the resulting help message
-        sed -n '2,/^$/p' "$0" | sed 's/^# //g'
-        exit 0
-        ;;
-
-        *) # unknown option
-        echo "Unknown option: $1"
-        exit 1
-        ;;
-    esac
-done
+# Read auto-approve setting from config (accepts yes/true/no/false)
+_auto_approve_cfg="$(cfg mcp.auto_approve)"
+case "${_auto_approve_cfg,,}" in
+    yes|true) AUTO_APPROVE_MCP=true ;;
+    *) AUTO_APPROVE_MCP=false ;;
+esac
 
 # Detect installed CLIs based on config directory existence (exits if none found, logs detected CLIs)
 discover_agents
@@ -555,7 +522,7 @@ ensure_rancher_running() {
         log_info "Waiting for Docker daemon to become ready..."
         local elapsed=0
 
-        while [ $elapsed -lt $RANCHER_TIMEOUT ]; do
+        while [ $elapsed -lt $DOCKER_TIMEOUT ]; do
             sleep 3
             elapsed=$((elapsed + 3))
 
@@ -566,7 +533,7 @@ ensure_rancher_running() {
             fi
         done
 
-        log_error "Docker daemon did not become ready within ${RANCHER_TIMEOUT}s"
+        log_error "Docker daemon did not become ready within ${DOCKER_TIMEOUT}s"
         log_info "You may need to wait a bit longer and run the script again."
         return 1
     else
@@ -754,8 +721,7 @@ log_info "Idempotently starting up HTTP MCP servers..."
 # Zen MCP (clink only - zero-API hub for cross-CLI orchestration)
 start_http_server "Zen MCP" "$ZEN_MCP_PORT" "ZEN_PID" \
     env DISABLED_TOOLS="$ZEN_CLINK_DISABLED_TOOLS" ZEN_MCP_PORT="$ZEN_MCP_PORT" \
-    uvx --from git+https://github.com/BeehiveInnovations/zen-mcp-server.git \
-    uv run "$SCRIPT_DIR/start-zen-http.py"
+    uv run --group zen-http "$SCRIPT_DIR/start-zen-http.py"
 
 log_info "Ensuring Rancher Desktop is running..."
 ensure_rancher_running
@@ -770,7 +736,8 @@ start_http_server "Qdrant MCP" "$QDRANT_MCP_PORT" "QDRANT_PID" \
     COLLECTION_NAME="$QDRANT_COLLECTION_NAME" \
     EMBEDDING_PROVIDER="$QDRANT_EMBEDDING_PROVIDER" \
     FASTMCP_PORT="$QDRANT_MCP_PORT" \
-    uvx --from "mcp-server-qdrant>=0.8.0" mcp-server-qdrant --transport streamable-http
+    uvx --with "pydantic>=2.10.6,<2.12" --with "fastmcp>=2.10,<2.12" --from "mcp-server-qdrant>=0.8.0" \
+        mcp-server-qdrant --transport streamable-http
 
 # Sourcegraph MCP (wrapper for Sourcegraph.com public search)
 if [[ "$SOURCEGRAPH_AVAILABLE" == true ]]; then
@@ -1033,7 +1000,7 @@ log_info "✔︎ Stop commands also saved to $RED$TAKE_DOWN_FILE$NC for convenie
 
 if [[ "$AUTO_APPROVE_MCP" == true ]]; then
     log_empty_line
-    log_success "All agents configured to auto-approve MCP tools (requested using -y/--yes option)"
+    log_success "All agents configured to auto-approve MCP tools (mcp.auto_approve: yes)"
     log_info "  → Updated: ~/.claude/settings.json"
     log_info "  → Updated: ~/.codex/config.toml"
     log_info "  → Updated: ~/.gemini/settings.json"

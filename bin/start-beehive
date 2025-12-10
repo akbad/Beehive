@@ -1,20 +1,11 @@
 #!/usr/bin/env bash
 # 
 # Beehive one-shot bootstrap/startup script
-# > Run once: ./start-beehive [options]
+# > Run once: ./start-beehive
 # > Idempotent (safe to re-run; won't duplicate resources)
 #
-# Options: 
-#   - **All options are passed to tools setup script** (tools/scripts/set-up-tools.sh)
-#   - For full option list, run `tools/scripts/set-up-tools.sh --help`
-#
-# Prerequisites: Node.js, Python 3.8+, git
-#
-# Detection: 
-#   Automatically configures any CLI whose user-scoped config directory exists (at paths listed):
-#   - Claude Code: ~/.claude/
-#   - Gemini CLI:  ~/.gemini/
-#   - Codex:       ~/.codex/
+# Configuration: Edit queen.yml (or local.yml for personal overrides)
+#   See docs/CONFIGURATION.md for all options
 
 set -euo pipefail
 
@@ -26,17 +17,25 @@ NC='\033[0m'        # no colour
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$REPO_ROOT" || exit 1
 
+# Check dependencies, install correct Python version packages and set up env
+bin/check-prereqs
+
 # Source agent selection library
 source "$REPO_ROOT/bin/lib/agent-selection.sh"
 
 echo -e "${BLUE}====================================================${NC}"
-echo -e "${BLUE}  Beehive: user-scoped bootstrap setup${NC}"
+echo -e "${BLUE}  Beehive bootstrap & startup${NC}"
 echo -e "${BLUE}====================================================${NC}"
 echo ""
 
-# Detect installed CLIs (exits if none found, logs detected CLIs)
+# Determine enabled agents from config
 discover_agents
 echo ""
+
+# Run cleanup if not run recently (silent, non-blocking)
+if command -v uv &> /dev/null; then
+    uv run sweep-hive --quiet 2>/dev/null || true
+fi
 
 # --- Run setup scripts (all use directory-based detection) ---
 

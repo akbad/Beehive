@@ -46,8 +46,8 @@ fi
 _get_repo_root() {
     local script_dir
     script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-    # bin/lib -> repo root is two levels up
-    echo "$(dirname "$(dirname "$script_dir")")"
+    # running in bin/lib -> repo root is two levels up
+    dirname "$(dirname "$script_dir")"
 }
 
 # Internal: call get-config Python module 

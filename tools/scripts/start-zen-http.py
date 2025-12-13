@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env -S uv run --group zen-http
 """
 Purpose:
 - This script:
@@ -10,8 +10,7 @@ Required environment variables:
 - DISABLED_TOOLS ➔ Comma-separated list of Zen tools to disable
 - ZEN_MCP_PORT   ➔ Port to run the server on (default: 3333)
 
-Note dependencies are *automatically installed* at startup when the server is started
-in set-up-tools.sh using uvx (which reads zen-mcp-server's package metadata)
+Dependencies are defined in pyproject.toml under [dependency-groups.zen-http]
 """
 
 import os

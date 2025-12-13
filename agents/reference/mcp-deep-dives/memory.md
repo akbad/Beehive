@@ -344,7 +344,7 @@ Example:
 **Entity names:** Use underscores, unique identifiers
 **Observations:** Atomic facts (one per observation)
 
-**Storage location:** `MEMORY_FILE_PATH` env var or server default
+**Storage location:** `MEMORY_MCP_STORAGE_PATH` env var or default `~/.memory-mcp/memory.jsonl`
 
 **Links:**
 - [Category guide: Memory](../category/memory.md)

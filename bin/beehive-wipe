@@ -1,0 +1,119 @@
+#!/usr/bin/env bash
+# Completely erase all data from one or more storage backends 
+# (ignoring retention and trash/grace periods)
+#
+# Usage:
+#   beehive-wipe <storage> [<storage>...] [options]
+#
+# Storages:
+#   claude-mem    Session summaries and observations (SQLite)
+#   serena        Project memory files (.serena/memories/)
+#   qdrant        Vector database points
+#   memory-mcp    Entity knowledge graph (JSONL)
+#   all           Wipe all storages
+#
+# Options:
+#   --no-backup   Skip backup to trash (DANGEROUS - data will be lost forever)
+#   --yes, -y     Skip confirmation prompt
+#   -v, --verbose Show detailed output
+#   -q, --quiet   Suppress all output except errors
+#
+# Examples:
+#   beehive-wipe claude-mem              # Wipe claude-mem with backup
+#   beehive-wipe qdrant serena           # Wipe multiple storages
+#   beehive-wipe all --yes               # Wipe everything, no confirmation
+#   beehive-wipe claude-mem --no-backup  # Wipe without backup (permanent)
+
+set -e
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(dirname "$SCRIPT_DIR")"
+
+# Parse arguments
+STORAGES=()
+NO_BACKUP=false
+YES=false
+VERBOSE=false
+QUIET=false
+
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        --no-backup)
+            NO_BACKUP=true
+            shift
+            ;;
+        --yes|-y)
+            YES=true
+            shift
+            ;;
+        --verbose|-v)
+            VERBOSE=true
+            shift
+            ;;
+        --quiet|-q)
+            QUIET=true
+            shift
+            ;;
+        -*)
+            echo "Unknown option: $1" >&2
+            exit 1
+            ;;
+        *)
+            STORAGES+=("$1")
+            shift
+            ;;
+    esac
+done
+
+# Check for at least one storage
+if [[ ${#STORAGES[@]} -eq 0 ]]; then
+    echo "Usage: beehive-wipe <storage> [<storage>...] [options]" >&2
+    echo "Storages: claude-mem, serena, qdrant, memory-mcp, all" >&2
+    exit 1
+fi
+
+# Expand "all" to all storages
+if [[ " ${STORAGES[*]} " =~ " all " ]]; then
+    STORAGES=(claude-mem serena qdrant memory-mcp)
+fi
+
+# Validate storage names
+VALID_STORAGES="claude-mem serena qdrant memory-mcp"
+for storage in "${STORAGES[@]}"; do
+    if [[ ! " $VALID_STORAGES " =~ " $storage " ]]; then
+        echo "Unknown storage: $storage" >&2
+        echo "Valid storages: $VALID_STORAGES" >&2
+        exit 1
+    fi
+done
+
+# Confirmation prompt
+if [[ "$YES" != "true" ]]; then
+    echo "WARNING: This will completely erase data from: ${STORAGES[*]}"
+    if [[ "$NO_BACKUP" == "true" ]]; then
+        echo "WARNING: --no-backup specified. Data will be PERMANENTLY DELETED."
+    else
+        echo "Data will be backed up to .wax/trash/ before deletion."
+    fi
+    echo ""
+    read -p "Are you sure you want to continue? (yes/no): " confirm
+    if [[ "$confirm" != "yes" ]]; then
+        echo "Aborted."
+        exit 0
+    fi
+fi
+
+# Build CLI arguments
+CLI_ARGS=(--wipe "${STORAGES[@]}")
+if [[ "$NO_BACKUP" == "true" ]]; then
+    CLI_ARGS+=(--no-backup)
+fi
+if [[ "$VERBOSE" == "true" ]]; then
+    CLI_ARGS+=(--verbose)
+fi
+if [[ "$QUIET" == "true" ]]; then
+    CLI_ARGS+=(--quiet)
+fi
+
+cd "$REPO_ROOT"
+uv run sweep-hive "${CLI_ARGS[@]}"

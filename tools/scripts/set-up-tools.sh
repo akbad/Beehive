@@ -1,13 +1,12 @@
 #!/usr/bin/env bash
-
+#
 # Tools setup script for Beehive (for MCP servers, backing Docker containers, etc.)
 #
 # Prerequisites:
 #   Required:
 #       - Node.js/npm (for npx)
-#       - uv/uvx with Python 3.12 (for Python-based MCP servers)
+#       - uv/uvx with Python 3.12 (for Python-based MCP servers and Semgrep)
 #       - Docker Desktop or Rancher Desktop (for Qdrant container)
-#       - Homebrew (for installing Semgrep binary)
 #
 #   API keys (for cloud-based MCP servers' free tiers):
 #       - Tavily API key in $TAVILY_API_KEY
@@ -18,16 +17,7 @@
 #       - Subagent prompts at `~/.zen/prompts`
 #
 # Usage:
-#   ./set-up-tools.sh [options]
-#
-# Options:
-#   -f, --fsdir <path>    The directory to allow the Filesystem MCP to access.
-#                         Defaults to ~/Code.
-#   -c, --clonedir <path> The directory to clone MCP server repositories into.
-#                         Defaults to ~/Code/mcp-servers/.
-#   -y, --yes             Auto-approve all MCP tools for detected agents.
-#                         Configures agents to skip permission prompts for MCP tools.
-#   -h, --help            Show this help message.
+#   ./set-up-tools.sh
 #
 # Agent discovery:
 #   Automatically configures any agentic CLI with a config directory
@@ -62,47 +52,58 @@ set -e  # exit on error
 
 # --- CONFIG ---
 
-# Determine relevant paths (best if it contains all projects you want to use these agents with)
-PROJECTS_DIR="$HOME/Code"
-CLONE_DIR="$PROJECTS_DIR/mcp-servers"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 
-# Where to place needed clones of MCP server repos
+# Helper to read from merged config (merge order: comb.yml → queen.yml → local.yml → env)
+cfg() {
+    local key="$1"
+    (cd "$REPO_ROOT" && uv run get-config "$key" 2>/dev/null) || true
+}
+
+# Setting MCP source clone paths
+CLONE_DIR="$(cfg path_to.mcp_clones)"
 export SOURCEGRAPH_REPO_PATH="$CLONE_DIR/sourcegraph-mcp"
 export SERENA_REPO_PATH="$CLONE_DIR/serena"
 
-SERVER_START_TIMEOUT=200  # timeout when waiting for any server/daemon to start
-RANCHER_TIMEOUT=120       # timeout specific for Rancher Desktop startup (can take a while)
+SERVER_START_TIMEOUT="$(cfg startup_timeout_for.mcp_servers)"
+DOCKER_TIMEOUT="$(cfg startup_timeout_for.docker_daemon)"
 
 # Remote server URLs
-export SOURCEGRAPH_ENDPOINT="https://sourcegraph.com"
-export CONTEXT7_URL="https://mcp.context7.com/mcp"
-export TAVILY_URL="https://mcp.tavily.com/mcp/?tavilyApiKey=${TAVILY_API_KEY}"
+export SOURCEGRAPH_ENDPOINT="${SOURCEGRAPH_ENDPOINT:-$(cfg endpoint_for.sourcegraph)}"
+export CONTEXT7_URL="${CONTEXT7_URL:-$(cfg endpoint_for.context7)}"
+export TAVILY_URL="${TAVILY_URL:-$(cfg endpoint_for.tavily)}"
 
 # Zen MCP: disable all tools except clink (since they need an API key)
-export ZEN_CLINK_DISABLED_TOOLS='analyze,apilookup,challenge,chat,codereview,consensus,debug,docgen,planner,precommit,refactor,secaudit,testgen,thinkdeep,tracer'
+export ZEN_CLINK_DISABLED_TOOLS="${ZEN_CLINK_DISABLED_TOOLS:-$(cfg zen_clink_disabled_tools)}"
 
 # Ports for local HTTP servers
-export QDRANT_DB_PORT=8780
-export ZEN_MCP_PORT=8781
-export QDRANT_MCP_PORT=8782
-export SOURCEGRAPH_MCP_PORT=8783
-export SEMGREP_MCP_PORT=8784
-export SERENA_MCP_PORT=8785
+export QDRANT_DB_PORT="${QDRANT_DB_PORT:-$(cfg port_for.qdrant_db)}"
+export ZEN_MCP_PORT="${ZEN_MCP_PORT:-$(cfg port_for.zen_mcp)}"
+export QDRANT_MCP_PORT="${QDRANT_MCP_PORT:-$(cfg port_for.qdrant_mcp)}"
+export SOURCEGRAPH_MCP_PORT="${SOURCEGRAPH_MCP_PORT:-$(cfg port_for.sourcegraph_mcp)}"
+export SEMGREP_MCP_PORT="${SEMGREP_MCP_PORT:-$(cfg port_for.semgrep_mcp)}"
+export SERENA_MCP_PORT="${SERENA_MCP_PORT:-$(cfg port_for.serena_mcp)}"
 
-# Qdrant MCP: semantic memory configuration
-export QDRANT_URL="http://127.0.0.1:$QDRANT_DB_PORT"
-export QDRANT_COLLECTION_NAME="coding-memory"
-export QDRANT_EMBEDDING_PROVIDER="fastembed"
-export QDRANT_DATA_DIR="$PROJECTS_DIR/qdrant-data"
+# Configure Qdrant MCP (handles semantic memory)
+# Derive QDRANT_URL if not provided in env
+if [[ -z "${QDRANT_URL:-}" ]]; then
+    QDRANT_URL="http://127.0.0.1:$QDRANT_DB_PORT"
+fi
+export QDRANT_URL
+export QDRANT_COLLECTION_NAME="${QDRANT_COLLECTION_NAME:-$(cfg qdrant.collection)}"
+export QDRANT_EMBEDDING_PROVIDER="${QDRANT_EMBEDDING_PROVIDER:-$(cfg qdrant.embedding_provider)}"
+
+# Expand ~ to $HOME for:
+# - Docker compatibility (QDRANT_STORAGE_PATH)
+# - mkdir/Node compatibility (MEMORY_MCP_STORAGE_PATH)
+MEMORY_MCP_STORAGE_PATH="${MEMORY_MCP_STORAGE_PATH:-$(cfg path_to.storage_for.memory_mcp)}"
+QDRANT_STORAGE_PATH="${QDRANT_STORAGE_PATH:-$(cfg path_to.storage_for.qdrant)}"
+export QDRANT_STORAGE_PATH="${QDRANT_STORAGE_PATH/#\~/$HOME}"
+export MEMORY_MCP_STORAGE_PATH="${MEMORY_MCP_STORAGE_PATH/#\~/$HOME}"
 
 # Directories
-FS_ALLOWED_DIR="${FS_ALLOWED_DIR:-$PROJECTS_DIR}"
-
-# --- INTERNAL SCRIPT CONSTANTS ---
-
-# For referencing adjacent files
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
+FS_MCP_WHITELIST="${FS_MCP_WHITELIST:-$(cfg path_to.fs_mcp_whitelist)}"
 
 # Source agent selection library
 source "$REPO_ROOT/bin/lib/agent-selection.sh"
@@ -130,45 +131,14 @@ YELLOW='\033[1;33m'
 RED='\033[0;31m'
 NC='\033[0m'
 
-# --- ARGUMENT PARSING ---
+# --- CONFIG VALUES ---
 
-AUTO_APPROVE_MCP=false
-
-while [[ $# -gt 0 ]]; do
-    key="$1"
-    case $key in
-        -f|--fsdir)
-        FS_ALLOWED_DIR="$2"
-        shift # past argument
-        shift # past value
-        ;;
-
-        -c|--clonedir)
-        CLONE_DIR="$2"
-        shift # past argument
-        shift # past value
-        ;;
-
-        -y|--yes)
-        AUTO_APPROVE_MCP=true
-        shift # past argument
-        ;;
-
-        -h|--help)
-        # Extract the header comment block to show as help text:
-        # 1. selects lines from line 2 up until first blank line
-        # 2. removes leading `#` chars
-        # 3. prints the resulting help message
-        sed -n '2,/^$/p' "$0" | sed 's/^# //g'
-        exit 0
-        ;;
-
-        *) # unknown option
-        echo "Unknown option: $1"
-        exit 1
-        ;;
-    esac
-done
+# Read auto-approve setting from config (accepts yes/true/no/false)
+_auto_approve_cfg="$(cfg mcp.auto_approve)"
+case "${_auto_approve_cfg,,}" in
+    yes|true) AUTO_APPROVE_MCP=true ;;
+    *) AUTO_APPROVE_MCP=false ;;
+esac
 
 # Detect installed CLIs based on config directory existence (exits if none found, logs detected CLIs)
 discover_agents
@@ -246,19 +216,19 @@ start_qdrant_docker() {
     fi
 
     # Create data directory if it doesn't exist
-    mkdir -p "$QDRANT_DATA_DIR"
+    mkdir -p "$QDRANT_STORAGE_PATH"
 
     # Start new container
     log_info "Creating and starting Qdrant container..."
 
     # mappings:
     # - uses port $QDRANT_DB_PORT on host machine, 6333 within container
-    # - maps the directory $QDRANT_DATA_DIR on host machine to `/qdrant/directory` 
+    # - maps the directory $QDRANT_STORAGE_PATH on host machine to `/qdrant/storage`
     #   in the container's filesystem
     docker run -d \
         --name "$container_name" \
         -p "$QDRANT_DB_PORT:6333" \
-        -v "$QDRANT_DATA_DIR:/qdrant/storage" \
+        -v "$QDRANT_STORAGE_PATH:/qdrant/storage" \
         qdrant/qdrant >/dev/null
 
     sleep 2
@@ -378,7 +348,7 @@ add_mcp_to_gemini() {
         return 1
     fi
 
-    python3 "$SCRIPT_DIR/add-mcp-to-gemini.py" "$transport" "$server_name" "$GEMINI_CONFIG" "$@"
+    uv run "$SCRIPT_DIR/add-mcp-to-gemini.py" "$transport" "$server_name" "$GEMINI_CONFIG" "$@"
 }
 
 # Add server to Codex config file
@@ -522,22 +492,6 @@ setup_stdio_mcp() {
     done
 }
 
-# Check for required dependency and exit if not found
-check_dependency() {
-    local cmd=$1
-    local install_msg=$2
-    local success_msg=${3:-""}
-
-    if ! command -v "$cmd" &> /dev/null; then
-        log_error "$cmd not found. $install_msg"
-        exit 1
-    fi
-
-    if [[ -n "$success_msg" ]]; then
-        log_info "$success_msg"
-    fi
-}
-
 # Check for required environment variable and warn if not set
 check_env_var() {
     local var_name=$1
@@ -572,7 +526,7 @@ ensure_rancher_running() {
         log_info "Waiting for Docker daemon to become ready..."
         local elapsed=0
 
-        while [ $elapsed -lt $RANCHER_TIMEOUT ]; do
+        while [ $elapsed -lt $DOCKER_TIMEOUT ]; do
             sleep 3
             elapsed=$((elapsed + 3))
 
@@ -583,7 +537,7 @@ ensure_rancher_running() {
             fi
         done
 
-        log_error "Docker daemon did not become ready within ${RANCHER_TIMEOUT}s"
+        log_error "Docker daemon did not become ready within ${DOCKER_TIMEOUT}s"
         log_info "You may need to wait a bit longer and run the script again."
         return 1
     else
@@ -674,13 +628,13 @@ configure_auto_approve() {
         log_info "→ Configuring $agent..."
         case "$agent" in
             "$CLAUDE")
-                python3 "$SCRIPT_DIR/add-claude-auto-approvals.py" "$CLAUDE_CONFIG" "${mcp_servers[@]}"
+                uv run "$SCRIPT_DIR/add-claude-auto-approvals.py" "$CLAUDE_CONFIG" "${mcp_servers[@]}"
                 ;;
             "$CODEX")
-                python3 "$SCRIPT_DIR/add-codex-auto-approvals.py" "$CODEX_CONFIG"
+                uv run "$SCRIPT_DIR/add-codex-auto-approvals.py" "$CODEX_CONFIG"
                 ;;
             "$GEMINI")
-                python3 "$SCRIPT_DIR/add-gemini-auto-approvals.py" "$GEMINI_CONFIG" "${mcp_servers[@]}"
+                uv run "$SCRIPT_DIR/add-gemini-auto-approvals.py" "$GEMINI_CONFIG" "${mcp_servers[@]}"
                 ;;
             *)
                 log_warning "  Unknown agent: $agent (skipping)"
@@ -695,31 +649,19 @@ configure_auto_approve() {
 
 # --- CHECK DEPENDENCIES ---
 
-log_info "Checking dependencies..."
+log_info "Checking prerequisites..."
 
-check_dependency "npx" "Please install Node.js first."
-check_dependency "uvx" "Please install uv first: https://docs.astral.sh/uv/getting-started/installation/" \
-    "uvx found, will use for Fetch MCP (stdio mode)"
-check_dependency "docker" "Please install Docker first: https://docs.docker.com/get-docker/" \
-    "docker found, will use for Qdrant container"
-
-if [[ "$(uname)" == "Darwin" ]]; then
-    # macOS
-    check_dependency "brew" "Please install Homebrew first: https://brew.sh/" \
-        "brew found, will use for Semgrep installation"
-
-    # idempotently install Semgrep binary (used to launch MCP)
-    brew install semgrep
-elif [[ "$(uname)" == "Linux" ]]; then
-    # Linux
-    log_info "Installing Semgrep via uv..."
-    uv tool install semgrep
-else 
-    log_error "You are on an unsupported OS!"
+# Use centralized prereq checker (exits with error if any missing)
+if ! "$REPO_ROOT/bin/check-prereqs"; then
+    log_error "Missing prerequisites. Please install them and try again."
     exit 1
 fi
 
-log_success "Dependency check complete."
+log_success "All prerequisites available."
+
+# Install Semgrep via uv (works on all platforms)
+log_info "Installing/updating Semgrep..."
+uv tool install semgrep
 
 log_info "Checking/installing optional tools..."
 log_empty_line
@@ -783,8 +725,7 @@ log_info "Idempotently starting up HTTP MCP servers..."
 # Zen MCP (clink only - zero-API hub for cross-CLI orchestration)
 start_http_server "Zen MCP" "$ZEN_MCP_PORT" "ZEN_PID" \
     env DISABLED_TOOLS="$ZEN_CLINK_DISABLED_TOOLS" ZEN_MCP_PORT="$ZEN_MCP_PORT" \
-    uvx --from git+https://github.com/BeehiveInnovations/zen-mcp-server.git \
-    python3 "$SCRIPT_DIR/start-zen-http.py"
+    uv run --group zen-http "$SCRIPT_DIR/start-zen-http.py"
 
 log_info "Ensuring Rancher Desktop is running..."
 ensure_rancher_running
@@ -799,7 +740,8 @@ start_http_server "Qdrant MCP" "$QDRANT_MCP_PORT" "QDRANT_PID" \
     COLLECTION_NAME="$QDRANT_COLLECTION_NAME" \
     EMBEDDING_PROVIDER="$QDRANT_EMBEDDING_PROVIDER" \
     FASTMCP_PORT="$QDRANT_MCP_PORT" \
-    uvx --from "mcp-server-qdrant>=0.8.0" mcp-server-qdrant --transport streamable-http
+    uvx --with "pydantic>=2.10.6,<2.12" --with "fastmcp>=2.10,<2.12" --from "mcp-server-qdrant>=0.8.0" \
+        mcp-server-qdrant --transport streamable-http
 
 # Sourcegraph MCP (wrapper for Sourcegraph.com public search)
 if [[ "$SOURCEGRAPH_AVAILABLE" == true ]]; then
@@ -878,8 +820,8 @@ fi
 # - Context7 MCP (for Codex only, since Codex HTTP doesn't support custom headers)
 log_separator
 log_info "Configuring agents to use Filesystem MCP (stdio, filtered to read_multiple_files only)..."
-log_info "Allowed directory for Filesystem MCP: $FS_ALLOWED_DIR"
-setup_stdio_mcp "fs" "npx" "-y" "mcp-filter" "-s" "npx -y @modelcontextprotocol/server-filesystem $FS_ALLOWED_DIR" "-a" "read_multiple_files"
+log_info "Whitelisted directory for Filesystem MCP: $FS_MCP_WHITELIST"
+setup_stdio_mcp "fs" "npx" "-y" "mcp-filter" "-s" "npx -y @modelcontextprotocol/server-filesystem $FS_MCP_WHITELIST" "-a" "read_multiple_files"
 
 log_separator
 log_info "Configuring agents to use Fetch MCP (stdio)..."
@@ -887,7 +829,9 @@ setup_stdio_mcp "fetch" "uvx" "mcp-server-fetch"
 
 log_separator
 log_info "Configuring agents to use Memory MCP (stdio)..."
-setup_stdio_mcp "memory" "npx" "-y" "@modelcontextprotocol/server-memory"
+log_info "Memory file path: $MEMORY_MCP_STORAGE_PATH"
+mkdir -p "$(dirname "$MEMORY_MCP_STORAGE_PATH")"
+setup_stdio_mcp "memory" "env" "MEMORY_FILE_PATH=$MEMORY_MCP_STORAGE_PATH" "npx" "-y" "@modelcontextprotocol/server-memory"
 
 log_separator
 log_info "Configuring agents to use Playwright MCP (stdio)..."
@@ -916,7 +860,7 @@ log_info "Local HTTP servers running:"
 log_info "  • Zen MCP (clink only): http://localhost:$ZEN_MCP_PORT/mcp/ (PID: $ZEN_PID)"
 log_info "  • Qdrant MCP: http://localhost:$QDRANT_MCP_PORT/mcp/ (PID: $QDRANT_PID)"
 log_info "    └─ Backend: Qdrant Docker container on port $QDRANT_DB_PORT"
-log_info "    └─ Data directory: $QDRANT_DATA_DIR"
+log_info "    └─ Storage directory: $QDRANT_STORAGE_PATH"
 
 if [[ "$SOURCEGRAPH_AVAILABLE" == true ]]; then
     log_info "  • Sourcegraph MCP: http://localhost:$SOURCEGRAPH_MCP_PORT/sourcegraph/mcp/ (PID: $SOURCEGRAPH_PID)"
@@ -958,11 +902,12 @@ log_info "Configured stdio servers:"
 log_info "  → Each agent starts its own server when launched, stops when exited."
 log_info "  • Filesystem MCP (all agents)"
 log_info "    └─ Filtered to read_multiple_files only (30-60% token savings on bulk reads)"
-log_info "    └─ Allowed directory: $FS_ALLOWED_DIR"
+log_info "    └─ Whitelisted directory: $FS_MCP_WHITELIST"
 log_info "  • Fetch MCP (all agents)"
 log_info "    └─ HTML to Markdown conversion"
 log_info "  • Memory MCP (all agents)"
 log_info "    └─ Knowledge graph for persistent structured memory (entities, relations, observations)"
+log_info "    └─ Data file: $MEMORY_MCP_STORAGE_PATH"
 log_info "  • Playwright MCP (all agents)"
 log_info "    └─ Browser automation and UI interaction via Playwright"
 
@@ -1008,7 +953,7 @@ if agent_enabled "OpenCode"; then
         mkdir -p "$(dirname "$TARGET_OC")"
 
         if [[ -n "$GENERATED_OC" && -f "$GENERATED_OC" ]]; then
-            if PYTHONPATH="$REPO_ROOT/lib" python3 "$SCRIPT_DIR/configure-opencode.py" --target "$TARGET_OC" --generated "$GENERATED_OC"; then
+            if UV_PYTHONPATH="$REPO_ROOT/lib" uv run "$SCRIPT_DIR/configure-opencode.py" --target "$TARGET_OC" --generated "$GENERATED_OC"; then
                 log_success "OpenCode config merged into $TARGET_OC (preserved user overrides)"
             else
                 log_warning "OpenCode merge failed; leaving $TARGET_OC unchanged"
@@ -1062,7 +1007,7 @@ log_info "✔︎ Stop commands also saved to $RED$TAKE_DOWN_FILE$NC for convenie
 
 if [[ "$AUTO_APPROVE_MCP" == true ]]; then
     log_empty_line
-    log_success "All agents configured to auto-approve MCP tools (requested using -y/--yes option)"
+    log_success "All agents configured to auto-approve MCP tools (mcp.auto_approve: yes)"
     log_info "  → Updated: ~/.claude/settings.json"
     log_info "  → Updated: ~/.codex/config.toml"
     log_info "  → Updated: ~/.gemini/settings.json"

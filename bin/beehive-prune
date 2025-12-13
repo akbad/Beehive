@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+# Prune memories that are older than the memory backend's retention period
+#
+# Usage:
+#   beehive-prune [options]
+#
+# Options:
+#   -f, --force       Run even if last run was <24h ago
+#   -n, --dry-run     Show what would be deleted without deleting
+#   -s, --storage L   Clean specific storages by letters (q=Qdrant, c=claude-mem, s=Serena, m=memory-mcp), e.g. -s smq
+#   -v, --verbose     Show detailed output
+#   -q, --quiet       Suppress all output except errors
+
+set -e
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(dirname "$SCRIPT_DIR")"
+
+cd "$REPO_ROOT"
+uv run sweep-hive "$@"

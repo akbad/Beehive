@@ -80,9 +80,9 @@ with each of the 3 files above generated from templates (for portability regardl
 
 > [!NOTE]
 > **CLI agent selection**
-> 
-> - Setup scripts *automatically* detect which CLIs to configure based on **user-scoped** directory existence (`~/.claude/`, `~/.gemini/`, `~/.codex/`, `~/.opencode`). 
-> - More details can be found in [SETUP.md](SETUP.md#selecting-cli-agents-to-configure).
+>
+> - Configure which CLIs to set up via the `agents` list in `queen.yml` (or `local.yml` for personal overrides)
+> - See [SETUP.md](SETUP.md#selecting-cli-agents-to-configure) or [docs/CONFIGURATION.md](docs/CONFIGURATION.md) for details
 
 ## Usage patterns
 
@@ -140,3 +140,17 @@ tools/
 ├── tools-decision-guide.md
 └── scripts/               # MCP installation automation
 ```
+
+## Configuration
+
+Beehive uses a YAML-based configuration system with team defaults and personal overrides:
+
+| File | Purpose | Committed? |
+|:-----|:--------|:-----------|
+| `comb.yml` | Fixed system defaults (endpoints, package paths) | Yes |
+| `queen.yml` | Team settings (agents, retention periods, ports, paths) | Yes |
+| `local.yml` | Personal overrides | No (gitignored) |
+
+Configuration loads in order: `comb.yml` → `queen.yml` → `local.yml` → environment variables.
+
+See [docs/CONFIGURATION.md](docs/CONFIGURATION.md) for full reference.

@@ -1,10 +1,10 @@
-#!/usr/bin/env python3
+#!/usr/bin/env -S uv run
 """
 Helper script to update Codex config.toml with auto-approval settings
 (only if the user specifies the appropriate flag in the calling script).
 
 Usage:
-    python3 add-codex-auto-approvals.py <config_file_path>
+    uv run add-codex-auto-approvals.py <config_file_path>
 """
 
 import sys
@@ -110,7 +110,7 @@ def update_codex_config(config_path: str) -> None:
 
 if __name__ == '__main__':
     if len(sys.argv) != 2:
-        print("Usage: python3 add-codex-auto-approvals.py <config_file_path>")
+        print("Usage: uv run add-codex-auto-approvals.py <config_file_path>")
         sys.exit(1)
 
     config_path = sys.argv[1]

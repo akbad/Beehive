@@ -1,10 +1,18 @@
 stop-beehive
 .python-version
+.worktrees/
 *.pyc
 .serena/
 .vscode/
 .npm-cache/
-.worktrees/
+beehive.egg-info/
+.coverage
 
 # Ignore machine-specific files that are generated (templates are source of truth)
 **/generated
+
+# Local configuration overrides (not committed)
+local.yml
+
+# Operational state and trash (machine-specific)
+.wax/

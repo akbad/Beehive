@@ -127,14 +127,14 @@ startup_timeout_for:
 
 Increase these values on slower machines.
 
-### `ports_for`
+### `port_for`
 
 **File:** `queen.yml`
 
 Ports for locally-run servers and containers.
 
 ```yaml
-ports_for:
+port_for:
   qdrant_db: 8780        # Qdrant database
   zen_mcp: 8781          # Zen MCP server
   qdrant_mcp: 8782       # Qdrant MCP server
@@ -145,34 +145,35 @@ ports_for:
 
 Change these if you have port conflicts.
 
-### `paths`
+### `path_to`
 
 **File:** `queen.yml` (user-tunable) and `comb.yml` (package defaults)
 
 #### User-tunable paths (in `queen.yml`)
 
 ```yaml
-paths:
-  projects_dir: ~/Code        # Base workspace directory
+path_to:
+  workspace: ~/code        # Base workspace directory
 ```
 
-**Path derivation:** When `projects_dir` is set, the following paths are automatically derived from it (unless explicitly overridden):
+**Path derivation:** When `workspace` is set, the following paths are automatically derived from it (unless explicitly overridden):
 
-- `serena_projects` → same as `projects_dir`
-- `fs_allowed_dir` → same as `projects_dir`
-- `clonedir` → `{projects_dir}/mcp-servers`
-- `qdrant_data_dir` → `{projects_dir}/qdrant-data`
+- `serena_projects` → same as `workspace`
+- `fs_mcp_whitelist` → same as `workspace`
+- `mcp_clones` → `{workspace}/mcp-servers`
 
-This means you only need to configure `projects_dir` in `local.yml` to change all workspace-related paths at once.
+This means you only need to configure `workspace` in `local.yml` to change all workspace-related paths at once.
 
-#### Package default paths (in `comb.yml`)
+#### Storage paths (nested under `path_to`)
 
-These are standard locations used by upstream packages:
+Storage paths for memory backends are configured under `path_to.storage_for`:
 
 ```yaml
-paths:
-  memory_mcp_file: ~/.memory-mcp/memory.jsonl  # Memory MCP storage
-  claude_mem_db: ~/.claude-mem/claude-mem.db   # Claude-mem database
+path_to:
+  storage_for:
+    claude_mem: ~/.claude-mem/claude-mem.db   # Claude-mem database
+    memory_mcp: ~/.memory-mcp/memory.jsonl    # Memory MCP JSONL storage
+    qdrant: ~/.qdrant/storage                 # Qdrant Docker volume mount
 ```
 
 ### `endpoint_for`
@@ -208,9 +209,10 @@ Some configuration values can be overridden via environment variables:
 
 | Environment Variable | Overrides | Description |
 |:---------------------|:----------|:------------|
-| `BEEHIVE_PROJECTS_DIR` | `paths.serena_projects` | Base project directory |
-| `MEMORY_FILE_PATH` | `paths.memory_mcp_file` | Memory MCP storage path |
-| `CLAUDE_MEM_DATA_DIR` | `paths.claude_mem_db` | Claude-mem database path |
+| `BEEHIVE_WORKSPACE` | `path_to.serena_projects` | Base project directory |
+| `MEMORY_MCP_STORAGE_PATH` | `path_to.storage_for.memory_mcp` | Memory MCP storage path |
+| `CLAUDE_MEM_STORAGE_PATH` | `path_to.storage_for.claude_mem` | Claude-mem database path |
+| `QDRANT_STORAGE_PATH` | `path_to.storage_for.qdrant` | Qdrant storage directory |
 | `QDRANT_COLLECTION_NAME` | `qdrant.collection` | Qdrant collection name |
 | `QDRANT_EMBEDDING_PROVIDER` | `qdrant.embedding_provider` | Embedding provider |
 
@@ -248,24 +250,24 @@ retention_period_for:
 
 ```yaml
 # local.yml
-paths:
-  projects_dir: ~/Projects  # All other paths derive from this automatically
+path_to:
+  workspace: ~/Projects  # All other paths derive from this automatically
 ```
 
 Or if you need to override individual derived paths:
 
 ```yaml
 # local.yml
-paths:
-  projects_dir: ~/Projects
-  clonedir: ~/CustomMCPLocation  # Override just this one
+path_to:
+  workspace: ~/Projects
+  mcp_clones: ~/CustomMCPLocation  # Override just this one
 ```
 
 ### Change ports to avoid conflicts
 
 ```yaml
 # local.yml
-ports_for:
+port_for:
   qdrant_db: 9780
   zen_mcp: 9781
 ```

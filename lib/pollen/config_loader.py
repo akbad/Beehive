@@ -42,7 +42,7 @@ class StartupTimeoutForConfig(TypedDict):
     docker_daemon: int
 
 
-class PortsForConfig(TypedDict):
+class PortForConfig(TypedDict):
     qdrant_db: int
     zen_mcp: int
     qdrant_mcp: int
@@ -51,14 +51,18 @@ class PortsForConfig(TypedDict):
     serena_mcp: int
 
 
-class PathsConfig(TypedDict, total=False):
-    projects_dir: str
+class StorageForConfig(TypedDict, total=False):
+    qdrant: str
+    memory_mcp: str
+    claude_mem: str
+
+
+class PathToConfig(TypedDict, total=False):
+    workspace: str
     serena_projects: str
-    fs_allowed_dir: str
-    clonedir: str
-    qdrant_data_dir: str
-    memory_mcp_file: str
-    claude_mem_db: str
+    fs_mcp_whitelist: str
+    mcp_clones: str
+    storage_for: StorageForConfig
 
 
 class QdrantConfig(TypedDict, total=False):
@@ -78,8 +82,8 @@ class Config(TypedDict, total=False):
     trash: TrashConfig
     cleanup: CleanupConfig
     startup_timeout_for: StartupTimeoutForConfig
-    ports_for: PortsForConfig
-    paths: PathsConfig
+    port_for: PortForConfig
+    path_to: PathToConfig
     qdrant: QdrantConfig
     endpoint_for: EndpointForConfig
 
@@ -180,37 +184,46 @@ def _load_config(repo_root: Path | None = None) -> Config:
     for filename in ["comb.yml", "queen.yml", "local.yml"]:
         config = deep_merge(config, _load_yaml_file(repo_root / filename))
 
-    # Apply environment variable overrides for paths
-    paths = config.get("paths", {})
-    env_overrides = {
-        "serena_projects": "BEEHIVE_PROJECTS_DIR",
-        "memory_mcp_file": "MEMORY_FILE_PATH",
-        "claude_mem_db": "CLAUDE_MEM_DB",
+    # Apply environment variable overrides for path_to
+    path_to = config.get("path_to", {})
+    path_env_overrides = {
+        "serena_projects": "BEEHIVE_WORKSPACE",
     }
 
-    for path_key, env_var in env_overrides.items():
+    for path_key, env_var in path_env_overrides.items():
         if env_val := os.environ.get(env_var):
-            paths[path_key] = env_val
+            path_to[path_key] = env_val
 
-    # Derive paths from projects_dir if not explicitly set
-    if projects_dir := paths.get("projects_dir"):
+    # Apply environment variable overrides for path_to.storage_for
+    storage_for = path_to.get("storage_for", {})
+    storage_env_overrides = {
+        "memory_mcp": "MEMORY_MCP_STORAGE_PATH",
+        "claude_mem": "CLAUDE_MEM_STORAGE_PATH",
+        "qdrant": "QDRANT_STORAGE_PATH",
+    }
+
+    for storage_key, env_var in storage_env_overrides.items():
+        if env_val := os.environ.get(env_var):
+            storage_for[storage_key] = env_val
+
+    # Derive paths from workspace if not explicitly set
+    if workspace := path_to.get("workspace"):
         # Only set these if not already configured
-        if "serena_projects" not in paths:
-            paths["serena_projects"] = projects_dir
-        if "fs_allowed_dir" not in paths:
-            paths["fs_allowed_dir"] = projects_dir
-        if "clonedir" not in paths:
-            paths["clonedir"] = f"{projects_dir}/mcp-servers"
-        if "qdrant_data_dir" not in paths:
-            paths["qdrant_data_dir"] = f"{projects_dir}/qdrant-data"
+        if "serena_projects" not in path_to:
+            path_to["serena_projects"] = workspace
+        if "fs_mcp_whitelist" not in path_to:
+            path_to["fs_mcp_whitelist"] = workspace
+        if "mcp_clones" not in path_to:
+            path_to["mcp_clones"] = f"{workspace}/mcp-servers"
 
-    # Derive qdrant_url if not provided: use ports_for.qdrant_db
-    if "qdrant_url" not in paths:
-        ports_cfg = config.get("ports_for", {})
+    # Derive qdrant_url if not provided: use port_for.qdrant_db
+    if "qdrant_url" not in path_to:
+        ports_cfg = config.get("port_for", {})
         port = ports_cfg.get("qdrant_db", 8780)
-        paths["qdrant_url"] = f"http://127.0.0.1:{port}"
+        path_to["qdrant_url"] = f"http://127.0.0.1:{port}"
 
-    config["paths"] = paths
+    path_to["storage_for"] = storage_for
+    config["path_to"] = path_to
 
     # Merge Qdrant section defaults if missing
     qdrant_cfg = config.get("qdrant", {})
@@ -283,13 +296,27 @@ def get_path(path_name: str) -> Path:
     """Get a configured file path, expanded.
 
     Args:
-        path_name: Path key (serena_projects, memory_mcp_file, claude_mem_db).
+        path_name: Path key (serena_projects, fs_mcp_whitelist, mcp_clones).
 
     Returns:
         Expanded Path object.
     """
     config = get_config()
-    path_str = config.get("paths", {}).get(path_name, "")
+    path_str = config.get("path_to", {}).get(path_name, "")
+    return expand_path(path_str) if path_str else Path()
+
+
+def get_storage(storage_name: str) -> Path:
+    """Get a configured storage path, expanded.
+
+    Args:
+        storage_name: Storage key (qdrant, memory_mcp, claude_mem).
+
+    Returns:
+        Expanded Path object.
+    """
+    config = get_config()
+    path_str = config.get("path_to", {}).get("storage_for", {}).get(storage_name, "")
     return expand_path(path_str) if path_str else Path()
 
 
@@ -324,7 +351,7 @@ def get_trash_dir() -> Path:
 def get_qdrant_url() -> str:
     """Get Qdrant server URL."""
     config = get_config()
-    return config.get("paths", {}).get("qdrant_url", "http://127.0.0.1:8780")
+    return config.get("path_to", {}).get("qdrant_url", "http://127.0.0.1:8780")
 
 
 def get_qdrant_collection() -> str:

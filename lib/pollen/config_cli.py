@@ -7,7 +7,7 @@
 Usage:
     get-config agents                           # Output: claude gemini codex opencode
     get-config retention_period_for.qdrant      # Output: 180d
-    get-config paths.qdrant_url                 # Output: http://127.0.0.1:8780
+    get-config path_to.qdrant_url                # Output: http://127.0.0.1:8780
     get-config --check agent claude    # Exit 0 if enabled, 1 if not
     get-config --list agents           # List all enabled agents
 """

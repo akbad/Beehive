@@ -61,11 +61,8 @@ cfg() {
     (cd "$REPO_ROOT" && uv run get-config "$key" 2>/dev/null) || true
 }
 
-# Determine relevant paths (best if it contains all projects you want to use these agents with)
-PROJECTS_DIR="$(cfg paths.projects_dir)"
-CLONE_DIR="$(cfg paths.clonedir)"
-
-# Where to place needed clones of MCP server repos
+# Setting MCP source clone paths
+CLONE_DIR="$(cfg path_to.mcp_clones)"
 export SOURCEGRAPH_REPO_PATH="$CLONE_DIR/sourcegraph-mcp"
 export SERENA_REPO_PATH="$CLONE_DIR/serena"
 
@@ -81,12 +78,12 @@ export TAVILY_URL="${TAVILY_URL:-$(cfg endpoint_for.tavily)}"
 export ZEN_CLINK_DISABLED_TOOLS="${ZEN_CLINK_DISABLED_TOOLS:-$(cfg zen_clink_disabled_tools)}"
 
 # Ports for local HTTP servers
-export QDRANT_DB_PORT="${QDRANT_DB_PORT:-$(cfg ports_for.qdrant_db)}"
-export ZEN_MCP_PORT="${ZEN_MCP_PORT:-$(cfg ports_for.zen_mcp)}"
-export QDRANT_MCP_PORT="${QDRANT_MCP_PORT:-$(cfg ports_for.qdrant_mcp)}"
-export SOURCEGRAPH_MCP_PORT="${SOURCEGRAPH_MCP_PORT:-$(cfg ports_for.sourcegraph_mcp)}"
-export SEMGREP_MCP_PORT="${SEMGREP_MCP_PORT:-$(cfg ports_for.semgrep_mcp)}"
-export SERENA_MCP_PORT="${SERENA_MCP_PORT:-$(cfg ports_for.serena_mcp)}"
+export QDRANT_DB_PORT="${QDRANT_DB_PORT:-$(cfg port_for.qdrant_db)}"
+export ZEN_MCP_PORT="${ZEN_MCP_PORT:-$(cfg port_for.zen_mcp)}"
+export QDRANT_MCP_PORT="${QDRANT_MCP_PORT:-$(cfg port_for.qdrant_mcp)}"
+export SOURCEGRAPH_MCP_PORT="${SOURCEGRAPH_MCP_PORT:-$(cfg port_for.sourcegraph_mcp)}"
+export SEMGREP_MCP_PORT="${SEMGREP_MCP_PORT:-$(cfg port_for.semgrep_mcp)}"
+export SERENA_MCP_PORT="${SERENA_MCP_PORT:-$(cfg port_for.serena_mcp)}"
 
 # Configure Qdrant MCP (handles semantic memory)
 # Derive QDRANT_URL if not provided in env
@@ -96,10 +93,17 @@ fi
 export QDRANT_URL
 export QDRANT_COLLECTION_NAME="${QDRANT_COLLECTION_NAME:-$(cfg qdrant.collection)}"
 export QDRANT_EMBEDDING_PROVIDER="${QDRANT_EMBEDDING_PROVIDER:-$(cfg qdrant.embedding_provider)}"
-export QDRANT_DATA_DIR="${QDRANT_DATA_DIR:-$(cfg paths.qdrant_data_dir)}"
+
+# Expand ~ to $HOME for:
+# - Docker compatibility (QDRANT_STORAGE_PATH)
+# - mkdir/Node compatibility (MEMORY_MCP_STORAGE_PATH)
+MEMORY_MCP_STORAGE_PATH="${MEMORY_MCP_STORAGE_PATH:-$(cfg path_to.storage_for.memory_mcp)}"
+QDRANT_STORAGE_PATH="${QDRANT_STORAGE_PATH:-$(cfg path_to.storage_for.qdrant)}"
+export QDRANT_STORAGE_PATH="${QDRANT_STORAGE_PATH/#\~/$HOME}"
+export MEMORY_MCP_STORAGE_PATH="${MEMORY_MCP_STORAGE_PATH/#\~/$HOME}"
 
 # Directories
-FS_ALLOWED_DIR="${FS_ALLOWED_DIR:-$(cfg paths.fs_allowed_dir)}"
+FS_MCP_WHITELIST="${FS_MCP_WHITELIST:-$(cfg path_to.fs_mcp_whitelist)}"
 
 # Source agent selection library
 source "$REPO_ROOT/bin/lib/agent-selection.sh"
@@ -212,19 +216,19 @@ start_qdrant_docker() {
     fi
 
     # Create data directory if it doesn't exist
-    mkdir -p "$QDRANT_DATA_DIR"
+    mkdir -p "$QDRANT_STORAGE_PATH"
 
     # Start new container
     log_info "Creating and starting Qdrant container..."
 
     # mappings:
     # - uses port $QDRANT_DB_PORT on host machine, 6333 within container
-    # - maps the directory $QDRANT_DATA_DIR on host machine to `/qdrant/directory` 
+    # - maps the directory $QDRANT_STORAGE_PATH on host machine to `/qdrant/storage`
     #   in the container's filesystem
     docker run -d \
         --name "$container_name" \
         -p "$QDRANT_DB_PORT:6333" \
-        -v "$QDRANT_DATA_DIR:/qdrant/storage" \
+        -v "$QDRANT_STORAGE_PATH:/qdrant/storage" \
         qdrant/qdrant >/dev/null
 
     sleep 2
@@ -816,8 +820,8 @@ fi
 # - Context7 MCP (for Codex only, since Codex HTTP doesn't support custom headers)
 log_separator
 log_info "Configuring agents to use Filesystem MCP (stdio, filtered to read_multiple_files only)..."
-log_info "Allowed directory for Filesystem MCP: $FS_ALLOWED_DIR"
-setup_stdio_mcp "fs" "npx" "-y" "mcp-filter" "-s" "npx -y @modelcontextprotocol/server-filesystem $FS_ALLOWED_DIR" "-a" "read_multiple_files"
+log_info "Whitelisted directory for Filesystem MCP: $FS_MCP_WHITELIST"
+setup_stdio_mcp "fs" "npx" "-y" "mcp-filter" "-s" "npx -y @modelcontextprotocol/server-filesystem $FS_MCP_WHITELIST" "-a" "read_multiple_files"
 
 log_separator
 log_info "Configuring agents to use Fetch MCP (stdio)..."
@@ -825,7 +829,9 @@ setup_stdio_mcp "fetch" "uvx" "mcp-server-fetch"
 
 log_separator
 log_info "Configuring agents to use Memory MCP (stdio)..."
-setup_stdio_mcp "memory" "npx" "-y" "@modelcontextprotocol/server-memory"
+log_info "Memory file path: $MEMORY_MCP_STORAGE_PATH"
+mkdir -p "$(dirname "$MEMORY_MCP_STORAGE_PATH")"
+setup_stdio_mcp "memory" "env" "MEMORY_FILE_PATH=$MEMORY_MCP_STORAGE_PATH" "npx" "-y" "@modelcontextprotocol/server-memory"
 
 log_separator
 log_info "Configuring agents to use Playwright MCP (stdio)..."
@@ -854,7 +860,7 @@ log_info "Local HTTP servers running:"
 log_info "  • Zen MCP (clink only): http://localhost:$ZEN_MCP_PORT/mcp/ (PID: $ZEN_PID)"
 log_info "  • Qdrant MCP: http://localhost:$QDRANT_MCP_PORT/mcp/ (PID: $QDRANT_PID)"
 log_info "    └─ Backend: Qdrant Docker container on port $QDRANT_DB_PORT"
-log_info "    └─ Data directory: $QDRANT_DATA_DIR"
+log_info "    └─ Storage directory: $QDRANT_STORAGE_PATH"
 
 if [[ "$SOURCEGRAPH_AVAILABLE" == true ]]; then
     log_info "  • Sourcegraph MCP: http://localhost:$SOURCEGRAPH_MCP_PORT/sourcegraph/mcp/ (PID: $SOURCEGRAPH_PID)"
@@ -896,11 +902,12 @@ log_info "Configured stdio servers:"
 log_info "  → Each agent starts its own server when launched, stops when exited."
 log_info "  • Filesystem MCP (all agents)"
 log_info "    └─ Filtered to read_multiple_files only (30-60% token savings on bulk reads)"
-log_info "    └─ Allowed directory: $FS_ALLOWED_DIR"
+log_info "    └─ Whitelisted directory: $FS_MCP_WHITELIST"
 log_info "  • Fetch MCP (all agents)"
 log_info "    └─ HTML to Markdown conversion"
 log_info "  • Memory MCP (all agents)"
 log_info "    └─ Knowledge graph for persistent structured memory (entities, relations, observations)"
+log_info "    └─ Data file: $MEMORY_MCP_STORAGE_PATH"
 log_info "  • Playwright MCP (all agents)"
 log_info "    └─ Browser automation and UI interaction via Playwright"
 

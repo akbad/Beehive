@@ -12,14 +12,21 @@ endpoint_for:
   context7: https://mcp.context7.com/mcp
   tavily: https://mcp.tavily.com/mcp/?tavilyApiKey=${TAVILY_API_KEY}
 
-paths:
-  # Path to JSONL storage for Memory MCP's entity-relationship knowledge graph
-  # Override by setting $MEMORY_FILE_PATH
-  memory_mcp_file: ~/.memory-mcp/memory.jsonl  
+# File paths for config files, connection settings, etc.
+path_to:
+  # Storage paths for memory backends (data directories, database files)
+  storage_for:
+    # Path to SQLite database for claude-mem's session summaries & observations
+    # Override by setting $CLAUDE_MEM_STORAGE_PATH
+    claude_mem: ~/.claude-mem/claude-mem.db
 
-  # Path to SQLite database for claude-mem's session summaries & observations
-  # Override by setting $CLAUDE_MEM_DATA_DIR
-  claude_mem_db: ~/.claude-mem/claude-mem.db   
+    # Path to JSONL storage for Memory MCP's entity-relationship knowledge graph
+    # Override by setting $MEMORY_MCP_STORAGE_PATH
+    memory_mcp: ~/.memory-mcp/memory.jsonl
+
+    # Path to Qdrant Docker volume mount (vector database storage)
+    # Override by setting $QDRANT_STORAGE_PATH
+    qdrant: ~/.qdrant/storage
 
 qdrant:
   # Name of the collection within the backing Qdrant DB in which to store semantic memories

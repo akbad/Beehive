@@ -27,14 +27,14 @@ REQUIRED_SCHEMA: dict[str, Any] = {
     "trash": {
         "grace_period": str,   # Duration string
     },
-    "paths": {
-        "projects_dir": str,   # Path string
+    "path_to": {
+        "workspace": str,      # Base workspace path string
     },
     "startup_timeout_for": {
         "mcp_servers": int,    # Seconds to wait for MCP servers
         "docker_daemon": int,  # Seconds to wait for Docker daemon
     },
-    "ports_for": {
+    "port_for": {
         "qdrant_db": int,
         "zen_mcp": int,
         "qdrant_mcp": int,

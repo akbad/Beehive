@@ -170,9 +170,11 @@ Each handler is implemented corresponding to its memory storage backend's underl
 
 #### Qdrant
 
-- **Storage model:** 
-    
-    - Collection in backing, locally-run Qdrant DB (default: `coding-memory` on `http://localhost:8780`)
+- **Storage model:**
+
+    - The backing Qdrant DB service is locally run as a Docker container on the port specified by the `port_for.qdrant_db` config setting (default: `8780`)
+    - Memories are stored to it in the collection specified by the `qdrant.collection` setting (default: `coding-memory`)
+    - The backing Qdrant DB is persisted to the directory specified by the `path_to.storage_for.qdrant` setting (default: `~/.qdrant/storage/`)
 
 - **Implementation:**
 
@@ -198,15 +200,15 @@ Each handler is implemented corresponding to its memory storage backend's underl
 
 #### Serena
 
-- **Storage model:** `.serena/memories/*.md` files under `paths.serena_projects` (default: `~/code`)
+- **Storage model:** `.serena/memories/*.md` files under `path_to.serena_projects` (default: `~/code`)
 
 - **Implementation:**
 
-    1. Recursively discover all `.serena/memories/` directories at any depth within the configured `paths.serena_projects` directory
+    1. Recursively discover all `.serena/memories/` directories at any depth within the configured `path_to.serena_projects` directory
 
-        - **Symbolic links are skipped** to prevent accessing any locations outside the `paths.serena_projects` directory
-          
-            > Note any symlinked directories would also cause an infinite loop in this step if `paths.serena_projects` was a descendant of theirs.
+        - **Symbolic links are skipped** to prevent accessing any locations outside the `path_to.serena_projects` directory
+
+            > Note any symlinked directories would also cause an infinite loop in this step if `path_to.serena_projects` was a descendant of theirs.
 
     2. Identify stale/expired memory file using the file's modification time (`st_mtime`)
     3. Move stale/expired memory files to trash, *preserving project structure* for easy search & recovery of trashed memories if needed.

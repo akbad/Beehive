@@ -140,11 +140,11 @@ mcp:
   auto_approve: no  # yes/true or no/false
 
 # Filesystem MCP security boundary
-paths:
-  fs_allowed_dir: ~/Code
+path_to:
+  fs_mcp_whitelist: ~/code
 
 # Server ports (change if conflicts occur)
-ports:
+port_for:
   qdrant_db: 8780
   zen_mcp: 8781
   # ... see docs/CONFIGURATION.md for full list

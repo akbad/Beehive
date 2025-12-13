@@ -245,7 +245,7 @@ Example:
 For the provided setup script (beehive/tools/scripts/set-up-tools.sh):
 
 - Qdrant DB: `http://127.0.0.1:8780` (Docker maps host 8780 → container 6333)
-- Persistence: Docker bind mount to `$HOME/Code/qdrant-data` (by default)
+- Persistence: Docker bind mount to `~/.qdrant/storage/` (by default)
 - MCP server (HTTP): `http://localhost:8782/mcp/` (transport: streamable-http)
 - Default collection: `coding-memory`
 - Embeddings: provider `fastembed`; model default `sentence-transformers/all-MiniLM-L6-v2`

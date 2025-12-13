@@ -49,7 +49,7 @@ Configuration loads in order *(i.e. settings/config values in later sources over
    - Create this file for settings you don't want to share
 
 4. **Environment variables** - Highest priority, overrides all other settings/config sources
-   - `BEEHIVE_PROJECTS_DIR`, `MEMORY_FILE_PATH`, etc.
+   - `BEEHIVE_WORKSPACE`, `MEMORY_MCP_STORAGE_PATH`, etc.
 
 See [CONFIGURATION.md](CONFIGURATION.md) for all available options.
 

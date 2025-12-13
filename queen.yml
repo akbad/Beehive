@@ -37,7 +37,7 @@ startup_timeout_for:
   docker_daemon: 120     # For Docker daemon startup
 
 # Ports for locally-run HTTP servers & backing DB containers
-ports_for:
+port_for:
   qdrant_db: 8780
   zen_mcp: 8781
   qdrant_mcp: 8782
@@ -45,18 +45,17 @@ ports_for:
   semgrep_mcp: 8784
   serena_mcp: 8785
 
-# Storage paths and connection details
+# File paths for config files, connection settings, etc.
 # Note environment variables take precedence over these values
-paths:
+path_to:
   # Base workspace for user projects
-  # Override using: $BEEHIVE_PROJECTS_DIR
+  # Override using: $BEEHIVE_WORKSPACE
   #
   # When set, the following paths are automatically derived from it (unless explicitly overridden):
   #   - serena_projects (base for locating Serena memories)
-  #   - fs_allowed_dir (Filesystem MCP security boundary)
-  #   - clonedir (MCP server clone destination → projects_dir/mcp-servers)
-  #   - qdrant_data_dir (Qdrant Docker volume mount → projects_dir/qdrant-data)
-  projects_dir: ~/Code
+  #   - fs_mcp_whitelist (Filesystem MCP security boundary)
+  #   - mcp_clones (MCP server clone destination → workspace/mcp-servers)
+  workspace: ~/code
 
 # MCP tool permissions
 # When true, agents won't prompt for permission before using MCP tools

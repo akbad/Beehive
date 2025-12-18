@@ -18,6 +18,8 @@ JsonBody = dict[str, Any]
 ReqMethodAndPath = Tuple[str, str]
 
 # type alias for possible HTTP response formats used in testing
+# including Exception allows testing HTTP/network failures 
+#   (via subclasses like URLError, HTTPError,...)
 RespSpec = Union[JsonBody, Exception, NonJsonHttpResponse]
 
 # type alias for map from (HTTP method, endpoint path) to HTTP response

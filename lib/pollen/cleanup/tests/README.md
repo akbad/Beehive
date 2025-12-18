@@ -27,13 +27,6 @@
     uv run pytest lib/pollen/cleanup/tests/test_handlers/test_claude_mem.py -v
     ```
 
-- To receive a detailed coverage table post-run:
-
-    ```bash
-    uv run pytest lib/pollen/cleanup/tests/ --cov=lib.pollen.cleanup
-    ```
-    
-    > Add `--cov-report=term-missing` to add a column showing exact uncovered line numbers.
 
 ## File structure
 
@@ -101,8 +94,8 @@ Pytest **discovers tests without registration** via naming conventions:
 | Fixture | Value | Purpose |
 | :--- | :--- | :--- |
 | `cutoff_datetime` | `2024-01-15 12:00:00 UTC` | Reference point for all expiration tests |
-| `old_datetime` | `2024-01-01 00:00:00 UTC` | For stale/expired test items |
-| `new_datetime` | `2024-02-01 00:00:00 UTC` | For valid/non-expired test items |
+| `stale_datetime` | `2024-01-01 00:00:00 UTC` | For stale/expired test items |
+| `valid_datetime` | `2024-02-01 00:00:00 UTC` | For valid/non-expired test items |
 | `boundary_datetime` | Same as cutoff | For testing `<` vs `<=` edge case |
 
 ### Backend-specific fixtures
@@ -130,6 +123,32 @@ Pytest **discovers tests without registration** via naming conventions:
 | :--- | :--- |
 | `serena_projects` | Directory tree with 2 regular projects + 1 symlinked project (to test that it won't be touched), each real project containing `.serena/memories/*.md` |
 
+#### Qdrant (for the HTTP API handler)
+
+HTTP mock helpers live in `lib/pollen/cleanup/tests/http_mocks.py`.
+
+| Helper | Description |
+| :--- | :--- |
+| `create_mock_http_endpoint(responses_map)` | Factory for mocking HTTP endpoints; `responses_map` maps `(method, url_substring)` → response dict, Exception, or `NonJsonHttpResponse` |
+| `NonJsonHttpResponse` | Wrapper for raw bytes when testing malformed/non-JSON responses |
+
+**Usage:**
+
+```python
+responses_map = {
+    ("GET", "/collections/coding-memory"): {"status": "ok"},
+    ("POST", "/points/scroll"): {"status": "ok", "result": {"points": [...]}},
+}
+with patch("urllib.request.urlopen", side_effect=create_mock_http_endpoint(responses_map)):
+    # test code here
+```
+
+For malformed JSON:
+```python
+responses_map = {
+    ("GET", "/collections/coding-memory"): NonJsonHttpResponse(b"not valid json {")
+}
+```
 
 ### Trash/state fixtures
 

@@ -397,7 +397,7 @@ def mock_settings(
         lambda: _qdrant_collection
     )
 
-    # Patch state module
+    # patch state module
     monkeypatch.setattr(
         "lib.pollen.cleanup.state.get_wax_dir",
         lambda: wax_dir

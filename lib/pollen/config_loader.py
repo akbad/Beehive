@@ -155,7 +155,7 @@ def _load_yaml_file(path: Path) -> dict[str, Any]:
 
 
 @lru_cache(maxsize=1)  # cache most recent returned config (clear using clear_config_cache())
-def _load_config(repo_root: Path | None = None) -> Config:
+def get_config() -> Config:
     """Load and merge configs, following this resolution order:
 
     1. comb.yml (base defaults, required)
@@ -163,11 +163,17 @@ def _load_config(repo_root: Path | None = None) -> Config:
     3. local.yml (local overrides, if exists)
     4. Environment variables (highest priority)
     
+    For testing: 
+    1. monkeypatch find_repo_root() to return the temp testing directory path
+    2. call clear_config_cache() to clear cache
+    3. call get_config() to do a fresh config read, retrieving the test-oriented config
+
+        monkeypatch.setattr("lib.pollen.config_loader.find_repo_root", lambda: tmp_path)
+        clear_config_cache()
+        config = get_config()
+
     Settings specified at paths LATER in the list OVERRIDE IDENTICAL SETTINGS at paths EARLIER in the list.
     > e.g. `mcp.auto_approve: yes` in local.yml overrides `mcp.auto_approve: no` in queen.yml
-
-    Args:
-        repo_root: Repository root path. Auto-detected if not provided.
 
     Returns:
         Merged configuration dictionary.
@@ -175,8 +181,7 @@ def _load_config(repo_root: Path | None = None) -> Config:
     Raises:
         FileNotFoundError: If repo root cannot be found.
     """
-    if repo_root is None:
-        repo_root = find_repo_root()
+    repo_root = find_repo_root()
 
     config: dict[str, Any] = {}
 
@@ -236,14 +241,9 @@ def _load_config(repo_root: Path | None = None) -> Config:
     return config  # type: ignore[return-value]
 
 
-def get_config() -> Config:
-    """Get the loaded configuration (cached)."""
-    return _load_config()
-
-
 def clear_config_cache() -> None:
-    """Clear the configuration cache (for testing)."""
-    _load_config.cache_clear()
+    """Clear the cached config (for testing)."""
+    get_config.cache_clear()
 
 
 # Convenience accessors

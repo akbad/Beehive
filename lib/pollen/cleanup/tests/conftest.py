@@ -16,8 +16,6 @@ from typing import Any
 
 import pytest
 
-from lib.pollen.cleanup.tests.http_mocks import RawHttpResponse, create_mock_http_endpoint
-
 
 # =============================================================================
 # DATETIME FIXTURES - Fixed dates for deterministic testing

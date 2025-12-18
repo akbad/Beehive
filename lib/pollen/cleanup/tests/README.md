@@ -3,12 +3,7 @@
 - This test harness provides isolated, deterministic testing for all cleanup handlers
   
 > [!IMPORTANT]
-> Tests never touch real user data: each test gets a fresh `tmp_path` from pytest.
-
-> [!NOTE]
-> All fixtures are defined in `conftest.py`.
->
-> This is a special file that **pytest auto-loads**, making its fixtures available *<ins>without</ins> explicit imports* to all tests in this directory and its subdirectories.
+> Tests never touch real user data: each test gets a fresh `tmp_path` directory created by pytest that is isolated (including from other tests) and automatically cleaned up upon test completion.
 
 ## Running tests
 
@@ -17,6 +12,14 @@
     ```bash
     uv run pytest lib/pollen/cleanup/tests/ -v
     ```
+    
+    - To print a detailed coverage table post-run:
+
+        ```bash
+        uv run pytest lib/pollen/cleanup/tests/ --cov=lib.pollen.cleanup
+        ```
+        
+        > Add `--cov-report=term-missing` to add a column showing exact line numbers uncovered by tests.
 
 - To only test a specific handler:
 
@@ -24,23 +27,13 @@
     uv run pytest lib/pollen/cleanup/tests/test_handlers/test_claude_mem.py -v
     ```
 
-- To receive a coverage report post-run:
+- To receive a detailed coverage table post-run:
 
     ```bash
     uv run pytest lib/pollen/cleanup/tests/ --cov=lib.pollen.cleanup
     ```
-
-> [!TIP]
->
-> Add `--cov-report=term-missing` to see exact uncovered spots.
-
-Pytest knows where to find tests via `pyproject.toml`:
-
-```toml
-[tool.pytest.ini_options]
-testpaths = ["lib/pollen/cleanup/tests"]
-pythonpath = ["."]  # enables `lib.pollen.x` imports
-```
+    
+    > Add `--cov-report=term-missing` to add a column showing exact uncovered line numbers.
 
 ## File structure
 
@@ -56,6 +49,16 @@ tests/
     └── test_qdrant.py       # HTTP API handler
 ```
 
+### How Pytest finds tests
+
+Note Pytest determines where to find tests via the following in `pyproject.toml`:
+
+```toml
+[tool.pytest.ini_options]
+testpaths = ["lib/pollen/cleanup/tests"]
+pythonpath = ["."]  # enables `lib.pollen.x` imports
+```
+
 Pytest **discovers tests without registration** via naming conventions: 
 
 - files matching `test_*.py`
@@ -65,8 +68,13 @@ Pytest **discovers tests without registration** via naming conventions:
 ## Fixture architecture
 
 - Fixtures are reusable test dependencies *(e.g. mock data, temp directories, database connections)*
-- To use a fixture, simply **name it as a parameter**
-- Pytest injects it automatically and handles cleanup
+
+    - All fixtures are defined in `conftest.py`: this is a special file that **pytest auto-loads**, making its fixtures available *<ins>without</ins> explicit imports* to all tests in this directory and its subdirectories.
+
+- To use a fixture, simply **name it as a parameter** in the test function signature
+    
+    - Pytest injects it automatically and handles cleanup
+
 - Example:
 
     ```python
@@ -83,4 +91,102 @@ Pytest **discovers tests without registration** via naming conventions:
 > - `monkeypatch` *(stubs functions safely)* 
 > 
 > These are used throughout the test suite alongside custom fixtures.
+
+### Datetime fixtures
+
+> [!NOTE]
+> - Using fixed dates instead of `datetime.now()` eliminates test flakiness caused by timing differences across test runs.
+> - Items are expired if they have datetimes *strictly less than* the cutoff.
+
+| Fixture | Value | Purpose |
+| :--- | :--- | :--- |
+| `cutoff_datetime` | `2024-01-15 12:00:00 UTC` | Reference point for all expiration tests |
+| `old_datetime` | `2024-01-01 00:00:00 UTC` | For stale/expired test items |
+| `new_datetime` | `2024-02-01 00:00:00 UTC` | For valid/non-expired test items |
+| `boundary_datetime` | Same as cutoff | For testing `<` vs `<=` edge case |
+
+### Backend-specific fixtures
+
+#### SQLite (for the `claude-mem` handler)
+
+| Fixture | Description |
+| :--- | :--- |
+| `sqlite_db` | Empty database with `session_summaries` and `observations` tables (to match `claude-mem`'s schema) |
+| `sqlite_db_with_data` | Pre-populates database created by `sqlite_db` with one stale and one valid record in both tables |
+
+> [!NOTE]
+> Timestamps use the `Z` suffix format (e.g. `2024-01-01T00:00:00.000Z`), which signifies the UTC timezone, to match claude-mem's JS `toISOString()` output (IS0 8601).
+
+#### JSONL (for the `memory-mcp` handler)
+
+| Fixture | Description |
+| :--- | :--- |
+| `jsonl_file` | Creates empty JSONL file |
+| `jsonl_file_with_data` | Creates 8 entities, covering ID/name collision testing (4 value patterns × 2 fields) plus 1 no-timestamp entity |
+
+#### Serena directories (for the `serena` handler)
+
+| Fixture | Description |
+| :--- | :--- |
+| `serena_projects` | Directory tree with 2 regular projects + 1 symlinked project (to test that it won't be touched), each real project containing `.serena/memories/*.md` |
+
+
+### Trash/state fixtures
+
+| Fixture | Description |
+| :--- | :--- |
+| `wax_dir` | Temporary `.wax/` directory |
+| `trash_dir` | Temporary `.wax/trash/` subdirectory |
+| `state_file` | Path to `state.json` (may or may not exist) |
+
+### The `mock_settings` meta-fixture
+
+This fixture is the **central orchestrator** patching all configuration functions to use test-oriented paths (instead of real user paths).
+
+| Target | Patched To |
+| :--- | :--- |
+| `get_storage("claude_mem")` | `tmp_path/claude-mem.db` |
+| `get_storage("memory_mcp")` | `tmp_path/memory.jsonl` |
+| `get_path("serena_projects")` | `tmp_path/projects/` |
+| `get_qdrant_url()` | `http://127.0.0.1:8780` |
+| `get_qdrant_collection()` | `coding-memory` |
+| `get_wax_dir()` | `tmp_path/.wax/` |
+| `get_base_trash_dir()` | `tmp_path/.wax/trash/` |
+| `get_state_path()` | `tmp_path/.wax/state.json` |
+
+#### Usage
+
+`mock_settings` should be added to test functions' params to retrieve isolated test-oriented configs:
+
+```python
+def test_something(mock_settings, sqlite_db_with_data):
+    # All handlers now use tmp_path-based paths
+    handler = ClaudeMemHandler()
+    items = handler.get_expired_items(cutoff)
+```
+
+
+## Key testing patterns
+
+### Monkeypatching
+
+The `monkeypatch` fixture (built into pytest) allows temporarily replacing functions during a test.
+
+> [!IMPORTANT]
+> Always patch at the **import path** (where the function is used), not the module where it's defined.
+>
+> This is because Python's import system makes a separate, local reference to the original function when a module imports it.
+>
+> Patching at the source would leave the reference in the point of use, i.e. the importing module (where we want the patch to actually take effect), pointing to the original function and not the patched version meant for testing.
+
+```python
+# Correct: patches where the handler imports get_path
+monkeypatch.setattr(
+    "lib.pollen.cleanup.handlers.claude_mem.get_path",
+    lambda _: sqlite_db_with_data
+)
+
+# Wrong: patches the source module (handler still uses its cached import)
+monkeypatch.setattr("lib.pollen.settings.get_path", ...)
+```
 

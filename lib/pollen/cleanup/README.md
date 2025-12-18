@@ -107,7 +107,7 @@ See [CONFIGURATION.md](../../../docs/CONFIGURATION.md) for full details.
         
         > This includes verifying that the duration strings, as used for the retention period settings, are in the correct format (e.g. `30d`, `3m`).
 
-2. Ensure it's been $\geq 24$ hours since the last cleanup run; if not, exit.
+2. Ensure it's been ≥24 hours since the last cleanup run; if not, exit.
 
     > To override, use `--force`/`-f`.
 
@@ -115,9 +115,9 @@ See [CONFIGURATION.md](../../../docs/CONFIGURATION.md) for full details.
 
     1. Compute the staleness cutoff based on the retention period set for the backend (via `get_cutoff()`)
 
-        > If the retention period is `always`, this cutoff will be set to `datetime.min` *(⇒ no items will be older than this)*.
+        > If the retention period is `always`, this cutoff will be set to `datetime.min` *(i.e. no items will be considered stale relative to this cutoff)*.
 
-    2. Find stale/expired items (via `get_expired_items(cutoff)`)
+    2. Find stale items (via handler-specific selection logic)
     3. Move stale items to trash (via `export_to_trash(items)`) 
        
         - Trash directories are per-storage-backend: `.wax/trash/<backend>`
@@ -129,21 +129,21 @@ See [CONFIGURATION.md](../../../docs/CONFIGURATION.md) for full details.
 > **Handlers follow a plugin-based architecture:**
 >
 > - The `CleanupHandler` abstract base class defines the `cleanup()` entrypoint used in step 3
-> - The concrete subclasses of `CleanupHandler` extend it by implementing the `get_expired_items`, `export_to_trash` and `delete_items` methods above for their specific storage backend
+> - Concrete handler subclasses implement backend-specific logic to (a) select stale items, (b) export them to trash, and (c) delete them from the underlying storage
 
-4. Permanently delete items in trash that are older than the configured grace period (via `empty_expired_trash()`)
+4. Permanently delete trash entries that exceed the configured grace period
 5. Update `last_cleanup_run` timestamp *(used in step 2)*
 
 ### Backend-specific handlers
 
 Each handler is implemented corresponding to its memory storage backend's underlying data storage model:
 
-| Handler | Backend's storage model | Implementation approach |
-| :--- | :--- | :--- |
+| Handler | Backend | Approach |
+|:--------|:--------|:---------|
 | `ClaudeMemHandler` | SQLite database | SQL batch deletes + VACUUM |
-| `QdrantHandler` | REST API | Scroll pagination + batch delete | Handles large collections without loading all into memory |
-| `SerenaHandler` | Filesystem | Recursive glob + move | Files are already discrete units; move is atomic |
-| `MemoryMcpHandler` | JSONL file | Read-filter-rewrite | JSONL has no random access; full rewrite is required |
+| `QdrantHandler` | REST API | Scroll pagination + batch delete |
+| `SerenaHandler` | Filesystem | Recursive glob + move |
+| `MemoryMcpHandler` | JSONL file | Read-filter-rewrite |
 
 #### claude-mem
 
@@ -210,14 +210,14 @@ Each handler is implemented corresponding to its memory storage backend's underl
 
             > Note any symlinked directories would also cause an infinite loop in this step if `path_to.serena_projects` was a descendant of theirs.
 
-    2. Identify stale/expired memory file using the file's modification time (`st_mtime`)
-    3. Move stale/expired memory files to trash, *preserving project structure* for easy search & recovery of trashed memories if needed.
+    2. Identify stale memory files using the file's modification time (`st_mtime`)
+    3. Move stale memory files to trash, *preserving project structure* for easy search & recovery of trashed memories if needed.
 
-        - For example, upon moving to trash, a memory file at `~/code/my-project/.serena/memories/expired-memory.md` would be written to `.wax/trash/serena/my-project/expired-memory.md`
+        - For example, upon moving to trash, a memory file at `~/code/my-project/.serena/memories/stale-memory.md` would be written to `.wax/trash/serena/my-project/stale-memory.md`
 
 #### memory-mcp
 
-- **Storage model**: JSONL file at ** `~/.memory-mcp/memory.jsonl`
+- **Storage model:** JSONL file at `~/.memory-mcp/memory.jsonl`
 
 - **Implementation:**
 
@@ -231,10 +231,10 @@ Each handler is implemented corresponding to its memory storage backend's underl
         >
         >     - Thus, a naive implementation trying to delete a memory entity with `name="foo"` could match an entity with `id="foo"` and delete it (incorrectly!).
         >
-        > - The handler avoids this by using two separate sets to store invalid memories' keys depending on whether the key is in the `name` or `id` field.
+        > - The handler avoids this by using two separate sets to store stale entities' keys depending on whether the key is in the `name` or `id` field.
 
-    3. Export expired entities to the JSONL file in `.wax/trash/memory-mcp/`
-    4. Rewrite the original file filtered to contain only valid (non-expired) entities
+    3. Export stale entities to the JSONL file in `.wax/trash/memory-mcp/`
+    4. Rewrite the original file filtered to contain only valid entities
 
 ### Trash system
 
@@ -262,7 +262,7 @@ Deleted items are:
 │   └── .manifest.json
 └── serena/
     ├── project-a/
-    │   └── old-memory.md
+    │   └── stale-memory.md
     └── .manifest.json
 ```
 

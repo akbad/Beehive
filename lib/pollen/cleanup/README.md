@@ -118,11 +118,11 @@ See [CONFIGURATION.md](../../../docs/CONFIGURATION.md) for full details.
         > If the retention period is `always`, this cutoff will be set to `datetime.min` *(i.e. no items will be considered stale relative to this cutoff)*.
 
     2. Find stale items (via handler-specific selection logic)
-    3. Move stale items to trash (via `export_to_trash(items)`) 
+    3. Move stale items to trash (via `export_items_to_trash(items)`) 
        
         - Trash directories are per-storage-backend: `.wax/trash/<backend>`
 
-    4. Delete the stale items from the storage backend's underlying DB (via `delete_items(items)`)
+    4. Delete the stale items from the storage backend's underlying DB (via `delete_items_from_storage(items)`)
 
 > [!NOTE]
 >

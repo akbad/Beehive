@@ -20,12 +20,12 @@ class CleanupHandler(ABC):
         pass
 
     @abstractmethod
-    def export_to_trash(self, items: list[dict[str, Any]], retention: str) -> str:
+    def export_items_to_trash(self, items: list[dict[str, Any]], retention: str) -> str:
         """Export items to trash, return the trash file path."""
         pass
 
     @abstractmethod
-    def delete_items(self, items: list[dict[str, Any]]) -> int:
+    def delete_items_from_storage(self, items: list[dict[str, Any]]) -> int:
         """Delete items from storage, return count of deleted items."""
         pass
 
@@ -84,9 +84,9 @@ class CleanupHandler(ABC):
 
         # write *new* files for the deleted items to the trash 
         # (to be kept for the specified grace period)
-        trash_path = self.export_to_trash(items, retention)
+        trash_path = self.export_items_to_trash(items, retention)
 
-        count = self.delete_items(items)
+        count = self.delete_items_from_storage(items)
 
         return {
             "storage": self.name,

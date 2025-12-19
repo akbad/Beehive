@@ -74,7 +74,7 @@ Pytest **discovers tests without registration** via naming conventions:
     # use mock_settings and cutoff_datetime fixtures
     def test_finds_old_items(self, mock_settings, cutoff_datetime):
         handler = ClaudeMemHandler()
-        items = handler.get_expired_items(cutoff_datetime)
+        items = handler.get_stale_items(cutoff_datetime)
     ```
 
 > [!NOTE]
@@ -181,7 +181,9 @@ This fixture is the **central orchestrator** patching all configuration function
 def test_something(mock_settings, sqlite_db_with_data):
     # All handlers now use tmp_path-based paths
     handler = ClaudeMemHandler()
-    items = handler.get_expired_items(cutoff)
+    items = handler.get_stale_items(cutoff)
+```
+
 ```
 
 

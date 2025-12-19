@@ -15,7 +15,7 @@ class CleanupHandler(ABC):
         self.config = config
 
     @abstractmethod
-    def get_expired_items(self, cutoff: datetime) -> list[dict[str, Any]]:
+    def get_stale_items(self, cutoff: datetime) -> list[dict[str, Any]]:
         """Return items older than cutoff with id/path and metadata."""
         pass
 
@@ -65,7 +65,7 @@ class CleanupHandler(ABC):
             }
 
         cutoff = self.get_cutoff(retention)
-        items = self.get_expired_items(cutoff)
+        items = self.get_stale_items(cutoff)
 
         if not items:
             return {

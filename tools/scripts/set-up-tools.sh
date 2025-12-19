@@ -969,7 +969,7 @@ fi
 if agent_enabled "$CODEX"; then
     log_separator
     log_info "Ensuring Superpowers skills are installed for Codex..."
-    "$SCRIPT_DIR/../../agents/scripts/set-up-codex-superpowers.sh"
+    "$REPO_ROOT/agents/scripts/set-up-codex-superpowers.sh"
 fi
 
 log_empty_line

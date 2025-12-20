@@ -42,24 +42,28 @@
 **Before starting ANY task, you MUST:**
 
 1. **Query all memory systems for relevant context:**
-- Memory MCP (`read_graph`, `search_nodes`) - for architectural relationships, component structure
-- Qdrant MCP (`qdrant-find`) - for past solutions, patterns, gotchas, learnings
-- claude-mem (`get_recent_context`, `search_observations`, `find_by_type`) **(*ONLY* if you are Claude Code)** for recent session history, file changes
+    
+    - Memory MCP (`read_graph`, `search_nodes`) - for architectural relationships, component structure
+    - Qdrant MCP (`qdrant-find`) - for past solutions, patterns, gotchas, learnings
+    - claude-mem (`get_recent_context`, `search_observations`, `find_by_type`) **(*ONLY* if you are Claude Code)** for recent session history, file changes
 
 2. **Verify memory accuracy BEFORE trusting it:**
-- Compare memory timestamps with file modification dates
-- If memory references specific files/code → Read those files to verify
-- If memory describes system behavior → Test/verify it's still true
-- **Older memories are MORE LIKELY to be stale** - verify aggressively
+    
+    - Compare memory timestamps with file modification dates
+    - If memory references specific files/code → Read those files to verify
+    - If memory describes system behavior → Test/verify it's still true
+    - **Older memories are MORE LIKELY to be stale** - verify aggressively
 
 3. **Update or delete incorrect memories immediately:**
-- Found stale info? → Overwrite with current truth
-- Found obsolete relationships? → Delete and recreate
-- Found incorrect patterns? → Store the correction
+    
+    - Found stale info? → Overwrite with current truth
+    - Found obsolete relationships? → Delete and recreate
+    - Found incorrect patterns? → Store the correction
 
 **This is NOT OPTIONAL. This is NOT NEGOTIABLE.**
 
 **Before starting ANY task, ask yourself:**
+
 1. What memories might exist about this? → Search for them
 2. Are these memories still accurate? → Verify against current state
 3. Am I building on correct foundations? → Fix stale memories first
@@ -85,12 +89,15 @@
 **Failure to store memories = failure to complete the task.**
 
 > [!TIP]
+> 
 > **Storage decision tree:**
->  - **Qdrant MCP**: Code patterns, solutions, gotchas, insights, "how I solved X"
->  - **Memory MCP**: Who/what/how relationships, project structure, dependencies
->  - **Both**: Complex problems (store solution in Qdrant, track entities/relations in Memory MCP)
+> 
+> - **Qdrant MCP**: Code patterns, solutions, gotchas, insights, "how I solved X"
+> - **Memory MCP**: Who/what/how relationships, project structure, dependencies
+> - **Both**: Complex problems (store solution in Qdrant, track entities/relations in Memory MCP)
 
 > [!IMPORTANT]
+> 
 > When storing memories, *always* include these metadata fields depending on the tool you're using
 > (to enable cleanup of stale memories by the system):
 > 
@@ -103,29 +110,43 @@
 
 > Link: [full category guide - *memory MCPs*](mcps-by-category/memory.md)
 
-## Code analysis and editing
+## Code analysis, editing and Git
 
-- For **editing and refactors (especially symbol-level)**: use Serena (symbol‑level across 20+ languages) ([deep dive](mcp-deep-dives/serena.md))
-- For **security and quality**: use Semgrep (local scans; autofix) ([deep dive](mcp-deep-dives/semgrep.md))
+### Reads and exploration
 
-## Files and Git
+| Desired operation | Method/tool | Extra notes |
+| --- | --- | --- |
+| **Read: *1-9 files*** | Use your native/built-in Read tool | Do NOT use `serena.read_file`: it adds overhead |
+| **Read: *10+ files*** | Use Filesystem MCP's `read_multiple_files` | For bulk reads, this method results in 30-60% token savings compared to the native/built-in tool |
+| **Directory tree exploration** | `ls -R` or `find` via Bash |
+| Understanding code **symbols** (classes/methods) | Serena MCP's `find_symbol` with `include_body=true` |
 
-> **⚠️ CRITICAL for ALL CLIs:** Default to **native tools** (Read/Write/Edit) for file operations.
+### Writes & edits
 
-- **Read files (1-9)**: use native Read tool — NOT `serena.read_file` (adds overhead)
-- **Read files (10+)**: use Filesystem MCP `read_multiple_files` (30-60% token savings)
-- **Write/Edit files**: use native Write/Edit — use Serena ONLY for symbol-level operations
-- **Directory trees**: use `ls -R` or `find` via Bash (Filesystem MCP now filtered to read_multiple_files only)
+- For symbol-level operations and refactors *only*, use the following Serena tools:
 
-> **When to use Serena for files:**
-> - Understanding code **symbols** (classes/methods): `find_symbol` with `include_body=true`
-> - Replacing **entire symbol**: `replace_symbol_body` (NOT for 1-line edits)
-> - Adding **new symbol**: `insert_after_symbol` / `insert_before_symbol`
-> - **Renaming symbol** codebase-wide: `rename_symbol`
->
-> See [Serena deep dive](mcp-deep-dives/serena.md) for symbol vs text-based editing decision tree.
+    | Symbol-level operation | Serena MCP tool to use | 
+    | --- | --- |
+    | Replacing **entire symbol** | `replace_symbol_body` (NOT for 1-line edits) |
+    | Adding **new symbol** | `insert_after_symbol` / `insert_before_symbol` |
+    | **Renaming symbol** *codebase-wide* | `rename_symbol` |
 
-- For **Git operations**: use `git` via Bash tool — git status/diff/log/add/commit/branch/checkout
+- For *all other operations*, default to your **native/built-in Write/Edit tool(s)**. 
+
+> [!TIP]
+> 
+> To resolve any remaining ambiguities, see the [Serena deep dive](mcp-deep-dives/serena.md) for the *full* decision tree for symbol vs text-based editing.
+
+### Git operations
+
+Use (via Bash):
+
+- `git` *(primarily)*
+- `gh` *(where appropriate)*
+
+### Security and quality scans
+
+Use **Semgrep** (local scans; autofix) *(for more info, see the [Semgrep deep dive](mcp-deep-dives/semgrep.md))*
 
 ## Browser automation
 

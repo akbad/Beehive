@@ -71,8 +71,8 @@ Pytest **discovers tests without registration** via naming conventions:
 - Example:
 
     ```python
-    # use mock_settings and cutoff_datetime fixtures
-    def test_finds_old_items(self, mock_settings, cutoff_datetime):
+    # use _mock_settings and cutoff_datetime fixtures
+    def test_finds_old_items(self, _mock_settings, cutoff_datetime):
         handler = ClaudeMemHandler()
         items = handler.get_stale_items(cutoff_datetime)
     ```
@@ -105,7 +105,7 @@ Pytest **discovers tests without registration** via naming conventions:
 | Fixture | Description |
 | :--- | :--- |
 | `sqlite_db` | Empty database with `session_summaries` and `observations` tables (to match `claude-mem`'s schema) |
-| `sqlite_db_with_data` | Pre-populates database created by `sqlite_db` with one stale and one valid record in both tables |
+| `_sqlite_db_with_data` | Pre-populates database created by `sqlite_db` with one stale and one valid record in both tables |
 
 > [!NOTE]
 > Timestamps use the `Z` suffix format (e.g. `2024-01-01T00:00:00.000Z`), which signifies the UTC timezone, to match claude-mem's JS `toISOString()` output (IS0 8601).
@@ -158,7 +158,7 @@ responses_map = {
 | `trash_dir` | Temporary `.wax/trash/` subdirectory |
 | `state_file` | Path to `state.json` (may or may not exist) |
 
-### The `mock_settings` meta-fixture
+### The `_mock_settings` meta-fixture
 
 This fixture is the **central orchestrator** patching all configuration functions to use test-oriented paths (instead of real user paths).
 
@@ -175,10 +175,10 @@ This fixture is the **central orchestrator** patching all configuration function
 
 #### Usage
 
-`mock_settings` should be added to test functions' params to retrieve isolated test-oriented configs:
+`_mock_settings` should be added to test functions' params to retrieve isolated test-oriented configs:
 
 ```python
-def test_something(mock_settings, sqlite_db_with_data):
+def test_something(_mock_settings, _sqlite_db_with_data):
     # All handlers now use tmp_path-based paths
     handler = ClaudeMemHandler()
     items = handler.get_stale_items(cutoff)
@@ -204,7 +204,7 @@ The `monkeypatch` fixture (built into pytest) allows temporarily replacing funct
 # Correct: patches where the handler imports get_path
 monkeypatch.setattr(
     "lib.pollen.cleanup.handlers.claude_mem.get_path",
-    lambda _: sqlite_db_with_data
+    lambda _: _sqlite_db_with_data
 )
 
 # Wrong: patches the source module (handler still uses its cached import)

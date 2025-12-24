@@ -23,7 +23,12 @@ from server import server
 import uvicorn
 
 # converts requests/responses between HTTP and underlying MCP server protocol
-session_manager = StreamableHTTPSessionManager(server)
+#
+# stateless mode:
+#   - each request gets a fresh transport with no session tracking
+#   - matches Zen's nature (each tool call is independent)
+#   - works with all HTTP clients without requiring session handshake
+session_manager = StreamableHTTPSessionManager(server, stateless=True, json_response=True)
 
 # defines an MCP-compliant ASGI (Async Server Gateway Interface) adapter 
 # to connect the Starlette app to the underlying transport-level session manager.
@@ -61,4 +66,6 @@ app = Starlette(routes=[Mount('/mcp', app=mcp_app)], lifespan=lifespan)
 
 if __name__ == "__main__":
     port = int(os.environ.get('ZEN_MCP_PORT', '3333'))
-    uvicorn.run(app, host='127.0.0.1', port=port)
+    # timeout_graceful_shutdown: max seconds to wait for HTTP keep-alive connections
+    # to close before force-terminating (prevents server from hanging on shutdown)
+    uvicorn.run(app, host='127.0.0.1', port=port, timeout_graceful_shutdown=5)

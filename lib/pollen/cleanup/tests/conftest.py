@@ -120,7 +120,7 @@ def sqlite_db(tmp_path: Path) -> Path:
 
 
 @pytest.fixture
-def _sqlite_db_with_data(
+def with_sqlite_data(
     sqlite_db: Path,
     stale_datetime: datetime,
     valid_datetime: datetime,
@@ -185,7 +185,7 @@ def _to_iso_z(dt: datetime) -> str:
 
 
 @pytest.fixture
-def jsonl_file_with_data(
+def with_jsonl_data(
     tmp_path: Path,
     stale_datetime: datetime,
     valid_datetime: datetime,
@@ -276,13 +276,13 @@ def serena_projects(tmp_path: Path) -> Path:
 # =============================================================================
 
 @pytest.fixture
-def _qdrant_base_url() -> str:
+def qdrant_base_url() -> str:
     """Base URL for Qdrant API."""
     return "http://127.0.0.1:8780"
 
 
 @pytest.fixture
-def _qdrant_collection() -> str:
+def qdrant_collection() -> str:
     """Qdrant collection name."""
     return "coding-memory"
 
@@ -318,16 +318,16 @@ def state_file(wax_dir: Path) -> Path:
 # =============================================================================
 
 @pytest.fixture
-def _mock_settings(
+def apply_mock_patches(
     tmp_path: Path,
     sqlite_db: Path,
     jsonl_file: Path,
     serena_projects: Path,
     wax_dir: Path,
-    _qdrant_base_url: str,
-    _qdrant_collection: str,
+    qdrant_base_url: str,
+    qdrant_collection: str,
     mock_config: dict,
-    monkeypatch, 
+    monkeypatch,
 ):
     """Monkeypatch all settings functions to use test paths.
 
@@ -390,11 +390,11 @@ def _mock_settings(
     )
     monkeypatch.setattr(
         "lib.pollen.cleanup.handlers.qdrant.get_qdrant_url",
-        lambda: _qdrant_base_url
+        lambda: qdrant_base_url
     )
     monkeypatch.setattr(
         "lib.pollen.cleanup.handlers.qdrant.get_qdrant_collection",
-        lambda: _qdrant_collection
+        lambda: qdrant_collection
     )
 
     # patch state module

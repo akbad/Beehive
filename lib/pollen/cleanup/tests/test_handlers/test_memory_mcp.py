@@ -12,9 +12,9 @@ class TestMemoryMcpGetExpiredItems:
 
     def test_id_name_collision_prevention(
         self,
-        jsonl_file_with_data: Path,
+        with_jsonl_data: Path,
         cutoff_datetime: datetime,
-        _mock_settings: dict,
+        apply_mock_patches: dict,
         monkeypatch,
     ):
         """Regression test: entities with same value in different fields (Issue #5).
@@ -31,7 +31,7 @@ class TestMemoryMcpGetExpiredItems:
         handler.delete_items_from_storage(stale_id_entity)
 
         # read back the file
-        with open(jsonl_file_with_data) as f:
+        with open(with_jsonl_data) as f:
             remaining = [json.loads(line) for line in f if line.strip()]
 
         # entity with name="stale_id_but_valid_name" should still exist (it's valid)
@@ -43,9 +43,9 @@ class TestMemoryMcpGetExpiredItems:
 
     def test_entity_with_name_only(
         self,
-        jsonl_file_with_data: Path,
+        with_jsonl_data: Path,
         cutoff_datetime: datetime,
-        _mock_settings: dict,
+        apply_mock_patches: dict,
     ):
         """Entities with 'name' field are matched by expired_names set."""
         handler = MemoryMcpHandler()
@@ -63,9 +63,9 @@ class TestMemoryMcpGetExpiredItems:
 
     def test_entity_with_id_only(
         self,
-        jsonl_file_with_data: Path,
+        with_jsonl_data: Path,
         cutoff_datetime: datetime,
-        _mock_settings: dict,
+        apply_mock_patches: dict,
     ):
         """Entities with 'id' field are matched by expired_ids set."""
         handler = MemoryMcpHandler()
@@ -84,7 +84,7 @@ class TestMemoryMcpGetExpiredItems:
     def test_entity_with_both_name_and_id(
         self,
         jsonl_file: Path,
-        _mock_settings: dict,
+        apply_mock_patches: dict,
     ):
         """Entities with both 'name' and 'id' metadata fields are matched by 'name' (elif logic)."""
         entities = [
@@ -109,7 +109,7 @@ class TestMemoryMcpGetExpiredItems:
     def test_iso_with_z_suffix(
         self,
         jsonl_file: Path,
-        _mock_settings: dict,
+        apply_mock_patches: dict,
     ):
         """ISO format with Z suffix is parsed correctly."""
         with open(jsonl_file, "w") as f:
@@ -124,7 +124,7 @@ class TestMemoryMcpGetExpiredItems:
     def test_iso_without_z(
         self,
         jsonl_file: Path,
-        _mock_settings: dict,
+        apply_mock_patches: dict,
     ):
         """ISO format with +00:00 offset is parsed correctly."""
         with open(jsonl_file, "w") as f:
@@ -139,7 +139,7 @@ class TestMemoryMcpGetExpiredItems:
     def test_date_only_format(
         self,
         jsonl_file: Path,
-        _mock_settings: dict,
+        apply_mock_patches: dict,
     ):
         """Date-only format (YYYY-MM-DD) fallback works."""
         with open(jsonl_file, "w") as f:
@@ -154,7 +154,7 @@ class TestMemoryMcpGetExpiredItems:
     def test_naive_datetime_assumes_utc(
         self,
         jsonl_file: Path,
-        _mock_settings: dict,
+        apply_mock_patches: dict,
     ):
         """Naive datetimes (no timezone info) are assumed to be UTC."""
         
@@ -177,7 +177,7 @@ class TestMemoryMcpGetExpiredItems:
     def test_malformed_json_skipped(
         self,
         jsonl_file: Path,
-        _mock_settings: dict,
+        apply_mock_patches: dict,
     ):
         """Malformed JSON lines are skipped without error."""
 
@@ -196,9 +196,9 @@ class TestMemoryMcpGetExpiredItems:
 
     def test_missing_created_at_skipped(
         self,
-        jsonl_file_with_data: Path,
+        with_jsonl_data: Path,
         cutoff_datetime: datetime,
-        _mock_settings: dict,
+        apply_mock_patches: dict,
     ):
         """Entities without created_at field are skipped."""
         handler = MemoryMcpHandler()
@@ -210,7 +210,7 @@ class TestMemoryMcpGetExpiredItems:
 
     def test_missing_file_returns_empty(
         self,
-        _mock_settings: dict,
+        apply_mock_patches: dict,
     ):
         """Non-existent JSONL file returns empty list."""
         handler = MemoryMcpHandler()
@@ -225,9 +225,9 @@ class TestMemoryMcpDeleteItems:
 
     def test_delete_rewrites_file(
         self,
-        jsonl_file_with_data: Path,
+        with_jsonl_data: Path,
         cutoff_datetime: datetime,
-        _mock_settings: dict,
+        apply_mock_patches: dict,
     ):
         """Deletion rewrites JSONL file without expired entities."""
         handler = MemoryMcpHandler()
@@ -241,7 +241,7 @@ class TestMemoryMcpDeleteItems:
         assert deleted == 4
 
         # read back file
-        with open(jsonl_file_with_data) as f:
+        with open(with_jsonl_data) as f:
             remaining = [json.loads(line) for line in f if line.strip()]
 
         remaining_names = [e.get("name") for e in remaining if "name" in e]
@@ -262,7 +262,7 @@ class TestMemoryMcpDeleteItems:
     def test_delete_empty_list_returns_zero(
         self,
         jsonl_file: Path,
-        _mock_settings: dict,
+        apply_mock_patches: dict,
     ):
         """Deleting empty list returns 0."""
         handler = MemoryMcpHandler()
@@ -275,25 +275,25 @@ class TestMemoryMcpWipe:
 
     def test_wipe_clears_file(
         self,
-        jsonl_file_with_data: Path,
-        _mock_settings: dict,
+        with_jsonl_data: Path,
+        apply_mock_patches: dict,
     ):
         """Wipe removes all entities from file."""
         handler = MemoryMcpHandler()
         result = handler.wipe(backup=True)
 
-        # all 9 entities added by the fixture (jsonl_file_with_data) should be gone
+        # all 9 entities added by the fixture (with_jsonl_data) should be gone
         assert result["wiped"] == 9 
 
         # ensure file is empty
-        with open(jsonl_file_with_data) as f:
+        with open(with_jsonl_data) as f:
             remaining = [line for line in f if line.strip()]
         assert len(remaining) == 0
 
     def test_wipe_empty_file(
         self,
         jsonl_file: Path,
-        _mock_settings: dict,
+        apply_mock_patches: dict,
     ):
         """Wipe on empty file returns appropriate message."""
         handler = MemoryMcpHandler()

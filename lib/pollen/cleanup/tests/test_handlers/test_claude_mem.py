@@ -11,8 +11,8 @@ class TestClaudeMemGetExpiredItems:
 
     def test_z_suffix_format_matches_db(
         self,
-        _mock_settings,
-        _sqlite_db_with_data: Path,
+        apply_mock_patches,
+        with_sqlite_data: Path,
         cutoff_datetime: datetime,
     ):
         """Cutoff string uses Z suffix format."""
@@ -27,7 +27,7 @@ class TestClaudeMemGetExpiredItems:
 
     def test_millisecond_truncation(
         self,
-        _mock_settings,
+        apply_mock_patches,
         sqlite_db: Path,
     ):
         """
@@ -65,7 +65,7 @@ class TestClaudeMemGetExpiredItems:
 
     def test_exact_boundary_not_deleted(
         self,
-        _mock_settings,
+        apply_mock_patches,
         sqlite_db: Path,
     ):
         """Items EXACTLY matching the cutoff time should NOT be deleted."""
@@ -88,7 +88,7 @@ class TestClaudeMemGetExpiredItems:
 
     def test_empty_db_returns_empty_list(
         self,
-        _mock_settings,
+        apply_mock_patches,
         sqlite_db: Path,
         cutoff_datetime: datetime,
     ):
@@ -121,8 +121,8 @@ class TestClaudeMemDeleteItems:
 
     def test_delete_removes_items_from_db(
         self,
-        _mock_settings,
-        _sqlite_db_with_data: Path,
+        apply_mock_patches,
+        with_sqlite_data: Path,
         cutoff_datetime: datetime,
     ):
         """Deleted items are removed from database."""
@@ -136,7 +136,7 @@ class TestClaudeMemDeleteItems:
         assert deleted == 2
 
         # ensure the rows mentioned above were actually the ones deleted
-        conn = sqlite3.connect(str(_sqlite_db_with_data))
+        conn = sqlite3.connect(str(with_sqlite_data))
         cursor = conn.cursor()
 
         cursor.execute("SELECT id FROM session_summaries")
@@ -154,7 +154,7 @@ class TestClaudeMemDeleteItems:
 
     def test_delete_empty_list_returns_zero(
         self,
-        _mock_settings,
+        apply_mock_patches,
         sqlite_db: Path,
     ):
         """Deleting empty list returns 0."""
@@ -168,8 +168,8 @@ class TestClaudeMemWipe:
 
     def test_wipe_clears_all_data(
         self,
-        _mock_settings,
-        _sqlite_db_with_data: Path,
+        apply_mock_patches,
+        with_sqlite_data: Path,
     ):
         """Wipe removes all data from all tables."""
         handler = ClaudeMemHandler()
@@ -179,7 +179,7 @@ class TestClaudeMemWipe:
         assert result["wiped"] == 4
 
         # verify tables are indeed empty
-        conn = sqlite3.connect(str(_sqlite_db_with_data))
+        conn = sqlite3.connect(str(with_sqlite_data))
         cursor = conn.cursor()
         cursor.execute("SELECT COUNT(*) FROM session_summaries")
         assert cursor.fetchone()[0] == 0

@@ -28,6 +28,23 @@
 
 > Link: [full category guide - *web research*](mcps-by-category/web-research.md)
 
+## GitHub access
+
+> [!CAUTION]
+> **DON'T** use Fetch MCP on `github.com` URLs — returns page navigation/wrapper HTML, not file content.
+
+**For GitHub file content:**
+
+| Desired use case | Best method | Notes |
+|----------|-------------|-------|
+| **Raw file content** | Fetch MCP on `raw.githubusercontent.com/<user>/<repo>/<branch>/<path>` | Direct, fast, reliable |
+| **Files via API** | `gh api repos/<owner>/<repo>/contents/<path>` via Bash | Decode with `--jq '.content' \| base64 -d` |
+| **PRs, issues, comments** | `gh` CLI via Bash | Full GitHub API access |
+| **Code search (public repos)** | Sourcegraph MCP | Best for pattern/example discovery |
+| **Page content extraction** | WebFetch on `github.com/*` | AI extracts meaningful content from rendered page |
+| **Complex interactions** | Playwright | Full browser automation fallback |
+| **Deep local analysis** | Clone + Git/Serena MCP | Best for comprehensive codebase work |
+
 ## API docs
 
 - For **official documentation**: use Context7 (versioned; public repos only) ([deep dive](mcp-deep-dives/context7.md))

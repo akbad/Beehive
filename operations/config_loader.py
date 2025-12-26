@@ -3,8 +3,8 @@
 1. Merges configuration from YAML files with the following precedence hierarchy
    (later sources override earlier ones):  
 
-   a. comb.yml:  Fixed system config (cloud endpoints, disabled tools)
-   b. queen.yml: Team defaults (agents, retention, paths)
+   a. charter.yml:  Fixed system config (cloud endpoints, disabled tools)
+   b. directives.yml: Team defaults (agents, retention, paths)
    c. local.yml: Local overrides (gitignored)
    d. env vars:  Highest-priority overrides
 
@@ -88,7 +88,7 @@ class Config(TypedDict, total=False):
 
 
 def find_repo_root(start_path: Path | None = None) -> Path:
-    """Find the repository root by looking for queen.yml or .git directory.
+    """Find the repository root by looking for directives.yml or .git directory.
 
     Args:
         start_path: Starting directory for search. Defaults to cwd.
@@ -105,16 +105,16 @@ def find_repo_root(start_path: Path | None = None) -> Path:
     current = start_path.resolve()
 
     while current != current.parent:
-        if (current / "queen.yml").exists() or (current / ".git").exists():
+        if (current / "directives.yml").exists() or (current / ".git").exists():
             return current
         current = current.parent
 
     # Check root directory
-    if (current / "queen.yml").exists() or (current / ".git").exists():
+    if (current / "directives.yml").exists() or (current / ".git").exists():
         return current
 
     raise FileNotFoundError(
-        f"Could not find repository root (queen.yml or .git) starting from {start_path}"
+        f"Could not find repository root (directives.yml or .git) starting from {start_path}"
     )
 
 
@@ -157,8 +157,8 @@ def _load_yaml_file(path: Path) -> dict[str, Any]:
 def get_config() -> Config:
     """Load and merge configs, following this resolution order:
 
-    1. comb.yml (base defaults, required)
-    2. queen.yml (team config, if exists)
+    1. charter.yml (base defaults, required)
+    2. directives.yml (team config, if exists)
     3. local.yml (local overrides, if exists)
     4. Environment variables (highest priority)
     
@@ -167,12 +167,12 @@ def get_config() -> Config:
     2. call clear_config_cache() to clear cache
     3. call get_config() to do a fresh config read, retrieving the test-oriented config
 
-        monkeypatch.setattr("lib.pollen.config_loader.find_repo_root", lambda: tmp_path)
+        monkeypatch.setattr("operations.config_loader.find_repo_root", lambda: tmp_path)
         clear_config_cache()
         config = get_config()
 
     Settings specified at paths LATER in the list OVERRIDE IDENTICAL SETTINGS at paths EARLIER in the list.
-    > e.g. `mcp.auto_approve: yes` in local.yml overrides `mcp.auto_approve: no` in queen.yml
+    > e.g. `mcp.auto_approve: yes` in local.yml overrides `mcp.auto_approve: no` in directives.yml
 
     Returns:
         Merged configuration dictionary.
@@ -185,7 +185,7 @@ def get_config() -> Config:
     config: dict[str, Any] = {}
 
     # Load configs in precedence order (later overrides earlier)
-    for filename in ["comb.yml", "queen.yml", "local.yml"]:
+    for filename in ["charter.yml", "directives.yml", "local.yml"]:
         config = deep_merge(config, _load_yaml_file(repo_root / filename))
 
     # Apply environment variable overrides for path_to
@@ -329,12 +329,12 @@ def get_repo_root() -> Path:
 
 
 def get_wax_dir() -> Path:
-    """Get .wax directory path (in repo root).
+    """Get .archives directory path (in repo root).
 
     The wax stores operational state and trash - like
     storage cells in a beehive.
     """
-    return get_repo_root() / ".wax"
+    return get_repo_root() / ".archives"
 
 
 def get_state_path() -> Path:

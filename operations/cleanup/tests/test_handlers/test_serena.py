@@ -4,7 +4,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 
-from lib.pollen.cleanup.handlers.serena import SerenaHandler
+from operations.cleanup.handlers.serena import SerenaHandler
 
 
 class TestSerenaFindSerenaDirs:
@@ -63,7 +63,7 @@ class TestSerenaFindSerenaDirs:
         serena_link.symlink_to(real_serena)
 
         monkeypatch.setattr(
-            "lib.pollen.cleanup.handlers.serena.get_path",
+            "operations.cleanup.handlers.serena.get_path",
             lambda _: projects_dir
         )
 
@@ -82,7 +82,7 @@ class TestSerenaFindSerenaDirs:
         projects_dir.mkdir()
 
         monkeypatch.setattr(
-            "lib.pollen.cleanup.handlers.serena.get_path",
+            "operations.cleanup.handlers.serena.get_path",
             lambda _: projects_dir
         )
 
@@ -98,7 +98,7 @@ class TestSerenaFindSerenaDirs:
     ):
         """Non-existent projects directory returns empty list."""
         monkeypatch.setattr(
-            "lib.pollen.cleanup.handlers.serena.get_path",
+            "operations.cleanup.handlers.serena.get_path",
             lambda _: tmp_path / "nonexistent"
         )
 
@@ -132,7 +132,7 @@ class TestSerenaGetExpiredItems:
         os.utime(memory_file, (old_time, old_time))
 
         monkeypatch.setattr(
-            "lib.pollen.cleanup.handlers.serena.get_path",
+            "operations.cleanup.handlers.serena.get_path",
             lambda _: projects_dir
         )
 
@@ -165,7 +165,7 @@ class TestSerenaGetExpiredItems:
             os.utime(f, (old_time, old_time))
 
         monkeypatch.setattr(
-            "lib.pollen.cleanup.handlers.serena.get_path",
+            "operations.cleanup.handlers.serena.get_path",
             lambda _: projects_dir
         )
 
@@ -236,11 +236,11 @@ class TestSerenaDeleteItems:
         # setup trash dir
         trash_dir = tmp_path / ".wax" / "trash"
         monkeypatch.setattr(
-            "lib.pollen.cleanup.trash.BASE_TRASH_DIR",
+            "operations.cleanup.trash.BASE_TRASH_DIR",
             trash_dir
         )
         monkeypatch.setattr(
-            "lib.pollen.cleanup.handlers.serena.get_path",
+            "operations.cleanup.handlers.serena.get_path",
             lambda _: projects_dir
         )
 
@@ -315,7 +315,7 @@ class TestSerenaWipe:
         projects_dir.mkdir()
 
         monkeypatch.setattr(
-            "lib.pollen.cleanup.handlers.serena.get_path",
+            "operations.cleanup.handlers.serena.get_path",
             lambda _: projects_dir
         )
 

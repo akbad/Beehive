@@ -4,7 +4,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 
-from lib.pollen.cleanup.handlers.memory_mcp import MemoryMcpHandler
+from operations.cleanup.handlers.memory_mcp import MemoryMcpHandler
 
 
 class TestMemoryMcpGetExpiredItems:

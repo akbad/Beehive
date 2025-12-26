@@ -1,7 +1,7 @@
 #!/usr/bin/env -S uv run
 """CLI tool for shell scripts to read Beehive configuration.
 
-1. Merges configs using the order: comb.yml → queen.yml → local.yml → env)
+1. Merges configs using the order: charter.yml → directives.yml → local.yml → env)
 2. Reads from merged config
 
 Usage:

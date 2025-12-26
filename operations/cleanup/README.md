@@ -23,7 +23,7 @@ Handles **automatic, retention-based cleanup for Beehive's memory backends**
 
 **Preventing unbounded memory growth** as they accumulate over sessions , while **enabling recovery** before permanent deletion occurs:
 
-1. Export stale items to `.wax/trash/<backend>/`
+1. Export stale items to `.archives/trash/<backend>/`
 2. Trashed items are permanently deleted after a grace period *(default 30 days; configure using `trash.grace_period` config setting)*
 
 > [!IMPORTANT]
@@ -72,7 +72,7 @@ uv run sweep-hive --wipe claude-mem
 
 ## Configuration
 
-Retention periods and cleanup behavior are configured in `queen.yml` (or `local.yml` for personal overrides):
+Retention periods and cleanup behavior are configured in `directives.yml` (or `local.yml` for personal overrides):
 
 ```yaml
 retention_period_for:
@@ -120,7 +120,7 @@ See [CONFIGURATION.md](../../../docs/CONFIGURATION.md) for full details.
     2. Find stale items (via handler-specific selection logic)
     3. Move stale items to trash (via `export_items_to_trash(items)`) 
        
-        - Trash directories are per-storage-backend: `.wax/trash/<backend>`
+        - Trash directories are per-storage-backend: `.archives/trash/<backend>`
 
     4. Delete the stale items from the storage backend's underlying DB (via `delete_items_from_storage(items)`)
 
@@ -157,7 +157,7 @@ Each handler is implemented corresponding to its memory storage backend's underl
 - **Implementation:**
 
     1. Query via SQL to find stale rows checking `created_at < cutoff` 
-    2. Dump stale rows to JSON in `.wax/trash/claude-mem`
+    2. Dump stale rows to JSON in `.archives/trash/claude-mem`
     3. Batch delete many rows at once (via `DELETE ... WHERE id IN (...)`) for efficiency
     4. Execute `VACUUM` to recover disk space from deleted rows 
 
@@ -195,7 +195,7 @@ Each handler is implemented corresponding to its memory storage backend's underl
         > ```
 
     2. Check `payload.metadata.created_at` for each point against cutoff
-    3. Write stale point data `(id, payload)` to the JSON in `.wax/trash/qdrant`
+    3. Write stale point data `(id, payload)` to the JSON in `.archives/trash/qdrant`
     4. Batch delete stale points (via a single POST to `/points/delete` with all stale IDs)
 
 #### Serena
@@ -213,7 +213,7 @@ Each handler is implemented corresponding to its memory storage backend's underl
     2. Identify stale memory files using the file's modification time (`st_mtime`)
     3. Move stale memory files to trash, *preserving project structure* for easy search & recovery of trashed memories if needed.
 
-        - For example, upon moving to trash, a memory file at `~/code/my-project/.serena/memories/stale-memory.md` would be written to `.wax/trash/serena/my-project/stale-memory.md`
+        - For example, upon moving to trash, a memory file at `~/code/my-project/.serena/memories/stale-memory.md` would be written to `.archives/trash/serena/my-project/stale-memory.md`
 
 #### memory-mcp
 
@@ -233,14 +233,14 @@ Each handler is implemented corresponding to its memory storage backend's underl
         >
         > - The handler avoids this by using two separate sets to store stale entities' keys depending on whether the key is in the `name` or `id` field.
 
-    3. Export stale entities to the JSONL file in `.wax/trash/memory-mcp/`
+    3. Export stale entities to the JSONL file in `.archives/trash/memory-mcp/`
     4. Rewrite the original file filtered to contain only valid entities
 
 ### Trash system
 
 Deleted items are:
 
-- stored in `.wax/trash/<backend>/` 
+- stored in `.archives/trash/<backend>/` 
 - tracked via the `.manifest.json` in that directory
 - held in the trash for `trash.grace_period` days (set to 30 by default) before permanent deletion
 
@@ -250,7 +250,7 @@ Deleted items are:
 > - Changing this setting will <ins>*not*</ins> retroactively change the grace period for items already in the trash.
 
 ```
-.wax/trash/
+.archives/trash/
 ├── claude-mem/
 │   ├── 2024-01-15T10-30-00_42-items.json
 │   └── .manifest.json
@@ -278,7 +278,7 @@ Each backend's trash directory contains a `.manifest.json` tracking all trashed 
     "item_count": 42,
     "original_retention": "30d",
     "auto_purge_after": "2024-02-14T10:30:00+00:00Z",
-    "files": [".wax/trash/claude-mem/2024-01-15T10-30-00_42-items.json"]
+    "files": [".archives/trash/claude-mem/2024-01-15T10-30-00_42-items.json"]
   }
 ]
 ```
@@ -288,7 +288,7 @@ Each backend's trash directory contains a `.manifest.json` tracking all trashed 
 
 ### State management
 
-Cleanup state is persisted in `.wax/state.json`:
+Cleanup state is persisted in `.archives/state.json`:
 
 ```json
 {

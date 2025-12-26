@@ -3,7 +3,7 @@ import sqlite3
 from datetime import datetime, timezone
 from pathlib import Path
 
-from lib.pollen.cleanup.handlers.claude_mem import ClaudeMemHandler
+from operations.cleanup.handlers.claude_mem import ClaudeMemHandler
 
 
 class TestClaudeMemGetExpiredItems:
@@ -107,7 +107,7 @@ class TestClaudeMemGetExpiredItems:
         
         # use custom monkeypatch to retrieve non-existent DB path from config
         monkeypatch.setattr(
-            "lib.pollen.cleanup.handlers.claude_mem.get_storage",
+            "operations.cleanup.handlers.claude_mem.get_storage",
             lambda _: tmp_path / "nonexistent.db"
         )
 
@@ -196,7 +196,7 @@ class TestClaudeMemWipe:
         
         # use custom monkeypatch to retrieve non-existent DB path from config
         monkeypatch.setattr(
-            "lib.pollen.cleanup.handlers.claude_mem.get_storage",
+            "operations.cleanup.handlers.claude_mem.get_storage",
             lambda _: tmp_path / "nonexistent.db"
         )
 

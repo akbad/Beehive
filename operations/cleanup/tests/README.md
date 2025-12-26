@@ -10,13 +10,13 @@
 - To run *all* cleanup tests:
   
     ```bash
-    uv run pytest lib/pollen/cleanup/tests/ -v
+    uv run pytest operations/cleanup/tests/ -v
     ```
     
     - To print a detailed coverage table post-run:
 
         ```bash
-        uv run pytest lib/pollen/cleanup/tests/ --cov=lib.pollen.cleanup
+        uv run pytest operations/cleanup/tests/ --cov=operations.cleanup
         ```
         
         > Add `--cov-report=term-missing` to add a column showing exact line numbers uncovered by tests.
@@ -24,7 +24,7 @@
 - To only test a specific handler:
 
     ```bash
-    uv run pytest lib/pollen/cleanup/tests/test_handlers/test_claude_mem.py -v
+    uv run pytest operations/cleanup/tests/test_handlers/test_claude_mem.py -v
     ```
 
 
@@ -48,8 +48,8 @@ Note Pytest determines where to find tests via the following in `pyproject.toml`
 
 ```toml
 [tool.pytest.ini_options]
-testpaths = ["lib/pollen/cleanup/tests"]
-pythonpath = ["."]  # enables `lib.pollen.x` imports
+testpaths = ["operations/cleanup/tests"]
+pythonpath = ["."]  # enables `operations.x` imports
 ```
 
 Pytest **discovers tests without registration** via naming conventions: 
@@ -125,7 +125,7 @@ Pytest **discovers tests without registration** via naming conventions:
 
 #### Qdrant (for the HTTP API handler)
 
-HTTP mock helpers live in `lib/pollen/cleanup/tests/http_mocks.py`.
+HTTP mock helpers live in `operations/cleanup/tests/http_mocks.py`.
 
 | Helper | Description |
 | :--- | :--- |
@@ -154,8 +154,8 @@ responses_map = {
 
 | Fixture | Description |
 | :--- | :--- |
-| `wax_dir` | Temporary `.wax/` directory |
-| `trash_dir` | Temporary `.wax/trash/` subdirectory |
+| `wax_dir` | Temporary `.archives/` directory |
+| `trash_dir` | Temporary `.archives/trash/` subdirectory |
 | `state_file` | Path to `state.json` (may or may not exist) |
 
 ### The `apply_mock_patches` meta-fixture
@@ -169,9 +169,9 @@ This fixture is the **central orchestrator** patching all configuration function
 | `get_path("serena_projects")` | `tmp_path/projects/` |
 | `get_qdrant_url()` | `http://127.0.0.1:8780` |
 | `get_qdrant_collection()` | `coding-memory` |
-| `get_wax_dir()` | `tmp_path/.wax/` |
-| `get_base_trash_dir()` | `tmp_path/.wax/trash/` |
-| `get_state_path()` | `tmp_path/.wax/state.json` |
+| `get_wax_dir()` | `tmp_path/.archives/` |
+| `get_base_trash_dir()` | `tmp_path/.archives/trash/` |
+| `get_state_path()` | `tmp_path/.archives/state.json` |
 
 #### Usage
 
@@ -199,10 +199,10 @@ The `monkeypatch` fixture (built into pytest) allows temporarily replacing funct
 ```python
 # Correct: patches where the handler imports get_path
 monkeypatch.setattr(
-    "lib.pollen.cleanup.handlers.claude_mem.get_path",
+    "operations.cleanup.handlers.claude_mem.get_path",
     lambda _: with_sqlite_data
 )
 
 # Wrong: patches the source module (handler still uses its cached import)
-monkeypatch.setattr("lib.pollen.settings.get_path", ...)
+monkeypatch.setattr("operations.settings.get_path", ...)
 ```

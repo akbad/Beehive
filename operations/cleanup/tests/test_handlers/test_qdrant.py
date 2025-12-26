@@ -4,8 +4,8 @@ from datetime import datetime, timezone
 from unittest.mock import patch, MagicMock
 from urllib.error import HTTPError, URLError
 
-from lib.pollen.cleanup.handlers.qdrant import QdrantHandler
-from lib.pollen.cleanup.tests import NonJsonHttpResponse, create_mock_http_endpoint
+from operations.cleanup.handlers.qdrant import QdrantHandler
+from operations.cleanup.tests import NonJsonHttpResponse, create_mock_http_endpoint
 
 
 # Define response maps to stub Qdrant HTTP API endpoints called via these tests
@@ -51,7 +51,7 @@ class TestQdrantGetExpiredItems:
             ]),
         }
 
-        with patch("lib.pollen.cleanup.handlers.qdrant.urlopen", side_effect=create_mock_http_endpoint(responses_map)):
+        with patch("operations.cleanup.handlers.qdrant.urlopen", side_effect=create_mock_http_endpoint(responses_map)):
             handler = QdrantHandler()
             items = handler.get_stale_items(cutoff_datetime)
 
@@ -116,7 +116,7 @@ class TestQdrantGetExpiredItems:
 
             return mock_resp
 
-        with patch("lib.pollen.cleanup.handlers.qdrant.urlopen", side_effect=paginated_urlopen):
+        with patch("operations.cleanup.handlers.qdrant.urlopen", side_effect=paginated_urlopen):
             handler = QdrantHandler()
             items = handler.get_stale_items(cutoff_datetime)
 
@@ -137,7 +137,7 @@ class TestQdrantGetExpiredItems:
             ]),
         }
 
-        with patch("lib.pollen.cleanup.handlers.qdrant.urlopen", side_effect=create_mock_http_endpoint(responses_map)):
+        with patch("operations.cleanup.handlers.qdrant.urlopen", side_effect=create_mock_http_endpoint(responses_map)):
             handler = QdrantHandler()
             items = handler.get_stale_items(cutoff_datetime)
 
@@ -153,7 +153,7 @@ class TestQdrantGetExpiredItems:
             ("GET", "/collections/coding-memory"): {"status": "error", "message": "Not found"},
         }
 
-        with patch("lib.pollen.cleanup.handlers.qdrant.urlopen", side_effect=create_mock_http_endpoint(responses_map)):
+        with patch("operations.cleanup.handlers.qdrant.urlopen", side_effect=create_mock_http_endpoint(responses_map)):
             handler = QdrantHandler()
             items = handler.get_stale_items(cutoff_datetime)
 
@@ -184,7 +184,7 @@ class TestQdrantGetExpiredItems:
             mock_resp.read.return_value = b'{}'
             return mock_resp
 
-        with patch("lib.pollen.cleanup.handlers.qdrant.urlopen", side_effect=error_urlopen):
+        with patch("operations.cleanup.handlers.qdrant.urlopen", side_effect=error_urlopen):
             handler = QdrantHandler()
             items = handler.get_stale_items(cutoff_datetime)
 
@@ -202,7 +202,7 @@ class TestQdrantGetExpiredItems:
             **_scroll_response([]),  # empty points list
         }
 
-        with patch("lib.pollen.cleanup.handlers.qdrant.urlopen", side_effect=create_mock_http_endpoint(responses_map)):
+        with patch("operations.cleanup.handlers.qdrant.urlopen", side_effect=create_mock_http_endpoint(responses_map)):
             handler = QdrantHandler()
             items = handler.get_stale_items(cutoff_datetime)
 
@@ -217,7 +217,7 @@ class TestQdrantGetExpiredItems:
         def unreachable_urlopen(req, timeout=None):
             raise URLError("Connection refused")
 
-        with patch("lib.pollen.cleanup.handlers.qdrant.urlopen", side_effect=unreachable_urlopen):
+        with patch("operations.cleanup.handlers.qdrant.urlopen", side_effect=unreachable_urlopen):
             handler = QdrantHandler()
             items = handler.get_stale_items(cutoff_datetime)
 
@@ -230,7 +230,7 @@ class TestQdrantGetExpiredItems:
         cutoff_datetime: datetime,
     ):
         """JSONDecodeError (malformed response) is handled gracefully."""
-        with patch("lib.pollen.cleanup.handlers.qdrant.urlopen",
+        with patch("operations.cleanup.handlers.qdrant.urlopen",
                    side_effect=create_mock_http_endpoint({
                        ("GET", "/collections/coding-memory"): NonJsonHttpResponse(b"not valid json {")
                    })):
@@ -256,7 +256,7 @@ class TestQdrantGetExpiredItems:
             ]),
         }
 
-        with patch("lib.pollen.cleanup.handlers.qdrant.urlopen", side_effect=create_mock_http_endpoint(responses_map)):
+        with patch("operations.cleanup.handlers.qdrant.urlopen", side_effect=create_mock_http_endpoint(responses_map)):
             handler = QdrantHandler()
             items = handler.get_stale_items(cutoff_datetime)
 
@@ -282,7 +282,7 @@ class TestQdrantGetExpiredItems:
             ]),
         }
 
-        with patch("lib.pollen.cleanup.handlers.qdrant.urlopen", side_effect=create_mock_http_endpoint(responses_map)):
+        with patch("operations.cleanup.handlers.qdrant.urlopen", side_effect=create_mock_http_endpoint(responses_map)):
             handler = QdrantHandler()
             items = handler.get_stale_items(cutoff_datetime)
 
@@ -309,7 +309,7 @@ class TestQdrantGetExpiredItems:
             ]),
         }
 
-        with patch("lib.pollen.cleanup.handlers.qdrant.urlopen", side_effect=create_mock_http_endpoint(responses_map)):
+        with patch("operations.cleanup.handlers.qdrant.urlopen", side_effect=create_mock_http_endpoint(responses_map)):
             handler = QdrantHandler()
             items = handler.get_stale_items(cutoff_datetime)
 
@@ -338,7 +338,7 @@ class TestQdrantGetExpiredItems:
             ]),
         }
 
-        with patch("lib.pollen.cleanup.handlers.qdrant.urlopen", side_effect=create_mock_http_endpoint(responses_map)):
+        with patch("operations.cleanup.handlers.qdrant.urlopen", side_effect=create_mock_http_endpoint(responses_map)):
             handler = QdrantHandler()
             items = handler.get_stale_items(cutoff_datetime)
 
@@ -371,7 +371,7 @@ class TestQdrantDeleteItems:
             **_delete_response("ok"),
         }
 
-        with patch("lib.pollen.cleanup.handlers.qdrant.urlopen", side_effect=create_mock_http_endpoint(responses_map)):
+        with patch("operations.cleanup.handlers.qdrant.urlopen", side_effect=create_mock_http_endpoint(responses_map)):
             handler = QdrantHandler()
             items = handler.get_stale_items(cutoff_datetime)
             deleted = handler.delete_items_from_storage(items)
@@ -397,7 +397,7 @@ class TestQdrantDeleteItems:
             **_delete_response("error"),
         }
 
-        with patch("lib.pollen.cleanup.handlers.qdrant.urlopen", side_effect=create_mock_http_endpoint(responses_map)):
+        with patch("operations.cleanup.handlers.qdrant.urlopen", side_effect=create_mock_http_endpoint(responses_map)):
             handler = QdrantHandler()
             items = [{"id": 1, "created_at": "2024-01-01", "payload": {}}]
             deleted = handler.delete_items_from_storage(items)
@@ -422,7 +422,7 @@ class TestQdrantWipe:
             **_delete_response("ok"),
         }
 
-        with patch("lib.pollen.cleanup.handlers.qdrant.urlopen", side_effect=create_mock_http_endpoint(responses_map)):
+        with patch("operations.cleanup.handlers.qdrant.urlopen", side_effect=create_mock_http_endpoint(responses_map)):
             handler = QdrantHandler()
             result = handler.wipe(backup=True)
 
@@ -438,7 +438,7 @@ class TestQdrantWipe:
             **_scroll_response([]),  # Empty
         }
 
-        with patch("lib.pollen.cleanup.handlers.qdrant.urlopen", side_effect=create_mock_http_endpoint(responses_map)):
+        with patch("operations.cleanup.handlers.qdrant.urlopen", side_effect=create_mock_http_endpoint(responses_map)):
             handler = QdrantHandler()
             result = handler.wipe()
 
@@ -459,7 +459,7 @@ class TestQdrantWipe:
             **_delete_response("ok"),
         }
 
-        with patch("lib.pollen.cleanup.handlers.qdrant.urlopen", side_effect=create_mock_http_endpoint(responses_map)):
+        with patch("operations.cleanup.handlers.qdrant.urlopen", side_effect=create_mock_http_endpoint(responses_map)):
             handler = QdrantHandler()
             result = handler.wipe(backup=False)
 

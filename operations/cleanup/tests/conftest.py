@@ -65,7 +65,7 @@ def boundary_datetime(cutoff_datetime: datetime) -> datetime:
 
 @pytest.fixture
 def mock_config() -> dict[str, Any]:
-    """Base configuration structure matching queen.yml."""
+    """Base configuration structure matching directives.yml."""
     return {
         "agents": ["claude", "gemini"],
         "retention_period_for": {
@@ -377,52 +377,52 @@ def apply_mock_patches(
     # patch handlers' function imports 
     #   (and *not* the source's definitions)
     monkeypatch.setattr(
-        "lib.pollen.cleanup.handlers.claude_mem.get_storage",
+        "operations.cleanup.handlers.claude_mem.get_storage",
         mock_get_storage
     )
     monkeypatch.setattr(
-        "lib.pollen.cleanup.handlers.memory_mcp.get_storage",
+        "operations.cleanup.handlers.memory_mcp.get_storage",
         mock_get_storage
     )
     monkeypatch.setattr(
-        "lib.pollen.cleanup.handlers.serena.get_path",
+        "operations.cleanup.handlers.serena.get_path",
         mock_get_path
     )
     monkeypatch.setattr(
-        "lib.pollen.cleanup.handlers.qdrant.get_qdrant_url",
+        "operations.cleanup.handlers.qdrant.get_qdrant_url",
         lambda: qdrant_base_url
     )
     monkeypatch.setattr(
-        "lib.pollen.cleanup.handlers.qdrant.get_qdrant_collection",
+        "operations.cleanup.handlers.qdrant.get_qdrant_collection",
         lambda: qdrant_collection
     )
 
     # patch state module
     monkeypatch.setattr(
-        "lib.pollen.cleanup.state.get_wax_dir",
+        "operations.cleanup.state.get_wax_dir",
         lambda: wax_dir
     )
     monkeypatch.setattr(
-        "lib.pollen.cleanup.state.get_state_path",
+        "operations.cleanup.state.get_state_path",
         lambda: wax_dir / "state.json"
     )
     monkeypatch.setattr(
-        "lib.pollen.cleanup.state.WAX_DIR",
+        "operations.cleanup.state.WAX_DIR",
         wax_dir
     )
     monkeypatch.setattr(
-        "lib.pollen.cleanup.state.STATE_PATH",
+        "operations.cleanup.state.STATE_PATH",
         wax_dir / "state.json"
     )
 
     # Patch trash module
     trash_dir = wax_dir / "trash"
     monkeypatch.setattr(
-        "lib.pollen.cleanup.trash.get_base_trash_dir",
+        "operations.cleanup.trash.get_base_trash_dir",
         lambda: trash_dir
     )
     monkeypatch.setattr(
-        "lib.pollen.cleanup.trash.BASE_TRASH_DIR",
+        "operations.cleanup.trash.BASE_TRASH_DIR",
         trash_dir
     )
 

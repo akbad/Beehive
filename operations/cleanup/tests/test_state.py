@@ -4,7 +4,7 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 
-from lib.pollen.cleanup.state import (
+from operations.cleanup.state import (
     did_recently_run,
     load_state,
     now_as_iso,
@@ -22,7 +22,7 @@ class TestLoadState:
     ):
         """Returns empty dict when state file doesn't exist."""
         monkeypatch.setattr(
-            "lib.pollen.cleanup.state.STATE_PATH",
+            "operations.cleanup.state.STATE_PATH",
             tmp_path / "nonexistent.json"
         )
 
@@ -40,7 +40,7 @@ class TestLoadState:
             "last_trash_empty": "2024-01-14T10:00:00+00:00",
         }))
         monkeypatch.setattr(
-            "lib.pollen.cleanup.state.STATE_PATH",
+            "operations.cleanup.state.STATE_PATH",
             state_file
         )
 
@@ -57,7 +57,7 @@ class TestLoadState:
         """Returns empty dict when JSON is corrupt."""
         state_file.write_text("not valid json {{{")
         monkeypatch.setattr(
-            "lib.pollen.cleanup.state.STATE_PATH",
+            "operations.cleanup.state.STATE_PATH",
             state_file
         )
 
@@ -74,7 +74,7 @@ class TestLoadState:
         bad_path = tmp_path / "state.json"
         bad_path.mkdir()
         monkeypatch.setattr(
-            "lib.pollen.cleanup.state.STATE_PATH",
+            "operations.cleanup.state.STATE_PATH",
             bad_path
         )
 
@@ -94,8 +94,8 @@ class TestSaveState:
         wax_dir = tmp_path / ".wax"
         state_path = wax_dir / "state.json"
 
-        monkeypatch.setattr("lib.pollen.cleanup.state.WAX_DIR", wax_dir)
-        monkeypatch.setattr("lib.pollen.cleanup.state.STATE_PATH", state_path)
+        monkeypatch.setattr("operations.cleanup.state.WAX_DIR", wax_dir)
+        monkeypatch.setattr("operations.cleanup.state.STATE_PATH", state_path)
 
         save_state({"last_cleanup_run": "2024-01-15T12:00:00+00:00"})
 
@@ -114,8 +114,8 @@ class TestSaveState:
             "last_cleanup_run": "old_value",
         }))
 
-        monkeypatch.setattr("lib.pollen.cleanup.state.WAX_DIR", wax_dir)
-        monkeypatch.setattr("lib.pollen.cleanup.state.STATE_PATH", state_path)
+        monkeypatch.setattr("operations.cleanup.state.WAX_DIR", wax_dir)
+        monkeypatch.setattr("operations.cleanup.state.STATE_PATH", state_path)
 
         save_state({"last_cleanup_run": "new_value"})
 
@@ -133,8 +133,8 @@ class TestSaveState:
         """Writes valid, formatted JSON."""
         state_path = wax_dir / "state.json"
 
-        monkeypatch.setattr("lib.pollen.cleanup.state.WAX_DIR", wax_dir)
-        monkeypatch.setattr("lib.pollen.cleanup.state.STATE_PATH", state_path)
+        monkeypatch.setattr("operations.cleanup.state.WAX_DIR", wax_dir)
+        monkeypatch.setattr("operations.cleanup.state.STATE_PATH", state_path)
 
         save_state({
             "last_cleanup_run": "2024-01-15T12:00:00+00:00",

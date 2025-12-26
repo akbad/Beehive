@@ -5,7 +5,7 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 
-from lib.pollen.cleanup.trash import (
+from operations.cleanup.trash import (
     empty_expired_trash,
     empty_all_trash,
     generate_trash_filename,
@@ -26,7 +26,7 @@ class TestGetTrashDir:
         """Creates trash directory if it doesn't exist."""
         trash_base = tmp_path / ".wax" / "trash"
         monkeypatch.setattr(
-            "lib.pollen.cleanup.trash.BASE_TRASH_DIR",
+            "operations.cleanup.trash.BASE_TRASH_DIR",
             trash_base
         )
 
@@ -43,7 +43,7 @@ class TestGetTrashDir:
     ):
         """Returns existing directory without error."""
         monkeypatch.setattr(
-            "lib.pollen.cleanup.trash.BASE_TRASH_DIR",
+            "operations.cleanup.trash.BASE_TRASH_DIR",
             trash_dir
         )
 
@@ -192,7 +192,7 @@ class TestMoveToTrash:
         trash_base = tmp_path / ".wax" / "trash"
         trash_base.mkdir(parents=True)
         monkeypatch.setattr(
-            "lib.pollen.cleanup.trash.BASE_TRASH_DIR",
+            "operations.cleanup.trash.BASE_TRASH_DIR",
             trash_base
         )
 
@@ -216,7 +216,7 @@ class TestMoveToTrash:
         trash_base = tmp_path / ".wax" / "trash"
         trash_base.mkdir(parents=True)
         monkeypatch.setattr(
-            "lib.pollen.cleanup.trash.BASE_TRASH_DIR",
+            "operations.cleanup.trash.BASE_TRASH_DIR",
             trash_base
         )
 
@@ -244,7 +244,7 @@ class TestEmptyExpiredTrash:
         storage_dir = trash_base / "backend"
         storage_dir.mkdir(parents=True)
         monkeypatch.setattr(
-            "lib.pollen.cleanup.trash.BASE_TRASH_DIR",
+            "operations.cleanup.trash.BASE_TRASH_DIR",
             trash_base
         )
 
@@ -277,7 +277,7 @@ class TestEmptyExpiredTrash:
         storage_dir = trash_base / "backend"
         storage_dir.mkdir(parents=True)
         monkeypatch.setattr(
-            "lib.pollen.cleanup.trash.BASE_TRASH_DIR",
+            "operations.cleanup.trash.BASE_TRASH_DIR",
             trash_base
         )
 
@@ -307,7 +307,7 @@ class TestEmptyExpiredTrash:
     ):
         """Returns 0 when trash directory doesn't exist."""
         monkeypatch.setattr(
-            "lib.pollen.cleanup.trash.BASE_TRASH_DIR",
+            "operations.cleanup.trash.BASE_TRASH_DIR",
             tmp_path / "nonexistent"
         )
 
@@ -324,7 +324,7 @@ class TestEmptyExpiredTrash:
         storage_dir = trash_base / "backend"
         storage_dir.mkdir(parents=True)
         monkeypatch.setattr(
-            "lib.pollen.cleanup.trash.BASE_TRASH_DIR",
+            "operations.cleanup.trash.BASE_TRASH_DIR",
             trash_base
         )
 
@@ -348,7 +348,7 @@ class TestEmptyExpiredTrash:
         storage_dir = trash_base / "backend"
         storage_dir.mkdir(parents=True)
         monkeypatch.setattr(
-            "lib.pollen.cleanup.trash.BASE_TRASH_DIR",
+            "operations.cleanup.trash.BASE_TRASH_DIR",
             trash_base
         )
 
@@ -376,7 +376,7 @@ class TestEmptyExpiredTrash:
         storage_dir = trash_base / "backend"
         storage_dir.mkdir(parents=True)
         monkeypatch.setattr(
-            "lib.pollen.cleanup.trash.BASE_TRASH_DIR",
+            "operations.cleanup.trash.BASE_TRASH_DIR",
             trash_base
         )
 
@@ -412,7 +412,7 @@ class TestEmptyExpiredTrash:
         storage_dir = trash_base / "backend"
         storage_dir.mkdir(parents=True)
         monkeypatch.setattr(
-            "lib.pollen.cleanup.trash.BASE_TRASH_DIR",
+            "operations.cleanup.trash.BASE_TRASH_DIR",
             trash_base
         )
 
@@ -445,7 +445,7 @@ class TestEmptyExpiredTrash:
         storage_dir = trash_base / "backend"
         storage_dir.mkdir(parents=True)
         monkeypatch.setattr(
-            "lib.pollen.cleanup.trash.BASE_TRASH_DIR",
+            "operations.cleanup.trash.BASE_TRASH_DIR",
             trash_base
         )
 
@@ -496,7 +496,7 @@ class TestEmptyExpiredTrash:
         storage_dir = trash_base / "backend"
         storage_dir.mkdir(parents=True)
         monkeypatch.setattr(
-            "lib.pollen.cleanup.trash.BASE_TRASH_DIR",
+            "operations.cleanup.trash.BASE_TRASH_DIR",
             trash_base
         )
 
@@ -531,7 +531,7 @@ class TestEmptyAllTrash:
         storage_dir = trash_base / "backend"
         storage_dir.mkdir(parents=True)
         monkeypatch.setattr(
-            "lib.pollen.cleanup.trash.BASE_TRASH_DIR",
+            "operations.cleanup.trash.BASE_TRASH_DIR",
             trash_base
         )
 
@@ -552,7 +552,7 @@ class TestEmptyAllTrash:
     ):
         """Returns appropriate message when trash doesn't exist."""
         monkeypatch.setattr(
-            "lib.pollen.cleanup.trash.BASE_TRASH_DIR",
+            "operations.cleanup.trash.BASE_TRASH_DIR",
             tmp_path / "nonexistent"
         )
 

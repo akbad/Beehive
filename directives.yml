@@ -1,11 +1,11 @@
-# Beehive user-tunable configuration
-# - Changes to this file will directly alter Beehive's behavior. 
+# Bureau user-tunable configuration
+# - Changes to this file will directly alter Bureau's behavior. 
 # - See CONFIGURATION.md for details.
 #
 # This file is version-controlled and shared across all users.
 # For local overrides (not to be tracked by git), create and write to local.yml instead.
 
-# Coding agent CLIs that Beehive should configure
+# Coding agent CLIs that Bureau should configure
 # Available: claude, gemini, codex, opencode
 agents:
   - claude
@@ -33,7 +33,7 @@ trash:
 
 # Timeouts (in seconds) to wait when starting up components (increase for slower machines)
 startup_timeout_for:
-  mcp_servers: 200       # For HTTP MCP servers started by Beehive
+  mcp_servers: 200       # For HTTP MCP servers started by Bureau
   docker_daemon: 120     # For Docker daemon startup
 
 # Ports for locally-run HTTP servers & backing DB containers
@@ -48,7 +48,7 @@ port_for:
 # Note environment variables take precedence over these values
 path_to:
   # Base workspace for user projects
-  # Override using: $BEEHIVE_WORKSPACE
+  # Override using: $BUREAU_WORKSPACE
   #
   # When set, the following paths are automatically derived from it (unless explicitly overridden):
   #   - serena_projects (base for locating Serena memories)
@@ -77,7 +77,7 @@ pal:
 
   # PAL CLI-specific setting options
   # IMPORTANT: After changing any of the settings below:
-  #   1. Re-run configs/scripts/set-up-configs.sh (or bin/start-beehive wrapper)
+  #   1. Re-run protocols/scripts/set-up-configs.sh (or bin/open-bureau wrapper)
   #   2. Restart coding CLIs (or if possible, use their MCP-related commands without 
   #      restarting) to reconnect to PAL
   claude:

@@ -1,5 +1,5 @@
 # =============================================
-#  Beehive fixed configuration - DO NOT EDIT 
+#  Bureau fixed configuration - DO NOT EDIT 
 # =============================================
 #
 # This file stores configuration values that are either:
@@ -38,5 +38,5 @@ qdrant:
   embedding_provider: fastembed
 
 # Fixed clink tool disable list for PAL MCP
-# (all tools below require API keys, which Beehive assumes the user does not want to use)
+# (all tools below require API keys, which Bureau assumes the user does not want to use)
 pal_disabled_tools: analyze,apilookup,challenge,chat,codereview,consensus,debug,docgen,planner,precommit,refactor,secaudit,testgen,thinkdeep,tracer

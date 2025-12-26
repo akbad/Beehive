@@ -62,19 +62,15 @@ if [[ ${#AGENTS[@]} -gt 0 ]]; then
 
     # Create directory structure
     mkdir -p ~/.pal/cli_clients/systemprompts
-    print_success "Created ~/.pal/cli_clients/systemprompts"
+    print_success "Ensured/created ~/.pal/cli_clients/systemprompts"
 
     # Symlink role prompts folder
     if [[ -L ~/.pal/cli_clients/systemprompts/$AGENTS_SUBDIR ]]; then
         rm ~/.pal/cli_clients/systemprompts/$AGENTS_SUBDIR
-        print_success "Removed existing $AGENTS_SUBDIR symlink"
+        print_success "Removed existing Beehive symlink at ~/.pal/cli_clients/systemprompts/$AGENTS_SUBDIR (to ensure consistency after any reconfiguration)"
     fi
     ln -s "$AGENTS_DIR/$CLINK_AGENTS_DIRNAME" ~/.pal/cli_clients/systemprompts/$AGENTS_SUBDIR
-    print_success "Symlinked role prompts for clink to ~/.pal/cli_clients/systemprompts/$AGENTS_SUBDIR"
-
-    # Copy JSON configs
-    cp "$REPO_ROOT/configs/pal/"*.json ~/.pal/cli_clients/
-    print_success "Copied CLI configs (*.json) to ~/.pal/cli_clients/"
+    print_success "Symlinked role prompts (for use with clink) to ~/.pal/cli_clients/systemprompts/$AGENTS_SUBDIR"
 
     echo ""
 fi
@@ -88,14 +84,14 @@ if agent_enabled "Claude Code"; then
     # Symlink Claude subagents folder
     if [[ -L ~/.claude/agents/$AGENTS_SUBDIR ]]; then
         rm ~/.claude/agents/$AGENTS_SUBDIR
-        print_success "Removed old symlink at ~/.claude/agents/$AGENTS_SUBDIR"
+        print_success "Removed existing Beehive symlink at ~/.claude/agents/$AGENTS_SUBDIR (to ensure consistency after any reconfiguration)"
     fi
     mkdir -p ~/.claude/agents
-    print_success "Created ~/.claude/agents directory"
+    print_success "Ensured/created ~/.claude/agents directory"
 
     # Symlink all Claude subagent files
     ln -s "$AGENTS_DIR/$CLAUDE_AGENTS_DIRNAME" ~/.claude/agents/$AGENTS_SUBDIR
-    print_success "Symlinked Claude subagent templates to ~/.claude/agents/$AGENTS_SUBDIR"
+    print_success "Symlinked Claude subagent templates/role prompts to ~/.claude/agents/$AGENTS_SUBDIR"
 
     echo ""
 else

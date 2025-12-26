@@ -169,3 +169,68 @@ echo "To update these:"
 echo "  1. Edit the templates in $CONTEXT_TEMPLATES"
 echo "  2. Re-run this script"
 echo ""
+
+# ============================================================================
+# Generate and symlink PAL CLI configs
+# ============================================================================
+print_step "Generating PAL per-CLI config files (used when coding CLIs are called via clink)"
+
+PAL_GENERATED_DIR="$REPO_ROOT/configs/pal/generated"
+PAL_CLI_CLIENTS_DIR="$HOME/.pal/cli_clients"
+
+# Generate PAL CLI configs from settings.yaml (auto-discovers roles from agents/role-prompts/)
+if uv run python "$REPO_ROOT/configs/scripts/generate-pal-configs.py"; then
+    print_success "PAL per-CLI config files generated in $PAL_GENERATED_DIR"
+else
+    print_warning "Failed to generate PAL per-CLI config files - using existing files"
+fi
+
+echo ""
+print_step "Symlinking PAL per-CLI config files to $PAL_CLI_CLIENTS_DIR"
+
+mkdir -p "$PAL_CLI_CLIENTS_DIR"
+
+# Wipe all existing symlinks first (ensures renamed/removed configs don't linger)
+find "$PAL_CLI_CLIENTS_DIR" -maxdepth 1 -type l -delete
+
+symlink_count=0
+for json_file in "$PAL_GENERATED_DIR/"*.json; do
+    if [[ -f "$json_file" ]]; then
+        filename=$(basename "$json_file")
+        target="$PAL_CLI_CLIENTS_DIR/$filename"
+        ln -sf "$json_file" "$target"
+        symlink_count=$((symlink_count + 1))
+    fi
+done
+
+if [[ $symlink_count -gt 0 ]]; then
+    print_success "PAL per-CLI config files symlinked ($symlink_count files)"
+else
+    print_warning "No PAL per-CLI config files found to symlink"
+fi
+
+echo ""
+echo "PAL per-CLI config files are symlinked from $PAL_GENERATED_DIR/"
+echo "To update these:"
+echo "  1. Edit queen.yml (or local.yml for personal overrides) for model/role settings"
+echo "  2. Re-run this script (or bin/start-beehive, which calls this script)"
+echo "  3. Restart your coding CLIs (or use their internal MCP-related commands if possible) to reconnect to PAL"
+echo ""
+
+echo "────────────────────────────────────────────────────────────────────────────────"
+echo "⚠️ IMPORTANT SECURITY NOTE"
+echo
+echo "CLI subagents spawned via clink run with very permissive flags."
+echo "  • Claude:  --permission-mode acceptEdits"
+echo "  • Codex:   --dangerously-bypass-approvals-and-sandbox"
+echo "  • Gemini:  --yolo"
+echo ""
+echo "This is intentional for automation, especially given subagents are only spawned"
+echo "by user-run agents that they trust. However, be aware:"
+echo ""
+echo "  • Review changes after delegation completes (git diff)"
+echo "  • Don't delegate tasks you wouldn't run yourself"
+echo "  • Instruct agents to run clink-spawned subagents in fresh git worktrees for"
+echo "    maximum isolation"
+echo "────────────────────────────────────────────────────────────────────────────────"
+

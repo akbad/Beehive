@@ -60,3 +60,49 @@ path_to:
 # When true, agents won't prompt for permission before using MCP tools
 mcp:
   auto_approve: no
+
+# PAL clink configuration: controls which models and system prompts are available
+#   when using PAL MCP's clink tool to spawn subagents across coding CLIs
+pal:
+  # Baseline roles made available to ALL coding CLIs
+  #
+  # - Roles are auto-discovered based on the set in agents/role-prompts
+  # - Options (also for per-CLI `extra-roles` settings below):
+  #   - "all" => include all role prompts (note that when this is set, 
+  #     the per-CLI `extra-roles` settings below will have no effect)
+  #   - "none" => include no roles
+  #   - an explicitly-specified list of role prompts, referenced by their file's basename, 
+  #     e.g. `architect` for `agents/role-prompts/architect.md`
+  base-roles: all
+
+  # PAL CLI-specific setting options
+  # IMPORTANT: After changing any of the settings below:
+  #   1. Re-run configs/scripts/set-up-configs.sh (or bin/start-beehive wrapper)
+  #   2. Restart coding CLIs (or if possible, use their MCP-related commands without 
+  #      restarting) to reconnect to PAL
+  claude:
+    # Takes any valid option for Claude's `model` config setting
+    #   (see https://code.claude.com/docs/en/model-config)
+    model: sonnet
+
+    # Extra role prompts (beyond `base-roles` above) to make available to 
+    #   only Claude when called via clink
+    extra-roles: none
+
+  codex:
+    # Takes any valid option for Codex's `model` config setting
+    #   (see https://developers.openai.com/codex/local-config#configuration-options)
+    model: gpt-5.2-codex
+
+    # Takes any valid option for Codex's `model_reasoning_effort` config setting
+    #   (see https://developers.openai.com/codex/local-config#configuration-options)
+    effort: medium
+
+    # Extra role prompts (beyond `base-roles` above) to make available to 
+    #   only Codex when called via clink
+    extra-roles: none
+
+  gemini:
+    # Extra role prompts (beyond `base-roles` above) to make available to 
+    #   only Gemini when called via clink
+    extra-roles: none

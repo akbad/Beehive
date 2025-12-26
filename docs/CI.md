@@ -8,10 +8,7 @@
 
 - Defined in [`.github/workflows/uv-run.yml`](../.github/workflows/uv-run.yml).
 - Handles: checkout, `uv install` and `uv sync`    
-- Caches:
-
-    - **dependencies** (persisted until `uv.lock` changes) 
-    - **Python installation** (persisted until pin in `.python-version` changes)
+- Caches dependencies (persisted until `uv.lock` changes)
 
 - Executes the given command it was launched with after ensuring `uv` environment is set up
 

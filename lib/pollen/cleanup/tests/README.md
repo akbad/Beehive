@@ -71,8 +71,8 @@ Pytest **discovers tests without registration** via naming conventions:
 - Example:
 
     ```python
-    # use _mock_settings and cutoff_datetime fixtures
-    def test_finds_old_items(self, _mock_settings, cutoff_datetime):
+    # use apply_mock_patches and cutoff_datetime fixtures
+    def test_finds_old_items(self, apply_mock_patches, cutoff_datetime):
         handler = ClaudeMemHandler()
         items = handler.get_stale_items(cutoff_datetime)
     ```
@@ -105,7 +105,7 @@ Pytest **discovers tests without registration** via naming conventions:
 | Fixture | Description |
 | :--- | :--- |
 | `sqlite_db` | Empty database with `session_summaries` and `observations` tables (to match `claude-mem`'s schema) |
-| `_sqlite_db_with_data` | Pre-populates database created by `sqlite_db` with one stale and one valid record in both tables |
+| `with_sqlite_data` | Pre-populates database created by `sqlite_db` with one stale and one valid record in both tables |
 
 > [!NOTE]
 > Timestamps use the `Z` suffix format (e.g. `2024-01-01T00:00:00.000Z`), which signifies the UTC timezone, to match claude-mem's JS `toISOString()` output (IS0 8601).
@@ -115,7 +115,7 @@ Pytest **discovers tests without registration** via naming conventions:
 | Fixture | Description |
 | :--- | :--- |
 | `jsonl_file` | Creates empty JSONL file |
-| `jsonl_file_with_data` | Creates 8 entities, covering ID/name collision testing (4 value patterns × 2 fields) plus 1 no-timestamp entity |
+| `with_jsonl_data` | Creates 8 entities, covering ID/name collision testing (4 value patterns × 2 fields) plus 1 no-timestamp entity |
 
 #### Serena directories (for the `serena` handler)
 
@@ -158,7 +158,7 @@ responses_map = {
 | `trash_dir` | Temporary `.wax/trash/` subdirectory |
 | `state_file` | Path to `state.json` (may or may not exist) |
 
-### The `_mock_settings` meta-fixture
+### The `apply_mock_patches` meta-fixture
 
 This fixture is the **central orchestrator** patching all configuration functions to use test-oriented paths (instead of real user paths).
 
@@ -175,21 +175,17 @@ This fixture is the **central orchestrator** patching all configuration function
 
 #### Usage
 
-`_mock_settings` should be added to test functions' params to retrieve isolated test-oriented configs:
+`apply_mock_patches` should be added to test functions' params to retrieve isolated test-oriented configs:
 
 ```python
-def test_something(_mock_settings, _sqlite_db_with_data):
-    # All handlers now use tmp_path-based paths
+def test_something(apply_mock_patches, with_sqlite_data):
+    # All handlers now use temporary, test-specific paths
     handler = ClaudeMemHandler()
     items = handler.get_stale_items(cutoff)
 ```
 
-```
 
-
-## Key testing patterns
-
-### Monkeypatching
+## Note on monkeypatching
 
 The `monkeypatch` fixture (built into pytest) allows temporarily replacing functions during a test.
 
@@ -204,10 +200,9 @@ The `monkeypatch` fixture (built into pytest) allows temporarily replacing funct
 # Correct: patches where the handler imports get_path
 monkeypatch.setattr(
     "lib.pollen.cleanup.handlers.claude_mem.get_path",
-    lambda _: _sqlite_db_with_data
+    lambda _: with_sqlite_data
 )
 
 # Wrong: patches the source module (handler still uses its cached import)
 monkeypatch.setattr("lib.pollen.settings.get_path", ...)
 ```
-

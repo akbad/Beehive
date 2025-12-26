@@ -56,6 +56,65 @@ When set to `yes` or `true`, agents won't prompt for permission before using MCP
 - `yes` or `true` - Enable auto-approval
 - `no` or `false` - Require manual approval (default)
 
+### `pal`
+
+**File:** `queen.yml`
+
+Configures the PAL MCP server's `clink` tool, which spawns subagents across different coding CLIs (Claude, Codex, Gemini). These settings control which models are used and which role prompts are available.
+
+> [!IMPORTANT]
+> After changing any `pal` settings:
+> 
+> 1. Regenerate configs by running:
+>    ```bash
+>    ./configs/scripts/set-up-configs.sh
+>    ```
+> 2. Restart coding CLIs (or use their MCP-related commands to reconnect to PAL).
+
+#### `pal.base-roles`
+
+Baseline set of role prompts made available to ALL coding CLIs.
+
+```yaml
+pal:
+  base-roles: all    # options: "all", "none", or list of role names
+```
+
+**Values** *(these also apply to `extra-roles` below)*:
+- `all` - All discovered roles from `agents/role-prompts/`
+- `none` - No roles (except the default role)
+- `[list]` - Explicit list of role names corresponding to filestems in `agents/role-prompts/` (e.g., `[architect, debugger]`)
+
+#### Per-CLI settings (`pal.<claude|codex|gemini>`)
+
+Each CLI has its own configuration block with model and role settings.
+
+The options (with their default values) are shown below:
+
+**Claude:**
+```yaml
+pal:
+  claude:
+    model: sonnet      # Any valid Claude model
+    extra-roles: none  # Extra roles beyond base-roles to include for Claude
+```
+
+**Codex:**
+```yaml
+pal:
+  codex:
+    model: gpt-5.2-codex   # Any valid Codex model
+    effort: medium         # Options: minimal, low, medium, high, xhigh
+    extra-roles: none      # Extra roles beyond base-roles to include for Codex
+```
+
+**Gemini:**
+```yaml
+pal:
+  gemini:
+    extra-roles: none  # Extra roles beyond base-roles to include for Gemini
+```
+
 ### `retention_period_for`
 
 **File:** `queen.yml`
@@ -271,6 +330,27 @@ For example, if port `8780` (the default Qdrant DB listening port) is already in
 port_for:
   qdrant_db: 9780
 ```
+
+## Security note for subagents spawned via PAL MCP's `clink`
+
+When you delegate tasks via `clink`, the spawned CLI (Claude, Codex, or Gemini) runs with flags that bypass interactive approvals:
+
+| CLI    | Flag                                         | Effect                        |
+|:-------|:---------------------------------------------|:------------------------------|
+| Claude | `--permission-mode acceptEdits`              | Auto-accepts file edits       |
+| Codex  | `--dangerously-bypass-approvals-and-sandbox` | Bypasses all safety checks    |
+| Gemini | `--yolo`                                     | Permissive mode (auto-approve)|
+
+**This is intentional:** 
+
+- Subagents are spawned programmatically (whether autonomously or via explicit prompting) by a parent agent that already has your trust. 
+- Requiring interactive approval for each subagent action would break the automation flow—the whole point of delegation is autonomous execution.
+
+### Solutions
+
+Stash/commit changes before delegating complex tasks. If you need stronger isolation, direct agents to run `clink`-spawned agents in worktrees with fresh branches, merging the subsequent changes only if they're approved by you.
+
+Also, don't delegate commands you wouldn't run yourself; the parent agent's judgment is only as strong as yours.
 
 ## Related commands
 

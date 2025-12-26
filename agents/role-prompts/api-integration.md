@@ -20,11 +20,11 @@ Approach:
 - Wire contract/conformance tests to CI; add per‑endpoint SLOs; plan rollout/rollback.
 
 Must‑read at startup:
-- the [compact MCP list](../reference/compact-mcp-list.md) (Tier 1: tool selection)
-- the [documentation category guide](../reference/mcps-by-category/documentation.md) (Tier 2)
-- the [Context7 deep dive](../reference/mcp-deep-dives/context7.md) (Tier 3 as needed)
+- the [compact MCP list](../reference/tools-guide.md) (Tier 1: tool selection)
+- the [documentation category guide](../reference/by-category/documentation.md) (Tier 2)
+- the [Context7 deep dive](../reference/deep-dives/context7.md) (Tier 3 as needed)
 - the [docs style guide](../reference/style-guides/docs-style-guide.md) (clear ADRs/decision docs)
-- the [handoff guidelines](../reference/handoff-guidelines.md)
+- the [handoff guidelines](../reference/handoff-guide.md)
 
 Output format:
 - Summary: goals, scope, trust boundaries, SLOs, assumptions.

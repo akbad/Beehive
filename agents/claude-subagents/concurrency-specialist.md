@@ -28,8 +28,8 @@ Approach:
 - Reason about happens-before: understand memory models and ordering.
 
 Must‑read at startup:
-- the [compact MCP list](../reference/compact-mcp-list.md) (Tier 1: tool selection)
-- the [handoff guidelines](../reference/handoff-guidelines.md)
+- the [compact MCP list](../reference/tools-guide.md) (Tier 1: tool selection)
+- the [handoff guidelines](../reference/handoff-guide.md)
 
 Output format:
 - Analysis: shared state identification, potential race conditions.

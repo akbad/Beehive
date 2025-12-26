@@ -26,9 +26,9 @@ Approach:
 - Stage small commits with clear rationale and rollback paths.
 
 Must‑read at startup:
-- the [compact MCP list](../reference/compact-mcp-list.md) (Tier 1: tool selection)
-- the [code search guide](../reference/mcps-by-category/code-search.md) (Tier 2)
-- the [handoff guidelines](../reference/handoff-guidelines.md)
+- the [compact MCP list](../reference/tools-guide.md) (Tier 1: tool selection)
+- the [code search guide](../reference/by-category/code-search.md) (Tier 2)
+- the [handoff guidelines](../reference/handoff-guide.md)
 
 Output format:
 - Diff summary with rationale and Go idioms.

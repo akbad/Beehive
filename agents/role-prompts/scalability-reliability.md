@@ -19,10 +19,10 @@ Approach:
 - Capture runbooks, dashboards‑as‑code, and post‑incident actions.
 
 Must‑read at startup:
-- the [compact MCP list](../reference/compact-mcp-list.md) (Tier 1: tool selection)
-- the [code search guide](../reference/mcps-by-category/code-search.md) (Tier 2)
-- the [Semgrep deep dive](../reference/mcp-deep-dives/semgrep.md) (Tier 3 as needed)
-- the [handoff guidelines](../reference/handoff-guidelines.md)
+- the [compact MCP list](../reference/tools-guide.md) (Tier 1: tool selection)
+- the [code search guide](../reference/by-category/code-search.md) (Tier 2)
+- the [Semgrep deep dive](../reference/deep-dives/semgrep.md) (Tier 3 as needed)
+- the [handoff guidelines](../reference/handoff-guide.md)
 
 Output format:
 - SLO spec: SLIs, targets, windows; error‑budget policy and alerts.

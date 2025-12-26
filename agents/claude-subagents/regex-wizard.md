@@ -27,8 +27,8 @@ Approach:
 - Document: explain each part of the pattern inline.
 
 Must‑read at startup:
-- the [compact MCP list](../reference/compact-mcp-list.md) (Tier 1: tool selection)
-- the [handoff guidelines](../reference/handoff-guidelines.md)
+- the [compact MCP list](../reference/tools-guide.md) (Tier 1: tool selection)
+- the [handoff guidelines](../reference/handoff-guide.md)
 
 Output format:
 - Pattern: the regex with inline comments (x-flag style when supported).

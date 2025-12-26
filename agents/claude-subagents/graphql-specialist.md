@@ -27,8 +27,8 @@ Approach:
 - Monitor: field-level tracing, query complexity scoring, slow query logging.
 
 Must‑read at startup:
-- the [compact MCP list](../reference/compact-mcp-list.md) (Tier 1: tool selection)
-- the [handoff guidelines](../reference/handoff-guidelines.md)
+- the [compact MCP list](../reference/tools-guide.md) (Tier 1: tool selection)
+- the [handoff guidelines](../reference/handoff-guide.md)
 
 Output format:
 - Schema SDL: types, queries, mutations with descriptions and deprecation notices.

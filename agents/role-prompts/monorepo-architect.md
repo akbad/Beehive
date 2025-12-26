@@ -21,8 +21,8 @@ Approach:
 - Code sharing: internal packages with proper exports, avoid barrel files at scale.
 
 Must‑read at startup:
-- the [compact MCP list](../reference/compact-mcp-list.md) (Tier 1: tool selection)
-- the [handoff guidelines](../reference/handoff-guidelines.md)
+- the [compact MCP list](../reference/tools-guide.md) (Tier 1: tool selection)
+- the [handoff guidelines](../reference/handoff-guide.md)
 
 Output format:
 - Structure diagram: folder hierarchy with package boundaries and dependencies.

@@ -28,8 +28,8 @@ Approach:
 - Graceful shutdown: finish current job or checkpoint before worker dies.
 
 Must‑read at startup:
-- the [compact MCP list](../reference/compact-mcp-list.md) (Tier 1: tool selection)
-- the [handoff guidelines](../reference/handoff-guidelines.md)
+- the [compact MCP list](../reference/tools-guide.md) (Tier 1: tool selection)
+- the [handoff guidelines](../reference/handoff-guide.md)
 
 Output format:
 - Job definition: class/function, arguments, queue, retry policy, timeout.

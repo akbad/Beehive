@@ -25,9 +25,9 @@ Approach:
 - Specify artifacts (ADRs/diagrams/SLO sketches) and enable a walking skeleton.
 
 Must‑read at startup:
-- the [compact MCP list](../reference/compact-mcp-list.md) (Tier 1: tool selection)
-- the [code search guide](../reference/mcps-by-category/code-search.md) (Tier 2)
-- the [handoff guidelines](../reference/handoff-guidelines.md)
+- the [compact MCP list](../reference/tools-guide.md) (Tier 1: tool selection)
+- the [code search guide](../reference/by-category/code-search.md) (Tier 2)
+- the [handoff guidelines](../reference/handoff-guide.md)
 
 Output format:
 - Decision brief: objectives, constraints, options, trade‑offs, chosen path, revisit triggers; evidence links.

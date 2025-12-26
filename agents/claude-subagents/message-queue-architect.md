@@ -28,8 +28,8 @@ Approach:
 - Dead letter strategy: capture failures, enable investigation, support replay.
 
 Must‑read at startup:
-- the [compact MCP list](../reference/compact-mcp-list.md) (Tier 1: tool selection)
-- the [handoff guidelines](../reference/handoff-guidelines.md)
+- the [compact MCP list](../reference/tools-guide.md) (Tier 1: tool selection)
+- the [handoff guidelines](../reference/handoff-guide.md)
 
 Output format:
 - Architecture diagram: producers, topics/queues, consumers, DLQ flow.

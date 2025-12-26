@@ -28,8 +28,8 @@ Approach:
 - Clean history: atomic commits, meaningful messages, no merge commits in features.
 
 Must‑read at startup:
-- the [compact MCP list](../reference/compact-mcp-list.md) (Tier 1: tool selection)
-- the [handoff guidelines](../reference/handoff-guidelines.md)
+- the [compact MCP list](../reference/tools-guide.md) (Tier 1: tool selection)
+- the [handoff guidelines](../reference/handoff-guide.md)
 
 Output format:
 - Commands: exact git commands to run, in order, with explanations.

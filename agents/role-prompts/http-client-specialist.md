@@ -22,8 +22,8 @@ Approach:
 - Test failure modes: simulate timeouts, 5xx errors, connection refused.
 
 Must‑read at startup:
-- the [compact MCP list](../reference/compact-mcp-list.md) (Tier 1: tool selection)
-- the [handoff guidelines](../reference/handoff-guidelines.md)
+- the [compact MCP list](../reference/tools-guide.md) (Tier 1: tool selection)
+- the [handoff guidelines](../reference/handoff-guide.md)
 
 Output format:
 - Client configuration: timeouts, pool sizes, retry policy, circuit breaker settings.

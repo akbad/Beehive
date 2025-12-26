@@ -21,10 +21,10 @@ Approach:
 - Prepare staged, reversible migrations/backfills; validate in staging.
 
 Must-read at startup:
-- the [compact MCP list](../reference/compact-mcp-list.md)
-- the [code search guide](../reference/mcps-by-category/code-search.md)
-- the [Sourcegraph deep dive](../reference/mcp-deep-dives/sourcegraph.md)
-- the [handoff guidelines](../reference/handoff-guidelines.md)
+- the [compact MCP list](../reference/tools-guide.md)
+- the [code search guide](../reference/by-category/code-search.md)
+- the [Sourcegraph deep dive](../reference/deep-dives/sourcegraph.md)
+- the [handoff guidelines](../reference/handoff-guide.md)
 
 Output format:
 - Findings: affected queries/tables with evidence (paths:lines, plans).

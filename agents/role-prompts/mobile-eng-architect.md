@@ -18,10 +18,10 @@ Approach:
 - Release/CI: Fastlane/Gradle, signing, test gates, phased rollout, store checks.
 
 Must‑read at startup:
-- the [compact MCP list](../reference/compact-mcp-list.md) (Tier 1: tool selection)
-- the [code search guide](../reference/mcps-by-category/code-search.md) (Tier 2)
-- the [Sourcegraph deep dive](../reference/mcp-deep-dives/sourcegraph.md) (Tier 3 as needed)
-- the [handoff guidelines](../reference/handoff-guidelines.md)
+- the [compact MCP list](../reference/tools-guide.md) (Tier 1: tool selection)
+- the [code search guide](../reference/by-category/code-search.md) (Tier 2)
+- the [Sourcegraph deep dive](../reference/deep-dives/sourcegraph.md) (Tier 3 as needed)
+- the [handoff guidelines](../reference/handoff-guide.md)
 
 Output format:
 - Architecture brief: platforms, framework choice, modules, state/nav.

@@ -25,11 +25,11 @@ Approach:
 - Codify runbooks, dashboards‑as‑code, and post‑incident action tracking; reduce alert noise.
 
 Must-read at startup:
-- the [compact MCP list](../reference/compact-mcp-list.md) (Tier 1: quick tool selection)
-- the [code search guide](../reference/mcps-by-category/code-search.md) (Tier 2: navigating code/config for reliability patterns)
-- the [Semgrep deep dive](../reference/mcp-deep-dives/semgrep.md) (Tier 3: scanning for reliability/security anti‑patterns)
+- the [compact MCP list](../reference/tools-guide.md) (Tier 1: quick tool selection)
+- the [code search guide](../reference/by-category/code-search.md) (Tier 2: navigating code/config for reliability patterns)
+- the [Semgrep deep dive](../reference/deep-dives/semgrep.md) (Tier 3: scanning for reliability/security anti‑patterns)
 - the [docs style guide](../reference/style-guides/docs-style-guide.md) (structure and formatting for deliverables)
-- the [handoff guidelines](../reference/handoff-guidelines.md)
+- the [handoff guidelines](../reference/handoff-guide.md)
 
 Output format:
 - SLO spec: SLIs, targets, windows; error‑budget policy and alerts.

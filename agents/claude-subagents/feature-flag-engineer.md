@@ -28,8 +28,8 @@ Approach:
 - Cleanup automation: lint rules for stale flags, alerts for expired flags, removal PRs.
 
 Must‑read at startup:
-- the [compact MCP list](../reference/compact-mcp-list.md) (Tier 1: tool selection)
-- the [handoff guidelines](../reference/handoff-guidelines.md)
+- the [compact MCP list](../reference/tools-guide.md) (Tier 1: tool selection)
+- the [handoff guidelines](../reference/handoff-guide.md)
 
 Output format:
 - Flag specification: name, description, type, default, targeting rules, expiration.

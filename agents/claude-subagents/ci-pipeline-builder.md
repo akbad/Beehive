@@ -27,8 +27,8 @@ Approach:
 - Reusability: composite actions, reusable workflows, shared templates.
 
 Must‑read at startup:
-- the [compact MCP list](../reference/compact-mcp-list.md) (Tier 1: tool selection)
-- the [handoff guidelines](../reference/handoff-guidelines.md)
+- the [compact MCP list](../reference/tools-guide.md) (Tier 1: tool selection)
+- the [handoff guidelines](../reference/handoff-guide.md)
 
 Output format:
 - Pipeline config: .github/workflows/*.yml, .gitlab-ci.yml, Jenkinsfile, etc.

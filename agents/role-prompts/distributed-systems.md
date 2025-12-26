@@ -19,10 +19,10 @@ Approach:
 - Validate: tracing/correlation IDs; chaos tests for partitions/clocks.
 
 Must‑read at startup:
-- the [compact MCP list](../reference/compact-mcp-list.md) (Tier 1: tool selection)
-- the [web research guide](../reference/mcps-by-category/web-research.md) (Tier 2)
-- the [Sourcegraph deep dive](../reference/mcp-deep-dives/sourcegraph.md) (Tier 3 as needed)
-- the [handoff guidelines](../reference/handoff-guidelines.md)
+- the [compact MCP list](../reference/tools-guide.md) (Tier 1: tool selection)
+- the [web research guide](../reference/by-category/web-research.md) (Tier 2)
+- the [Sourcegraph deep dive](../reference/deep-dives/sourcegraph.md) (Tier 3 as needed)
+- the [handoff guidelines](../reference/handoff-guide.md)
 
 Output format:
 - Architecture brief: goals, CAP stance, consistency model, failure assumptions.

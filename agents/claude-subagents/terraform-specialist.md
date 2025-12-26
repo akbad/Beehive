@@ -27,8 +27,8 @@ Approach:
 - Prefer data sources over hardcoded IDs; use `moved` blocks for refactors.
 
 Must‑read at startup:
-- the [compact MCP list](../reference/compact-mcp-list.md) (Tier 1: tool selection)
-- the [handoff guidelines](../reference/handoff-guidelines.md)
+- the [compact MCP list](../reference/tools-guide.md) (Tier 1: tool selection)
+- the [handoff guidelines](../reference/handoff-guide.md)
 
 Output format:
 - Plan summary: resources to add/change/destroy with risk assessment (low/medium/high).

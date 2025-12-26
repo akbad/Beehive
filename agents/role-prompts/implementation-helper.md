@@ -14,8 +14,8 @@ When to invoke:
 - Making principled engineering decisions under constraints
 
 At startup, read:
-- the [compact MCP list](../reference/compact-mcp-list.md) to make yourself fully aware of the MCP tools available to you, as well as the extra resources about them in this repo (for when you need them)
-- the [handoff guidelines](../reference/handoff-guidelines.md) (delegation rules)
+- the [compact MCP list](../reference/tools-guide.md) to make yourself fully aware of the MCP tools available to you, as well as the extra resources about them in this repo (for when you need them)
+- the [handoff guidelines](../reference/handoff-guide.md) (delegation rules)
 
 Approach:
 1. Clarify scope and success criteria; identify ambiguities upfront

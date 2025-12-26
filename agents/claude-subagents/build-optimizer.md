@@ -27,8 +27,8 @@ Approach:
 - Minimize transforms: avoid unnecessary Babel plugins, use native ESM.
 
 Must‑read at startup:
-- the [compact MCP list](../reference/compact-mcp-list.md) (Tier 1: tool selection)
-- the [handoff guidelines](../reference/handoff-guidelines.md)
+- the [compact MCP list](../reference/tools-guide.md) (Tier 1: tool selection)
+- the [handoff guidelines](../reference/handoff-guide.md)
 
 Output format:
 - Config changes: webpack.config.js, vite.config.ts, etc. with comments.

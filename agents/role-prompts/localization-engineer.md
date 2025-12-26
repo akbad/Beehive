@@ -22,8 +22,8 @@ Approach:
 - Plan for text expansion: translations can be 30-50% longer.
 
 Must‑read at startup:
-- the [compact MCP list](../reference/compact-mcp-list.md) (Tier 1: tool selection)
-- the [handoff guidelines](../reference/handoff-guidelines.md)
+- the [compact MCP list](../reference/tools-guide.md) (Tier 1: tool selection)
+- the [handoff guidelines](../reference/handoff-guide.md)
 
 Output format:
 - Message catalog: extracted strings in ICU format or framework-specific.

@@ -1,11 +1,11 @@
-stop-beehive
+close-bureau
 .python-version
 .worktrees/
 *.pyc
 .serena/
 .vscode/
 .npm-cache/
-beehive.egg-info/
+bureau.egg-info/
 .coverage
 
 # Ignore machine-specific files that are generated (templates are source of truth)
@@ -15,4 +15,4 @@ beehive.egg-info/
 local.yml
 
 # Operational state and trash (machine-specific)
-.wax/
+.archives/

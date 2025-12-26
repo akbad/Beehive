@@ -1,9 +1,9 @@
 .PHONY: test typecheck ci
 
 test:
-	uv run pytest lib/pollen/cleanup/tests/ -v
+	uv run pytest operations/cleanup/tests/ -v
 
 typecheck:
-	uv run mypy lib/pollen --ignore-missing-imports
+	uv run mypy operations --ignore-missing-imports
 
 ci: test typecheck

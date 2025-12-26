@@ -1,5 +1,5 @@
 [project]
-name = "beehive"
+name = "bureau"
 version = "0.1.0"
 description = "Multi-agent AI orchestration framework"
 requires-python = ">=3.12"
@@ -8,16 +8,16 @@ dependencies = [
 ]
 
 [project.scripts]
-get-config = "lib.pollen.config_cli:main"
-sweep-hive = "lib.pollen.cleanup.core:main"
-validate-config = "lib.pollen.validate_config:main"
+get-config = "operations.config_cli:main"
+sweep = "operations.cleanup.core:main"
+validate-config = "operations.validate_config:main"
 
 [tool.uv]
 package = true
 
 [tool.setuptools.packages.find]
 where = ["."]
-include = ["lib*"]
+include = ["operations*"]
 
 [dependency-groups]
 dev = [
@@ -31,5 +31,5 @@ dev = [
 ]
 
 [tool.pytest.ini_options]
-testpaths = ["lib/pollen/cleanup/tests"]
+testpaths = ["operations/cleanup/tests"]
 pythonpath = ["."]

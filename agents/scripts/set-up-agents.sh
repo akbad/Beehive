@@ -25,9 +25,9 @@ source "$REPO_ROOT/bin/lib/agent-selection.sh"
 discover_agents
 
 # Subdirectory name for symlinked agents
-AGENTS_SUBDIR="bees"
+AGENTS_SUBDIR="bureau-agents"
 
-echo -e "${GREEN}Setting up Beehive agents (\"bees\")${NC}"
+echo -e "${GREEN}Setting up Bureau agents${NC}"
 echo -e "Repo root: $REPO_ROOT"
 echo -e "Selected agents: ${AGENTS[*]}"
 echo ""
@@ -67,7 +67,7 @@ if [[ ${#AGENTS[@]} -gt 0 ]]; then
     # Symlink role prompts folder
     if [[ -L ~/.pal/cli_clients/systemprompts/$AGENTS_SUBDIR ]]; then
         rm ~/.pal/cli_clients/systemprompts/$AGENTS_SUBDIR
-        print_success "Removed existing Beehive symlink at ~/.pal/cli_clients/systemprompts/$AGENTS_SUBDIR (to ensure consistency after any reconfiguration)"
+        print_success "Removed existing Bureau symlink at ~/.pal/cli_clients/systemprompts/$AGENTS_SUBDIR (to ensure consistency after any reconfiguration)"
     fi
     ln -s "$AGENTS_DIR/$CLINK_AGENTS_DIRNAME" ~/.pal/cli_clients/systemprompts/$AGENTS_SUBDIR
     print_success "Symlinked role prompts (for use with clink) to ~/.pal/cli_clients/systemprompts/$AGENTS_SUBDIR"
@@ -84,7 +84,7 @@ if agent_enabled "Claude Code"; then
     # Symlink Claude subagents folder
     if [[ -L ~/.claude/agents/$AGENTS_SUBDIR ]]; then
         rm ~/.claude/agents/$AGENTS_SUBDIR
-        print_success "Removed existing Beehive symlink at ~/.claude/agents/$AGENTS_SUBDIR (to ensure consistency after any reconfiguration)"
+        print_success "Removed existing Bureau symlink at ~/.claude/agents/$AGENTS_SUBDIR (to ensure consistency after any reconfiguration)"
     fi
     mkdir -p ~/.claude/agents
     print_success "Ensured/created ~/.claude/agents directory"
@@ -124,9 +124,9 @@ if agent_enabled "Gemini CLI"; then
     echo ""
 fi
 
-# OpenCode agents (register Beehive prompts as subagents)
+# OpenCode agents (register Bureau prompts as subagents)
 if agent_enabled "OpenCode"; then
-    print_step "Registering Beehive agents for OpenCode"
+    print_step "Registering Bureau agents for OpenCode"
     TARGET_OC="$HOME/.config/opencode/opencode.json"
     mkdir -p "$(dirname "$TARGET_OC")"
     # Ensure file exists
@@ -141,7 +141,7 @@ if agent_enabled "OpenCode"; then
         print_success "Removed old symlink at $OPEN_AGENT_DIR"
     fi
     ln -s "$AGENTS_DIR/$CLINK_AGENTS_DIRNAME" "$OPEN_AGENT_DIR"
-    print_success "Symlinked Beehive role prompts to $OPEN_AGENT_DIR"
+    print_success "Symlinked Bureau role prompts to $OPEN_AGENT_DIR"
 
     for prompt_file in "$AGENTS_DIR/$CLINK_AGENTS_DIRNAME"/*.md; do
         role_name="$(basename "$prompt_file" .md)"
@@ -150,7 +150,7 @@ if agent_enabled "OpenCode"; then
         jq \
           --arg name "$role_name" \
           --arg prompt "{file:$prompt_path}" \
-          --arg desc "Beehive agent: $role_name" \
+          --arg desc "Bureau agent: $role_name" \
           '
           .agent = (.agent // {})
           | if (.agent[$name] == null) then
@@ -173,7 +173,7 @@ fi
 echo -e "${GREEN}✓ Agent setup complete!${NC}"
 echo ""
 echo "Next steps:"
-echo "  1. Run the configs setup script: configs/scripts/set-up-configs.sh"
+echo "  1. Run the configs setup script: protocols/scripts/set-up-configs.sh"
 echo "  2. Restart PAL MCP server to reload clink configs"
 echo "  3. Verify Claude Code agents with: claude (then run /agents)"
 echo "  4. Install claude-mem plugin:"

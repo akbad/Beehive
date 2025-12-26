@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# Tools setup script for Beehive (for MCP servers, backing Docker containers, etc.)
+# Tools setup script for Bureau (for MCP servers, backing Docker containers, etc.)
 #
 # Prerequisites:
 #   Required:
@@ -55,7 +55,7 @@ set -e  # exit on error
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 
-# Helper to read from merged config (merge order: comb.yml → queen.yml → local.yml → env)
+# Helper to read from merged config (merge order: charter.yml → directives.yml → local.yml → env)
 cfg() {
     local key="$1"
     (cd "$REPO_ROOT" && uv run get-config "$key" 2>/dev/null) || true
@@ -134,7 +134,7 @@ CODEX_CONFIG="$HOME/.codex/config.toml"
 CLAUDE_CONFIG="$HOME/.claude/settings.json"
 CLAUDE_CLI_STATE="$HOME/.claude.json"
 
-# Contains the list of agents to be configured by this script to use Beehive and its tools;
+# Contains the list of agents to be configured by this script to use Bureau and its tools;
 # Populated by discover_agents(); agentic CLIs above are added if their corresponding 
 #   user-level config dir exists
 AGENTS=()
@@ -1060,8 +1060,8 @@ fi
 if agent_enabled "OpenCode"; then
     log_separator
     log_info "Syncing OpenCode MCP config"
-    TEMPLATE_OC="$REPO_ROOT/configs/config/templates/opencode.json"
-    GENERATED_OC="$REPO_ROOT/configs/config/generated/opencode.generated.json"
+    TEMPLATE_OC="$REPO_ROOT/protocols/config/templates/opencode.json"
+    GENERATED_OC="$REPO_ROOT/protocols/config/generated/opencode.generated.json"
     TARGET_OC="$HOME/.config/opencode/opencode.json"
 
     if [[ -f "$TEMPLATE_OC" ]]; then
@@ -1118,9 +1118,9 @@ log_info "To stop Qdrant Docker container:"
 log_info "  $QDRANT_STOP_CMD"
 
 log_empty_line
-TAKE_DOWN_FILE="$REPO_ROOT/bin/stop-beehive"
+TAKE_DOWN_FILE="$REPO_ROOT/bin/close-bureau"
 echo "#!/usr/bin/env bash" > "$TAKE_DOWN_FILE"
-echo -e "# Run this script to stop servers and containers launched by Beehive's tools script\n" >> "$TAKE_DOWN_FILE"
+echo -e "# Run this script to stop servers and containers launched by Bureau's tools script\n" >> "$TAKE_DOWN_FILE"
 echo -e "$KILL_HTTPS_CMD\n$QDRANT_STOP_CMD" >> "$TAKE_DOWN_FILE"
 log_info "✔︎ Stop commands also saved to $RED$TAKE_DOWN_FILE$NC for convenience"
 

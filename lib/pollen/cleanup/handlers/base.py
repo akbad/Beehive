@@ -3,7 +3,7 @@ from abc import ABC, abstractmethod
 from datetime import datetime, timedelta, timezone
 from typing import Any
 
-from ...config_loader import Config, parse_duration, get_retention
+from ...config_loader import parse_duration, get_retention
 
 
 class CleanupHandler(ABC):

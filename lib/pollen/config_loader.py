@@ -16,7 +16,7 @@ import re
 from datetime import timedelta
 from functools import lru_cache
 from pathlib import Path
-from typing import Any, TypedDict
+from typing import Any, TypedDict, cast
 
 import yaml
 
@@ -276,7 +276,7 @@ def get_retention(storage_name: str) -> str:
     config = get_config()
     # Normalize: claude-mem -> claude_mem
     key = storage_name.replace("-", "_")
-    return config.get("retention_period_for", {}).get(key, "30d")
+    return cast(str, config.get("retention_period_for", {}).get(key, "30d"))
 
 
 def get_trash_grace_period() -> str:
@@ -301,7 +301,7 @@ def get_path(path_name: str) -> Path:
         Expanded Path object.
     """
     config = get_config()
-    path_str = config.get("path_to", {}).get(path_name, "")
+    path_str = cast(str, config.get("path_to", {}).get(path_name, ""))
     return expand_path(path_str) if path_str else Path()
 
 
@@ -315,7 +315,7 @@ def get_storage(storage_name: str) -> Path:
         Expanded Path object.
     """
     config = get_config()
-    path_str = config.get("path_to", {}).get("storage_for", {}).get(storage_name, "")
+    path_str = cast(str, config.get("path_to", {}).get("storage_for", {}).get(storage_name, ""))
     return expand_path(path_str) if path_str else Path()
 
 
@@ -350,7 +350,7 @@ def get_trash_dir() -> Path:
 def get_qdrant_url() -> str:
     """Get Qdrant server URL."""
     config = get_config()
-    return config.get("path_to", {}).get("qdrant_url", "http://127.0.0.1:8780")
+    return cast(str, config.get("path_to", {}).get("qdrant_url", "http://127.0.0.1:8780"))
 
 
 def get_qdrant_collection() -> str:

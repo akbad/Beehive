@@ -54,13 +54,13 @@ def run_cleanup(
     handlers_to_run = HANDLERS
     if memory_backends:
         requested = {s.replace("-", "_") for s in memory_backends}
-        handlers_to_run = [h for h in HANDLERS if h.name.replace("-", "_") in requested]
+        handlers_to_run = tuple(h for h in HANDLERS if h.name.replace("-", "_") in requested)  # type: ignore[assignment]
         if not handlers_to_run:
             return {"error": f"Unknown storage: {', '.join(memory_backends)}", "errors": errors}
 
     # run cleanup for each handler in the list (i.e. each memory backend selected)
     for handler_class in handlers_to_run:
-        handler = handler_class(_config)
+        handler = handler_class()
         retention = get_retention(handler.name)
 
         if verbose:
@@ -161,7 +161,7 @@ def wipe_memory_backends(
             })
             continue
 
-        handler = handler_class(config)
+        handler = handler_class()
 
         if verbose:
             print(f"Wiping {handler.name}...")

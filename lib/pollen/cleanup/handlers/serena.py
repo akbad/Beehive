@@ -23,7 +23,7 @@ class SerenaHandler(CleanupHandler):
         Skips directories reached via symlinks to avoid scanning
         unintended locations outside the projects directory.
         """
-        serena_dirs = []
+        serena_dirs: list[Path] = []
         projects_dir = self._get_projects_dir()
 
         if not projects_dir.exists():
@@ -123,7 +123,7 @@ class SerenaHandler(CleanupHandler):
             backup_path = self.export_items_to_trash(items, "wipe")
         else:
             for item in items:
-                item["path"].unlink()
+                Path(str(item["path"])).unlink()
 
         result: dict[str, Any] = {"storage": self.name, "wiped": len(items)}
         if backup_path:

@@ -7,12 +7,12 @@ from .memory_mcp import MemoryMcpHandler
 
 
 # register memory backends' handler classes
-HANDLERS = [
+HANDLERS = (
     ClaudeMemHandler,
     SerenaHandler,
     QdrantHandler,
     MemoryMcpHandler,
-]
+)
 
 
 __all__ = [

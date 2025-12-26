@@ -49,8 +49,7 @@ class QdrantHandler(CleanupHandler):
             return []
 
         items = []
-        cutoff_str = cutoff.isoformat()
-        offset = 0
+        offset: int | None = 0
 
         while True:
             # scroll through all points using offset (starting ID to read points from)

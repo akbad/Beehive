@@ -37,7 +37,7 @@ class TestLoadState:
         """Loads state from existing file."""
         state_file.write_text(json.dumps({
             "last_cleanup_run": "2024-01-15T12:00:00+00:00",
-            "custom_key": "value",
+            "last_trash_empty": "2024-01-14T10:00:00+00:00",
         }))
         monkeypatch.setattr(
             "lib.pollen.cleanup.state.STATE_PATH",
@@ -47,7 +47,7 @@ class TestLoadState:
         state = load_state()
 
         assert state["last_cleanup_run"] == "2024-01-15T12:00:00+00:00"
-        assert state["custom_key"] == "value"
+        assert state["last_trash_empty"] == "2024-01-14T10:00:00+00:00"
 
     def test_returns_empty_dict_on_corrupt_json(
         self,

@@ -35,7 +35,7 @@ Tools for automating browser interactions, testing web applications, and extract
 **Configuration:** stdio transport only
 
 **Links:**
-- [Playwright deep dive](../mcp-deep-dives/playwright.md)
+- [Playwright deep dive](../deep-dives/playwright.md)
 - [Full decision guide](../../../tools/tools-decision-guide.md)
 
 ## Decision Tree

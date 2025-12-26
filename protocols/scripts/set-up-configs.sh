@@ -16,9 +16,12 @@ TEMPLATES_DIRNAME="templates"
 GENERATED_DIRNAME="generated"
 
 # Retrieve absolute paths
-CONFIGS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"  # beehive/configs dir
-REPO_ROOT="$(cd "$CONFIGS_DIR/.." && pwd)"                                     
-CONTEXT_TEMPLATES="$(cd "$CONFIGS_DIR/$CONTEXT_DIRNAME/$TEMPLATES_DIRNAME/" && pwd)" 
+CONFIGS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"  # protocols dir
+REPO_ROOT="$(cd "$CONFIGS_DIR/.." && pwd)"
+CONTEXT_TEMPLATES="$(cd "$CONFIGS_DIR/$CONTEXT_DIRNAME/$TEMPLATES_DIRNAME/" && pwd)"
+
+# Create generated directory if it doesn't exist
+mkdir -p "$CONFIGS_DIR/$CONTEXT_DIRNAME/$GENERATED_DIRNAME"
 CONTEXT_GENERATED="$(cd "$CONFIGS_DIR/$CONTEXT_DIRNAME/$GENERATED_DIRNAME/" && pwd)"                                     
 
 # Source agent selection library
@@ -175,11 +178,11 @@ echo ""
 # ============================================================================
 print_step "Generating PAL per-CLI config files (used when coding CLIs are called via clink)"
 
-PAL_GENERATED_DIR="$REPO_ROOT/configs/pal/generated"
+PAL_GENERATED_DIR="$REPO_ROOT/protocols/pal/generated"
 PAL_CLI_CLIENTS_DIR="$HOME/.pal/cli_clients"
 
 # Generate PAL CLI configs from settings.yaml (auto-discovers roles from agents/role-prompts/)
-if uv run python "$REPO_ROOT/configs/scripts/generate-pal-configs.py"; then
+if uv run python "$REPO_ROOT/protocols/scripts/generate-pal-configs.py"; then
     print_success "PAL per-CLI config files generated in $PAL_GENERATED_DIR"
 else
     print_warning "Failed to generate PAL per-CLI config files - using existing files"
@@ -212,8 +215,8 @@ fi
 echo ""
 echo "PAL per-CLI config files are symlinked from $PAL_GENERATED_DIR/"
 echo "To update these:"
-echo "  1. Edit queen.yml (or local.yml for personal overrides) for model/role settings"
-echo "  2. Re-run this script (or bin/start-beehive, which calls this script)"
+echo "  1. Edit directives.yml (or local.yml for personal overrides) for model/role settings"
+echo "  2. Re-run this script (or bin/open-bureau, which calls this script)"
 echo "  3. Restart your coding CLIs (or use their internal MCP-related commands if possible) to reconnect to PAL"
 echo ""
 

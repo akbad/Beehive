@@ -176,5 +176,5 @@ Official API docs?
 
 ## Links to deep dives
 
-- [Context7: *full guide*](../mcp-deep-dives/context7.md)
+- [Context7: *full guide*](../deep-dives/context7.md)
 

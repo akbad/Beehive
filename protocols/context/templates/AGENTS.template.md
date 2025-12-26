@@ -1,14 +1,14 @@
-# Global context (always read first)
+# Global context for Gemini CLI & Codex (always read first)
 
 ## MUST-READ FILES
 
-You ***must* read these essential files** using the Read tool:
+You ***must* read these essential files** using the appropriate read tool:
 - before starting any task
 - at the beginning of any conversation
 
-### [MCP tools available: quick reference]({{REPO_ROOT}}/agents/reference/compact-mcp-list.md)
+### [MCP tools available: quick reference]({{REPO_ROOT}}/protocols/context/guides/tools-guide.md)
 
-> **Read**: `@{{REPO_ROOT}}/agents/reference/compact-mcp-list.md`
+> **Read**: `@{{REPO_ROOT}}/protocols/context/guides/tools-guide.md`
 
 Contains:
 
@@ -16,26 +16,26 @@ Contains:
    - ~330 tokens, always worth reading
    - Covers: code search, web research, API docs, memory, file operations
 
-### [Handoff guidelines]({{REPO_ROOT}}/agents/reference/handoff-guidelines.md)
+### [Handoff guidelines]({{REPO_ROOT}}/protocols/context/guides/handoff-guide.md)
 
-> **Read**: `@{{REPO_ROOT}}/agents/reference/handoff-guidelines.md`
+> **Read**: `@{{REPO_ROOT}}/protocols/context/guides/handoff-guide.md`
 
 Covers:
 
-   - When to delegate work to subagents (using either PAL's `clink` or the Claude subagent *Task* tool)
-   - How to select the model/CLI to use with the subagent that you spawn (Codex/Gemini/Claude)
+   - When to delegate work to other agents/models using PAL's `clink` MCP tool
+   - How to select the model/CLI to use when spawning agents (Codex/Gemini/Claude)
    - When to ask user vs handle directly
    - What requires explicit approval
 
 > [!IMPORTANT]
-> You must read these files *every time* (even when spawned as a specialized agent) since they provide:
+> You must read these files *every time* (even when spawned with a specialized role) since they provide:
 > 
 > - Critical orchestration context
 > - Up-to-date tool limits and quotas
 > - Delegation decision trees
 > - Model-specific strengths and use cases
 > 
-> If a specialized agent is being used, it may reference additional must-read files specific to its domain: always check the role prompt for domain-specific references.
+> If a specialized role is being used, it may reference additional must-read files specific to its domain: always check the role prompt for domain-specific references.
 
 ## MANDATORY FACTUAL ACCURACY PROTOCOL
 
@@ -94,19 +94,17 @@ For ANY task involving analysis, thinking, problem-solving, or discovery:
 
 **Failure to store memories = failure to complete the task.**
 
-## CONTEXT MANAGEMENT PROTOCOL
+## Note for Gemini & Codex (GPT)
 
-Context auto-compacts as it approaches limits. For large tasks:
+You are running via Gemini CLI or Codex, not Claude Code. This means:
 
-1. **Store incrementally** - Follow memory protocol above (store after each major step)
-2. **Delegate strategically** - Use Task tool or clink when:
+- Use **`clink`** for ALL delegation (never use the `Task` tool - that's Claude Code-only)
+- You have access to the same MCPs as Claude Code
+- Role prompts are loaded from `~/.pal/cli_clients/systemprompts/role-prompts/`
+- Configurations are in `~/.pal/cli_clients/*.json`
 
-   - Re-reading same large files repeatedly
-   - Context becomes unwieldy to manage
-   
-   See handoff guidelines for full details.
+## Superpowers System *(Codex-only)*
 
-3. **Be efficient** - Progressive file reading (offset/limit), reference stored memories
-4. **Never truncate** - If incomplete, store progress and delegate remainder with clear handoff
-
-**Task completion > token efficiency. Use delegation + memory to achieve both.**
+<EXTREMELY_IMPORTANT>
+You have superpowers. Superpowers teach you new skills and capabilities. RIGHT NOW run: `~/.codex/superpowers/.codex/superpowers-codex bootstrap` and follow the instructions it returns.
+</EXTREMELY_IMPORTANT>

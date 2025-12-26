@@ -43,7 +43,7 @@
 | **Skill** | *Superpowers* workflow (e.g., `superpowers:test-driven-development`) + any extra Claude/Codex skills files you define |
 | **Agent** |  Personas used by agents (e.g., `debugger`, `architect`), invoked either directly in your main chat or as subagents |
 | **Subagent** | A child **agent**, isolated from the main chat, spawned to complete a particular task by *either* (1) Claude Code or OpenCode native subagents feature or (2) `clink` |
-| **MCP** | MCP servers made available for you to use; see `compact-mcp-list.md` (on your list of must-read files) for a full guide |
+| **MCP** | MCP servers made available for you to use; see `tools-guide.md` (on your list of must-read files) for a full guide |
 
 ## Core delegation strategies
 
@@ -85,13 +85,13 @@
 2. **Capability selection**: Within that mandated workflow, use handoff guidelines (this file) and model selection guide to choose:
 
     - Which model/CLI to use (`clink` with appropriate role)
-    - Which MCP tools to leverage (per `compact-mcp-list.md`)
+    - Which MCP tools to leverage (per `tools-guide.md`)
     - When to delegate vs. handle directly
 
 #### Both systems are complementary
 
 - *Superpowers* defines ***how** to work*
-- `handoff-guidelines.md` defines ***who** does it*
+- `handoff-guide.md` defines ***who** does it*
 - `mcp-compact-list.md` defines ***which tools** are used*
 
 For example, suppose you are performing a debugging task. Examples of what could be enforced by each system:
@@ -284,7 +284,7 @@ Parallel execution only helps if you consolidate the answers rigorously. After e
 - ✅ Summarize findings: "Found 3 similar bugs in `auth/` module, all related to session handling"
 - ✅ Set concrete goals: "Refactor `processPayment()` to extract retry logic into separate function"
 - ✅ State constraints clearly: "Don't modify database schema; only change application code"
-- ✅ Give absolute paths: `/Users/you/beehive/agents/reference/handoff-guidelines.md`
+- ✅ Give absolute paths: `/Users/you/beehive/protocols/context/guides/handoff-guide.md`
 
 ## Choosing *models* when spawning subagents
 

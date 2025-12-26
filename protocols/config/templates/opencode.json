@@ -1,8 +1,8 @@
 {
   "$schema": "https://opencode.ai/config.json",
   "instructions": [
-    "{{REPO_ROOT}}/agents/reference/compact-mcp-list.md",
-    "{{REPO_ROOT}}/agents/reference/handoff-guidelines.md"
+    "{{REPO_ROOT}}/protocols/context/guides/tools-guide.md",
+    "{{REPO_ROOT}}/protocols/context/guides/handoff-guide.md"
   ],
   "model": "",
   "small_model": "",

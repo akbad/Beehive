@@ -1,13 +1,13 @@
 # Settings for automated generation of PAL per-CLI config files
 #
 # This file defines how to generate PAL-specific configuration file for each CLI.
-# The generator script configs/scripts/generate-pal-configs.py script reads this file
-#   and produces one JSON config per CLI, using model settings from queen.yml (
+# The generator script protocols/scripts/generate-pal-configs.py script reads this file
+#   and produces one JSON config per CLI, using model settings from directives.yml (
 #   pal.<cli> sections, e.g., pal.claude.model).
 #
 # Role discovery is automatic: all .md files in agents/role-prompts/ are
 #   included unless explicitly filtered via YML configs.
-# See documentation or queen.yml for details.
+# See documentation or directives.yml for details.
 #
 # ┌─────────────────────────────────────────────────────────────────────────────┐
 # │  SECURITY NOTE                                                              │

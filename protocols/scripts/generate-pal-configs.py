@@ -4,8 +4,8 @@ Generate PAL per-CLI config files.
 
 This script reads:
   - settings.yaml (paths and CLI launch commands)
-  - queen.yml (user-accessible model/role settings)
-to generate one JSON config file per CLI supported by both Beehive and PAL's clink 
+  - directives.yml (user-accessible model/role settings)
+to generate one JSON config file per CLI supported by both Bureau and PAL's clink 
 (i.e. claude.json, codex.json, gemini.json).
 
 Roles are auto-discovered from the agents/role-prompts/ directory.
@@ -30,7 +30,7 @@ from typing import Any
 from lib.pollen.config_loader import get_config
 
 
-def get_beehive_root() -> Path:
+def get_bureau_root() -> Path:
     """Find the project root (by checking for pyproject.toml)."""
     current = Path(__file__).resolve()
     for parent in [current] + list(current.parents):
@@ -41,7 +41,7 @@ def get_beehive_root() -> Path:
 
 def discover_roles(role_prompts_dir: Path) -> list[str]:
     """
-    Discover role names from .md files in the role prompts source directory in Beehive.
+    Discover role names from .md files in the role prompts source directory in Bureau.
 
     Args:
         role_prompts_dir: Directory containing role prompt files (e.g., agents/role-prompts/)
@@ -148,7 +148,7 @@ def get_cli_arg_vals(cli_name: str, cli_config: dict[str, Any]) -> dict[str, str
 
     Args:
         cli_name: CLI name (claude, codex, gemini)
-        cli_config: The pal.<cli_name> config from queen.yml
+        cli_config: The pal.<cli_name> config from directives.yml
 
     Returns:
         Dictionary of placeholder -> value substitutions
@@ -167,7 +167,7 @@ def get_cli_arg_vals(cli_name: str, cli_config: dict[str, Any]) -> dict[str, str
 
 def generate_pal_cli_config_files(
     pal_settings: dict[str, Any],
-    beehive_root: Path,
+    bureau_root: Path,
     dry_run: bool = False,
     verbose: bool = False,
 ) -> list[Path]:
@@ -176,7 +176,7 @@ def generate_pal_cli_config_files(
 
     Args:
         pal_settings:   Parsed settings.yaml configuration
-        beehive_root:   Beehive root directory
+        bureau_root:   Bureau root directory
         dry_run:        If True, don't write files
         verbose:        If True, print detailed output
 
@@ -186,26 +186,26 @@ def generate_pal_cli_config_files(
     # Extract config values from settings.yaml
     cli_settings = pal_settings["cli"]
     pal_role_prompts_dir = pal_settings["role_prompt_dir_in"]["pal"]
-    beehive_role_prompts_dir = beehive_root / pal_settings["role_prompt_dir_in"]["beehive"]
-    beehive_root_level_configs = get_config()
+    bureau_role_prompts_dir = bureau_root / pal_settings["role_prompt_dir_in"]["bureau"]
+    bureau_root_level_configs = get_config()
 
     # NOTE: pal_root_level_config is distinct from pal_settings
     #   - pal_settings stores PAL-related settings values that rarely change
-    #   - pal_config stores PAL-related configs from Beehive's root-level YAML configs
+    #   - pal_config stores PAL-related configs from Bureau's root-level YAML configs
     #   (meant for user-oriented configurable values, like choice of model and reasoning effort)
     #
     # Handle both:
     #   - key non-existence
     #   - existence w/o a value (which would result in .get() returning `None` instead of `{}`)
-    pal_root_level_config = beehive_root_level_configs.get("pal", {}) or {}
+    pal_root_level_config = bureau_root_level_configs.get("pal", {}) or {}
     base_roles_config = pal_root_level_config.get("base-roles", "all")
 
-    # Auto-discover available Beehive role prompt files
-    role_names = discover_roles(beehive_role_prompts_dir)
+    # Auto-discover available Bureau role prompt files
+    role_names = discover_roles(bureau_role_prompts_dir)
     if verbose:
-        print(f"Discovered {len(role_names)} roles from {beehive_role_prompts_dir}")
+        print(f"Discovered {len(role_names)} roles from {bureau_role_prompts_dir}")
 
-    output_dir = beehive_root / "configs" / "pal" / "generated"
+    output_dir = bureau_root / "protocols" / "pal" / "generated"
     output_dir.mkdir(parents=True, exist_ok=True)
     generated_files = []
 
@@ -269,8 +269,8 @@ def main() -> int:
     args = parser.parse_args()
 
     try:
-        beehive_root = get_beehive_root()
-        pal_settings_path = beehive_root / "configs" / "pal" / "settings.yaml"
+        bureau_root = get_bureau_root()
+        pal_settings_path = bureau_root / "protocols" / "pal" / "settings.yaml"
 
         if not pal_settings_path.exists():
             print(f"Error: settings.yaml not found at {pal_settings_path}", file=sys.stderr)
@@ -281,7 +281,7 @@ def main() -> int:
 
         generated = generate_pal_cli_config_files(
             pal_settings=pal_settings,
-            beehive_root=beehive_root,
+            bureau_root=bureau_root,
             dry_run=args.dry_run,
             verbose=args.verbose,
         )

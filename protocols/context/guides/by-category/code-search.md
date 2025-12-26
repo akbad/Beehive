@@ -219,5 +219,5 @@ Simple text search?
 
 ## Links to deep dives
 
-- [Sourcegraph deep dive](../mcp-deep-dives/sourcegraph.md)
-- [Serena deep dive](../mcp-deep-dives/serena.md)
+- [Sourcegraph deep dive](../deep-dives/sourcegraph.md)
+- [Serena deep dive](../deep-dives/serena.md)

@@ -108,6 +108,6 @@ Known URL(s)?
 
 ## Links to deep dives
 
-- [Tavily deep dive](../mcp-deep-dives/tavily.md)
-- [Brave deep dive](../mcp-deep-dives/brave.md)
-- [Fetch deep dive](../mcp-deep-dives/fetch.md)
+- [Tavily deep dive](../deep-dives/tavily.md)
+- [Brave deep dive](../deep-dives/brave.md)
+- [Fetch deep dive](../deep-dives/fetch.md)

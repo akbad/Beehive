@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 # 
-# Beehive one-shot bootstrap/startup script
-# > Run once: ./start-beehive
+# Bureau one-shot bootstrap/startup script
+# > Run once: ./open-bureau
 # > Idempotent (safe to re-run; won't duplicate resources)
 #
-# Configuration: Edit queen.yml (or local.yml for personal overrides)
+# Configuration: Edit directives.yml (or local.yml for personal overrides)
 #   See docs/CONFIGURATION.md for all options
 
 set -euo pipefail
@@ -24,7 +24,7 @@ bin/check-prereqs
 source "$REPO_ROOT/bin/lib/agent-selection.sh"
 
 echo -e "${BLUE}====================================================${NC}"
-echo -e "${BLUE}  Beehive bootstrap & startup${NC}"
+echo -e "${BLUE}  Bureau bootstrap & startup${NC}"
 echo -e "${BLUE}====================================================${NC}"
 echo ""
 
@@ -34,7 +34,7 @@ echo ""
 
 # Run cleanup if not run recently (silent, non-blocking)
 if command -v uv &> /dev/null; then
-    uv run sweep-hive --quiet 2>/dev/null || true
+    uv run sweep --quiet 2>/dev/null || true
 fi
 
 # --- Run setup scripts (all use directory-based detection) ---
@@ -63,15 +63,15 @@ tools/scripts/set-up-tools.sh "$@"
 echo ""
 echo -e "${BLUE}Setting up config files...${NC}"
 echo ""
-configs/scripts/set-up-configs.sh
+protocols/scripts/set-up-configs.sh
 
 echo ""
 echo -e "${GREEN}==========================================================${NC}"
-echo -e "${GREEN}  Bootstrapping complete: Beehive is ready to use.${NC}"
+echo -e "${GREEN}  Bootstrapping complete: Bureau is ready to use.${NC}"
 echo -e "${GREEN}==========================================================${NC}"
 echo ""
 echo "To add or remove CLIs in the future:"
 echo "  - Add: Create user-scoped config directory (e.g., mkdir -p ~/.gemini)"
 echo "  - Remove: Delete user-scoped config directory (e.g., rm -rf ~/.codex)"
-echo "  - Then re-run: ./bin/start-beehive"
+echo "  - Then re-run: ./bin/open-bureau"
 echo ""

@@ -3,7 +3,7 @@
 #   (based on per-backend staleness thresholds in configs)
 #
 # Usage:
-#   beehive-empty-trash
+#   empty-trash
 
 set -e
 
@@ -11,4 +11,4 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(dirname "$SCRIPT_DIR")"
 
 cd "$REPO_ROOT"
-uv run sweep-hive --empty-trash "$@"
+uv run sweep --empty-trash "$@"

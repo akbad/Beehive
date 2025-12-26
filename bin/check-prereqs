@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 #
 # Purpose:
-#   - Verifies Beehive prerequisites are installed
+#   - Verifies Bureau prerequisites are installed
 #   - Installs pinned Python version via uv
 #   - Syncs project deps from pyproject.toml
 #
@@ -61,7 +61,7 @@ check_cmd() {
     fi
 }
 
-[[ "$QUIET" == false ]] && echo -e "Checking Beehive prerequisites...\n"
+[[ "$QUIET" == false ]] && echo -e "Checking Bureau prerequisites...\n"
 
 # check required prerequisites
 check_cmd "npx" "Install Node.js: https://nodejs.org or use nvm" 

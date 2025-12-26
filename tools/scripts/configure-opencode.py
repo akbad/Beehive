@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env -S uv run
 """
 Merge OpenCode config: fill missing keys from generated template into user config,
 preserving existing user overrides.
@@ -8,7 +8,7 @@ import argparse
 import sys
 from pathlib import Path
 
-from pollen import config_utils as cu
+from lib.pollen import json_config_utils as cu
 
 
 def merge_missing(base: dict, add: dict) -> dict:

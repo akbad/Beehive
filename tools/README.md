@@ -8,6 +8,14 @@
 - [Using the script](#using-the-script)
   - [Prerequisites](#prerequisites)
   - [Running the script](#running-the-script)
+- [Configuration](#configuration)
+  - [Key settings](#key-settings)
+- [Data retention](#data-retention)
+  - [Retention configuration](#retention-configuration)
+  - [Default retention periods](#default-retention-periods)
+  - [Commands](#commands)
+  - [Complete wipe](#complete-wipe)
+  - [Soft delete](#soft-delete)
 
 --- 
 
@@ -43,38 +51,39 @@ See [`tools.md`](tools.md) for:
 
 ### Prerequisites
 
-#### npm/Node
+Run `./bin/check-prereqs` to verify all prerequisites are installed:
 
-- Convenient to use [nvm](https://github.com/nvm-sh/nvm) to install/manage Node versions for you
-- To install nvm and use it to install the newest long-term-supported version of Node & npm:
+```bash
+./bin/check-prereqs
+```
 
-    ```bash
-    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash && \
-        nvm install --lts && \
-        nvm use --lts
-    ```
+If any are missing, install them using the instructions below.
 
-#### [Homebrew](https://brew.sh)
+<details>
+<summary><b>npm/Node</b> - for npx-based MCP servers</summary>
 
-Needed for checking for/installing Semgrep.
+Use [nvm](https://github.com/nvm-sh/nvm) to install/manage Node versions:
 
-#### [uv](https://github.com/astral-sh/uv) with Python 3.12
-    
-1. Install uv on Mac and Linux:
+```bash
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash && \
+    nvm install --lts && \
+    nvm use --lts
+```
+</details>
 
-    ```bash
-    curl -LsSf https://astral.sh/uv/install.sh | sh
-    ```
+<details>
+<summary><b>uv</b> - for Python-based MCP servers and Semgrep</summary>
 
-2. Use uv to install and use Python 3.12:
+```bash
+curl -LsSf https://astral.sh/uv/install.sh | sh
+```
+</details>
 
-    ```bash
-    uv python install 3.12 && uv python pin 3.12
-    ```
+<details>
+<summary><b>Docker</b> - for Qdrant container</summary>
 
-#### Rancher Desktop or Docker Desktop 
-
-Needed for running the local Qdrant container.
+Install [Rancher Desktop](https://rancherdesktop.io/) or [Docker Desktop](https://docs.docker.com/get-docker/).
+</details>
 
 #### API keys
 
@@ -101,18 +110,104 @@ Needed for running the local Qdrant container.
 ### Running the script
 
 ```bash
-scripts/set-up-tools.sh [options]
+tools/scripts/set-up-tools.sh
 ```
 
-#### Options
+All configuration is done via YAML files. See [Configuration](#configuration) for details.
 
-- `-y/--yes`: additionally configures agents chosen with `-a/--agent` above (or all supported agents by default) to have **auto-approved use of all the MCP tools set up here** *(so you don't get asked for permission each time/for each new tool you try to use)*
+## Configuration
 
-- `-f/--fsdir <path>`: for specifying the directory that the Filesystem MCP is allowed to make edits within
-    
-    - **Default: `~/Code`**
+Beehive uses YAML configuration files at the repo root. Settings are loaded in this order (later sources override earlier):
 
-- `-c/--clonedir <path>`: for specifying the directory that you want to place the cloned MCP servers' repos in
+1. **`comb.yml`** - System defaults (endpoints, package paths) - **do not edit**
+2. **`queen.yml`** - Team/shared settings (agents, retention, ports, paths)
+3. **`local.yml`** - Personal overrides (gitignored)
+4. **Environment variables** - Highest priority for paths
 
-    - **Default: `~/Code/mcp-servers/`**
+For full configuration reference, see [docs/CONFIGURATION.md](../docs/CONFIGURATION.md).
 
+### Key settings
+
+```yaml
+# queen.yml - customize these as needed
+
+# Which agents to configure
+agents:
+  enabled: [claude, gemini, codex, opencode]
+
+# MCP tool auto-approval (skips permission prompts)
+mcp:
+  auto_approve: no  # yes/true or no/false
+
+# Filesystem MCP security boundary
+path_to:
+  fs_mcp_whitelist: ~/code
+
+# Server ports (change if conflicts occur)
+port_for:
+  qdrant_db: 8780
+  # ... see docs/CONFIGURATION.md for full list
+```
+
+## Data retention
+
+Beehive automatically cleans up old memories to prevent unbounded storage growth.
+
+### Retention configuration
+
+Edit `queen.yml` to customize retention periods:
+
+```yaml
+retention_period_for:
+  claude_mem: 30d
+  serena: 90d
+  qdrant: 180d
+  memory_mcp: 365d
+
+trash:
+  grace_period: 30d
+```
+
+Duration format: `<number><unit>` where unit is `h` (hours), `d` (days), `w` (weeks), `m` (months), `y` (years).
+Set to `"never"` to disable cleanup for a storage.
+
+### Default retention periods
+
+| Storage | Default | Data Type |
+|:--------|:--------|:----------|
+| claude-mem | 30 days | Session summaries, observations |
+| Serena | 90 days | Project memories |
+| Qdrant | 180 days | Solutions, patterns, insights |
+| Memory MCP | 365 days | Entity relationships |
+
+### Commands
+
+- **Automatic cleanup**: Runs on `./bin/start-beehive` if >24h since last run
+- **Manual prune**: `./bin/beehive-prune [--force] [--dry-run] [--storage L]` where `L` is a combo of letters `q` (Qdrant), `c` (claude-mem), `s` (Serena), `m` (memory-mcp); e.g., `-s smq`
+- **Empty trash**: `./bin/beehive-empty-trash`
+- **Wipe storage**: `./bin/beehive-wipe <storage> [<storage>...] [--no-backup] [--yes]`
+
+### Complete wipe
+
+To completely erase all data from one or more storages:
+
+```bash
+# Wipe a single storage (backs up to trash first)
+./bin/beehive-wipe claude-mem
+
+# Wipe multiple storages
+./bin/beehive-wipe claude-mem qdrant
+
+# Wipe all storages
+./bin/beehive-wipe all
+
+# Skip confirmation prompt
+./bin/beehive-wipe all --yes
+
+# Permanent deletion (no backup - DANGEROUS)
+./bin/beehive-wipe claude-mem --no-backup --yes
+```
+
+### Soft delete
+
+Deleted items go to `.wax/trash/` with a 30-day grace period before permanent deletion.

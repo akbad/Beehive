@@ -1,8 +1,8 @@
-# Zen MCP: Deep Dive
+# PAL MCP: Deep Dive
 
 ## Critical Note
 
-**`clink`-only setup** — This guide documents our usage of Zen MCP strictly via clink to bridge to external AI CLIs. Zen MCP is accessed by agent clients, and in this configuration we do not configure provider API keys in Zen; we rely solely on clink.
+**`clink`-only setup** — This guide documents our usage of PAL MCP strictly via clink to bridge to external AI CLIs. PAL MCP is accessed by agent clients, and in this configuration we do not configure provider API keys in PAL; we rely solely on clink.
 
 ## Overview
 
@@ -12,7 +12,7 @@ CLI-to-CLI bridge enabling multi-model orchestration, sub-agent spawning, and co
 
 ### 1. `clink` - Cross-Model CLI Orchestration
 
-**What it does:** Links current request to external AI CLI (Gemini, Codex, Claude) through Zen MCP
+**What it does:** Links current request to external AI CLI (Gemini, Codex, Claude) through PAL MCP
 
 **Parameters:**
 - `prompt` (required) - User request forwarded to CLI
@@ -70,7 +70,7 @@ CLI-to-CLI bridge enabling multi-model orchestration, sub-agent spawning, and co
 
 ### Disadvantages
 ❌ **clink bridge required** (invoked from your agent CLI)
-❌ **Requires Zen setup** (local server running)
+❌ **Requires PAL setup** (local server running)
 ❌ **Accessed via agent clients** (e.g., Claude Code, Gemini CLI)
 
 ## Common Pitfalls: When NOT to Use
@@ -125,7 +125,7 @@ Bad:  clink without files for code review task
 Good: clink(files: ["/path/to/code.js"], role: "codereviewer")
 ```
 
-## When Zen MCP IS the Right Choice
+## When PAL MCP IS the Right Choice
 
 ✅ **Multi-model orchestration** needed
 ✅ **Specialized roles** per model (review, plan, implement)
@@ -263,7 +263,7 @@ Implement (Codex) → Review (Codex/codereviewer)
 
 ## Alternatives Summary
 
-| Task | Instead of Zen/clink | Use This |
+| Task | Instead of PAL/clink | Use This |
 |------|---------------------|----------|
 | Single-model task | clink | Current CLI directly |
 | Same CLI, same role | clink | Direct execution |

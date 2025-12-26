@@ -1,0 +1,92 @@
+#!/usr/bin/env bash
+#
+# Purpose:
+#   - Verifies Beehive prerequisites are installed
+#   - Installs pinned Python version via uv
+#   - Syncs project deps from pyproject.toml
+#
+# Usage:
+#   ./bin/check-prereqs           # Check prerequisites and set up Python
+#   ./bin/check-prereqs --quiet   # Exit 0 if all present, 1 if any missing (no output)
+#
+# Exit codes:
+#   0 - All prerequisites installed
+#   1 - One or more prerequisites missing
+
+set -e
+
+# Colors
+GREEN='\033[0;32m'
+RED='\033[0;31m'
+YELLOW='\033[1;33m'
+NC='\033[0m'
+
+QUIET=false
+MISSING=0
+
+# Parse arguments
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        -q|--quiet)
+            QUIET=true
+            shift
+            ;;
+        -h|--help)
+            sed -n '2,/^$/p' "$0" | sed 's/^# //g'
+            exit 0
+            ;;
+        *)
+            echo "Unknown option: $1"
+            exit 1
+            ;;
+    esac
+done
+
+check_cmd() {
+    local cmd=$1
+    local install_msg=$2
+
+    if command -v "$cmd" &>/dev/null; then
+        if [[ "$QUIET" == false ]]; then
+            echo -e "${GREEN}✓${NC} $cmd"
+        fi
+        return 0
+    else
+        if [[ "$QUIET" == false ]]; then
+            echo -e "${RED}✗${NC} $cmd"
+            echo -e "  └─ ${YELLOW}$install_msg${NC}"
+        fi
+        MISSING=1
+        return 1
+    fi
+}
+
+[[ "$QUIET" == false ]] && echo -e "Checking Beehive prerequisites...\n"
+
+# check required prerequisites
+check_cmd "npx" "Install Node.js: https://nodejs.org or use nvm" 
+check_cmd "uvx" "Install uv: curl -LsSf https://astral.sh/uv/install.sh | sh" 
+check_cmd "docker" "Install Docker: https://docs.docker.com/get-docker/"
+
+[[ "$QUIET" == false ]] && echo ""
+
+if [[ $MISSING -ne 0 ]]; then
+    [[ "$QUIET" == false ]] && echo -e "${RED}Install missing prerequisites and try again.${NC}"
+    exit 1
+fi
+
+[[ "$QUIET" == false ]] && echo -e "${GREEN}All prerequisites are present.${NC}"
+
+REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+
+# Ensure Python 3.12 and sync dependencies
+[[ "$QUIET" == false ]] && echo -e "\nSetting up Python environment...\n"
+
+uv python install 3.12 --quiet 2>/dev/null || true
+[[ "$QUIET" == false ]] && echo -e "${GREEN}✓${NC} Python 3.12 ready"
+
+(cd "$REPO_ROOT" && uv sync --quiet 2>/dev/null) || true
+[[ "$QUIET" == false ]] && echo -e "${GREEN}✓${NC} Python dependencies installed"
+
+[[ "$QUIET" == false ]] && echo -e "\n${GREEN}Python environment is ready.${NC}\n"
+exit 0

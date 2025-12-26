@@ -22,7 +22,7 @@ Contains:
 
 Covers:
 
-   - When to delegate work to other agents/models using Zen's `clink` MCP tool
+   - When to delegate work to other agents/models using PAL's `clink` MCP tool
    - How to select the model/CLI to use when spawning agents (Codex/Gemini/Claude)
    - When to ask user vs handle directly
    - What requires explicit approval
@@ -100,8 +100,8 @@ You are running via Gemini CLI or Codex, not Claude Code. This means:
 
 - Use **`clink`** for ALL delegation (never use the `Task` tool - that's Claude Code-only)
 - You have access to the same MCPs as Claude Code
-- Role prompts are loaded from `~/.zen/cli_clients/systemprompts/role-prompts/`
-- Configurations are in `~/.zen/cli_clients/*.json`
+- Role prompts are loaded from `~/.pal/cli_clients/systemprompts/role-prompts/`
+- Configurations are in `~/.pal/cli_clients/*.json`
 
 ## Superpowers System *(Codex-only)*
 

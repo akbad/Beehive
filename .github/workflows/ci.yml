@@ -1,0 +1,23 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  test:
+    name: Unit tests
+    uses: ./.github/workflows/uv-run.yml
+    with:
+      command_name: Run tests
+      command: uv run pytest lib/pollen/cleanup/tests/ -v
+
+  typecheck:
+    name: Typechecks
+    uses: ./.github/workflows/uv-run.yml
+    with:
+      command_name: Run mypy
+      command: uv run mypy lib/pollen --ignore-missing-imports

@@ -22,7 +22,7 @@ Contains:
 
 Covers:
 
-   - When to delegate work to subagents (using either Zen's `clink` or the Claude subagent *Task* tool)
+   - When to delegate work to subagents (using either PAL's `clink` or the Claude subagent *Task* tool)
    - How to select the model/CLI to use with the subagent that you spawn (Codex/Gemini/Claude)
    - When to ask user vs handle directly
    - What requires explicit approval

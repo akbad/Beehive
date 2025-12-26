@@ -38,7 +38,7 @@
 - A **suite of specialized coding agent roles** with consistent behaviour on any platform, with **flexible ways of invoking them:**
 
     - **Direct use:** use an agent at any time in your current conversation *(Claude Code, OpenCode)* or launch instances of the CLI with the chosen agent *(Codex & Gemini CLIs)*
-    - **As subagents:** delegate specific, isolated tasks to specialized agents that run in the background, <ins>automatically</ins> using [Zen MCP's `clink`](https://github.com/BeehiveInnovations/zen-mcp-server/blob/main/docs/tools/clink.md) to **enable cross-CLI subagent spawning & collaboration**
+    - **As subagents:** delegate specific, isolated tasks to specialized agents that run in the background, <ins>automatically</ins> using [PAL MCP's `clink`](https://github.com/BeehiveInnovations/pal-mcp-server/blob/main/docs/tools/clink.md) to **enable cross-CLI subagent spawning & collaboration**
 
 - A set of **open-source/free/freemium MCP servers** *(i.e. you won't pay a cent)* that make tasks (such as `git`, web browsing and static code analysis) **reliable and token-efficient**
 - **Automatic setup scripts** for:
@@ -73,43 +73,34 @@
 > **Role prompts** for agents/subagents can be found in the following directories.
 > | Location | Used when? |
 > | :--- | :--- |
-> | [`agents/claude-subagents`](agents/claude-subagents/) | (1) Spawning **subagents via Claude Code**'s first-party "subagents" feature or (2) spawning agents for **direct use in chat via slash commands** |
-> | [`agents/role-prompts`](agents/role-prompts/) | (1) Spawning **subagents via `clink`** (from *any* CLI, including Claude Code) or (2) spawning agents for **direct use in Codex/Gemini CLIs via wrapper scripts** or (3) spawning **OpenCode subagents** |
+> | [`agents/claude-subagents`](../agents/claude-subagents/) | (1) Spawning **subagents via Claude Code**'s first-party "subagents" feature or (2) spawning agents for **direct use in chat via slash commands** |
+> | [`agents/role-prompts`](../agents/role-prompts/) | (1) Spawning **subagents via `clink`** (from *any* CLI, including Claude Code) or (2) spawning agents for **direct use in Codex/Gemini CLIs via wrapper scripts** or (3) spawning **OpenCode subagents** |
 >
 > - **Read through the files to see the full list of roles available for use.**
 > - Prompts for the <ins>same role</ins> have the <ins>same body across both locations</ins> *(the `claude-subagents` files simply have some extra header YAML that makes them smoother to use with Claude Code)*
 
 > [!TIP]
-> Read [`handoff-guidelines.md`](agents/reference/handoff-guidelines.md) to see the guidance that the CLIs will read at startup that will teach them:
+> Read [`handoff-guidelines.md`](../agents/reference/handoff-guidelines.md) to see the guidance that the CLIs will read at startup that will teach them:
 > - when to delegate tasks to subagents
 > - which CLIs/models to use for specific subagent tasks
 
 ### Managing CLI agent selection
 
-Beehive automatically detects which CLIs to configure based on the existence of their config directories:
+Beehive configures CLIs based on the `agents` config setting:
 
-- **Claude Code**: `~/.claude/`
-- **Gemini CLI**: `~/.gemini/`
-- **Codex**: `~/.codex/`
-- **OpenCode**: `~/.config/opencode/` (or `~/.opencode/`)
-
-**Add a CLI:**
-```bash
-mkdir -p ~/.claude           # Enable Claude Code
-mkdir -p ~/.gemini           # Enable Gemini CLI
-mkdir -p ~/.codex            # Enable Codex
-mkdir -p ~/.config/opencode  # Enable OpenCode
+```yaml
+# queen.yml (or local.yml for personal overrides)
+agents:
+  - claude    # Claude Code
+  - gemini    # Gemini CLI
+  - codex     # Codex
+  - opencode  # OpenCode
 ```
 
-**Remove a CLI:**
-```bash
-rm -rf ~/.codex       # Disable Codex
-```
-
-All setup scripts (`set-up-agents.sh`, `set-up-configs.sh`, launcher scripts, etc.) automatically detect and configure only the CLIs with existing config directories—no manual configuration needed.
+**Enable/disable a CLI:** Add or remove it from the `agents` list, then re-run `./bin/start-beehive`.
 
 > [!NOTE]
-> For more details, see the [*CLI agent selection* section in SETUP.md](SETUP.md#selecting-cli-agents-to-configure).
+> The CLI's config directory must exist for configuration to succeed (e.g., `~/.claude/` for Claude Code). See [CONFIGURATION.md](CONFIGURATION.md) for all configuration options.
 
 There are 2 primary ways to use agents, depending on the CLI.
 
@@ -121,7 +112,7 @@ There are 2 primary ways to use agents, depending on the CLI.
 
 Activate an agent <ins>within a Claude Code session</ins> using its **corresponding slash command** (injects the role prompt into the current conversation).
 
-> <ins>Example</ins>: to load the [*Architect*](agents/claude-subagents/architect.md) agent in Claude Code:
+> <ins>Example</ins>: to load the [*Architect*](../agents/claude-subagents/architect.md) agent in Claude Code:
 > ```bash
 > $ claude
 > > /architect
@@ -134,13 +125,13 @@ Launch the CLI using the **generated wrapper scripts**, named in the format **`<
 
 > <ins>Example</ins>:
 >
-> - Starting Gemini CLI to interact with the [*Explainer*](agents/role-prompts/explainer.md) agent in the main conversation:
+> - Starting Gemini CLI to interact with the [*Explainer*](../agents/role-prompts/explainer.md) agent in the main conversation:
 >   ```bash
 >   $ gemini-explainer
 >   # Gemini CLI is now running w/ the Explainer agent active
 >   # Ask it to clarify code and docs
 >   ```
-> - Starting Codex to interact with the [*Debugger*](agents/role-prompts/debugger.md) agent in the main conversation:
+> - Starting Codex to interact with the [*Debugger*](../agents/role-prompts/debugger.md) agent in the main conversation:
 >   ```bash
 >   $ codex-debugger
 >   # Codex is now running w/ the Debugger agent active
@@ -161,7 +152,7 @@ Use the [**primary agents mechanism**](https://opencode.ai/docs/agents/#primary-
 
 #### Spawning subagents using any CLI, from any CLI (via `clink`)
 
-For cross-CLI subagent spawning and collaboration, use Zen MCP's `clink` tool. It allows specifying:
+For cross-CLI subagent spawning and collaboration, use PAL MCP's `clink` tool. It allows specifying:
 
 - the agent role
 - the CLI to use to spawn the agent
@@ -232,19 +223,27 @@ Simply explicitly mention the subagent you want to use and it will automatically
       operations (read_multiple_files only).
 
 - **Orchestration**:
-    - **Zen (`clink` tool only)**: enables cross-CLI collaboration/subagent spawning, [as discussed above](#spawning-subagents-using-any-cli-from-any-cli-via-clink)
+    - **PAL (`clink` tool only)**: enables cross-CLI collaboration/subagent spawning, [as discussed above](#spawning-subagents-using-any-cli-from-any-cli-via-clink)
 
 > [!TIP]
 > To learn more about the available MCPs and the specific guidance agents receive on how to use them, read:
 >
-> - [`compact-mcp-list.md`](agents/reference/compact-mcp-list.md): quick decision guide for selecting the best tool for a given task.
-> - [`mcp-deep-dives/`](agents/reference/mcp-deep-dives/): 
+> - [`compact-mcp-list.md`](../agents/reference/compact-mcp-list.md): quick decision guide for selecting the best tool for a given task.
+> - [`mcp-deep-dives/`](../agents/reference/mcp-deep-dives/): 
 > 
 >     - Collection of in-depth guides for each MCP, detailing their capabilities and advanced usage patterns. Only read by agents when necessary to preserve context
 
 ### Non-MCP CLI tools
 
 - **GitHub SpecKit:** for devising detailed specifications and subsequently using them to devise development plans and tasks *(your agents will never hallucinate or get distracted again)*
+
+- **Beehive utilities:** convenience scripts for configuration and maintenance
+
+    | Command | Description |
+    |---------|-------------|
+    | `uv run get-config` | Display resolved Beehive configuration |
+    | `uv run sweep-hive` | Clean up temporary/generated files |
+    | `uv run validate-config` | Validate configuration files |
 
 ## Preserving context & memories across sessions
 
@@ -274,11 +273,11 @@ There are 2 methods for this:
 | :--- | :--- |
 | **GitHub SpecKit** *(optional user-called CLI tool)* | **What** to build and **why** (i.e. top-down planning & specification) |
 | ***Superpowers*-defined** (and other) **skills** | **How** to perform a task *(if defined for that task)*
-| [**Handoff guidelines**](agents/reference/handoff-guidelines.md) | **Who** performs each task *(i.e. when to delegate to subagents + recommended agent/model combos)* |
-| [**Tool guidance**](agents/reference/compact-mcp-list.md) | **Tools to use** for a task |
+| [**Handoff guidelines**](../agents/reference/handoff-guidelines.md) | **Who** performs each task *(i.e. when to delegate to subagents + recommended agent/model combos)* |
+| [**Tool guidance**](../agents/reference/compact-mcp-list.md) | **Tools to use** for a task |
 
 > [!NOTE]
-> The [handoff guidelines](agents/reference/handoff-guidelines.md) and [tool guidance](agents/reference/compact-mcp-list.md) are part of the required files agents must read upon startup (as directed in the [config files set up by this repo](configs/)).
+> The [handoff guidelines](../agents/reference/handoff-guidelines.md) and [tool guidance](../agents/reference/compact-mcp-list.md) are part of the required files agents must read upon startup (as directed in the [config files set up by this repo](../configs/)).
 
 #### Sample comprehensive workflow
 
@@ -286,8 +285,8 @@ There are 2 methods for this:
 2. Read `specs/<new-feature>/tasks.md` and delegate tasks to specialized agents via `clink`
 3. Within each agent session:
     
-    - [Tool guidance doc](agents/reference/compact-mcp-list.md) ensures agents know appropriate tools to use for their task
-    - [Handoff guidelines doc](agents/reference/handoff-guidelines.md) teaches agents:
+    - [Tool guidance doc](../agents/reference/compact-mcp-list.md) ensures agents know appropriate tools to use for their task
+    - [Handoff guidelines doc](../agents/reference/handoff-guidelines.md) teaches agents:
         
         - When to delegate *(i.e. recursively)*
         - The *right* agents to delegate subtasks to
@@ -340,11 +339,11 @@ A skills library that enforces mandatory workflows for common engineering tasks 
 | :--- | :--- |
 | **GitHub SpecKit** *(optional user-called CLI tool)* | **What** to build and **why** (i.e. top-down planning & specification) |
 | ***Superpowers*-defined** (and other) **skills** | **How** to perform a task *(if defined for that task)*
-| [**Handoff guidelines**](agents/reference/handoff-guidelines.md) | **Who** performs each task *(i.e. when to delegate to subagents + recommended agent/model combos)* |
-| [**Tool guidance**](agents/reference/compact-mcp-list.md) | **Tools to use** for a task |
+| [**Handoff guidelines**](../agents/reference/handoff-guidelines.md) | **Who** performs each task *(i.e. when to delegate to subagents + recommended agent/model combos)* |
+| [**Tool guidance**](../agents/reference/compact-mcp-list.md) | **Tools to use** for a task |
 
 > [!NOTE]
-> The [handoff guidelines](agents/reference/handoff-guidelines.md) and [tool guidance](agents/reference/compact-mcp-list.md) are part of the required files agents must read upon startup (as directed in the [config files set up by this repo](configs/)).
+> The [handoff guidelines](../agents/reference/handoff-guidelines.md) and [tool guidance](../agents/reference/compact-mcp-list.md) are part of the required files agents must read upon startup (as directed in the [config files set up by this repo](../configs/)).
 
 #### How skills activate 
 
@@ -450,7 +449,7 @@ While claude-mem works automatically, you can manually search its database using
 [GitHub SpecKit](https://github.github.io/spec-kit/) is an open-source toolkit for [**Spec-Driven Development (SDD)**](https://github.com/github/spec-kit/blob/main/spec-driven.md), which emphasizes creating extensive, exhaustive specifications that are then treated as executable roadmaps that drive implementation.
 
 > [!NOTE]
-> SpecKit is <ins>not</ins> an MCP tool; it's a simple CLI tool that uses available agentic coding CLIs. It's installed automatically by the [tool setup script](tools/scripts/set-up-tools.sh); verify installation (and its connection to your various CLIs) by running `specify check`.
+> SpecKit is <ins>not</ins> an MCP tool; it's a simple CLI tool that uses available agentic coding CLIs. It's installed automatically by the [tool setup script](../tools/scripts/set-up-tools.sh); verify installation (and its connection to your various CLIs) by running `specify check`.
 
 SpecKit creates this structure in your project:
 

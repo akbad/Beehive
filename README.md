@@ -40,7 +40,7 @@ Power users rotating between these (as is often the best option, given providers
     - Done using both:
         
         1. Claude Code and OpenCode's built-in subagents features
-        2. Zen's `clink` (for Codex and Gemini CLIs, as well as cross-model/-CLI collaboration)
+        2. PAL's `clink` (for Codex and Gemini CLIs, as well as cross-model/-CLI collaboration)
 
 - **Direct** use and interaction **in main/current conversation** (using custom-generated wrappers/commands): 
     
@@ -80,9 +80,9 @@ with each of the 3 files above generated from templates (for portability regardl
 
 > [!NOTE]
 > **CLI agent selection**
-> 
-> - Setup scripts *automatically* detect which CLIs to configure based on **user-scoped** directory existence (`~/.claude/`, `~/.gemini/`, `~/.codex/`, `~/.opencode`). 
-> - More details can be found in [SETUP.md](SETUP.md#selecting-cli-agents-to-configure).
+>
+> - Configure which CLIs to set up via the `agents` list in `queen.yml` (or `local.yml` for personal overrides)
+> - See [SETUP.md](SETUP.md#selecting-cli-agents-to-configure) or [docs/CONFIGURATION.md](docs/CONFIGURATION.md) for details
 
 ## Usage patterns
 
@@ -95,7 +95,7 @@ with each of the 3 files above generated from templates (for portability regardl
 "Spawn the security-compliance agent to audit these changes"
 ```
 
-**Any CLI** *(via Zen MCP's `clink`):*
+**Any CLI** *(via PAL MCP's `clink`):*
 ```
 "clink with gemini architect to design API structure"
 "clink with codex observability to analyze these metrics"
@@ -126,7 +126,7 @@ You can cycle through available agents simply using the Tab key.
 
 ```
 agents/
-├── role-prompts/          # Agent role prompts for both Zen's clink and OpenCode
+├── role-prompts/          # Agent role prompts for both PAL's clink and OpenCode
 ├── claude-subagents/      # Same role prompts as above, except with Claude Code-specific YAML frontmatter
 ├── reference/             # MCP guides (injected via config files)
 └── scripts/               # Setup automation
@@ -140,3 +140,17 @@ tools/
 ├── tools-decision-guide.md
 └── scripts/               # MCP installation automation
 ```
+
+## Configuration
+
+Beehive uses a YAML-based configuration system with team defaults and personal overrides:
+
+| File | Purpose | Committed? |
+|:-----|:--------|:-----------|
+| `comb.yml` | Fixed system defaults (endpoints, package paths) | Yes |
+| `queen.yml` | Team settings (agents, retention periods, ports, paths) | Yes |
+| `local.yml` | Personal overrides | No (gitignored) |
+
+Configuration loads in order: `comb.yml` → `queen.yml` → `local.yml` → environment variables.
+
+See [docs/CONFIGURATION.md](docs/CONFIGURATION.md) for full reference.

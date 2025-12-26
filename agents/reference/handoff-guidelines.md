@@ -49,7 +49,7 @@
 
 ### Delegation mechanisms available
 
-1. `clink` (from Zen MCP, available everywhere): Cross-model orchestration to Claude, Codex (GPT‑5.1‑Codex), Gemini
+1. `clink` (from PAL MCP, available everywhere): Cross-model orchestration to Claude, Codex (GPT‑5.1‑Codex), Gemini
 2. `Task` tool (Claude) or native subagents (OpenCode): Spawn specialized subagents
 3. `AskUserQuestion`: Stop and obtain explicit user guidance
 

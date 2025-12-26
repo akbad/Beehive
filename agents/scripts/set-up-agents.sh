@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
-set -euo pipefail
-
+#
 # Setup script for agent files and configurations
 # Run from the agents/ directory (or anywhere in the repo)
+
+set -euo pipefail
 
 # Color codes for output
 RED='\033[0;31m'
@@ -53,27 +54,23 @@ if [[ ! -d "$AGENTS_DIR/$CLAUDE_AGENTS_DIRNAME" ]] || [[ ! -d "$AGENTS_DIR/$CLIN
 fi
 
 # ============================================================================
-# Step 1: Set up clink subagents (for Zen MCP with Gemini/Codex/Claude CLIs)
+# Step 1: Set up clink subagents (for PAL MCP with Gemini/Codex/Claude CLIs)
 # ============================================================================
-# Only set up Zen if any agent is selected (Zen is cross-CLI, used by all)
+# Only set up PAL if any agent is selected (PAL is cross-CLI, used by all)
 if [[ ${#AGENTS[@]} -gt 0 ]]; then
-    print_step "Setting up clink subagents for Zen MCP"
+    print_step "Setting up clink subagents for PAL MCP"
 
     # Create directory structure
-    mkdir -p ~/.zen/cli_clients/systemprompts
-    print_success "Created ~/.zen/cli_clients/systemprompts"
+    mkdir -p ~/.pal/cli_clients/systemprompts
+    print_success "Ensured/created ~/.pal/cli_clients/systemprompts"
 
     # Symlink role prompts folder
-    if [[ -L ~/.zen/cli_clients/systemprompts/$AGENTS_SUBDIR ]]; then
-        rm ~/.zen/cli_clients/systemprompts/$AGENTS_SUBDIR
-        print_success "Removed existing $AGENTS_SUBDIR symlink"
+    if [[ -L ~/.pal/cli_clients/systemprompts/$AGENTS_SUBDIR ]]; then
+        rm ~/.pal/cli_clients/systemprompts/$AGENTS_SUBDIR
+        print_success "Removed existing Beehive symlink at ~/.pal/cli_clients/systemprompts/$AGENTS_SUBDIR (to ensure consistency after any reconfiguration)"
     fi
-    ln -s "$AGENTS_DIR/$CLINK_AGENTS_DIRNAME" ~/.zen/cli_clients/systemprompts/$AGENTS_SUBDIR
-    print_success "Symlinked role prompts for clink to ~/.zen/cli_clients/systemprompts/$AGENTS_SUBDIR"
-
-    # Copy JSON configs
-    cp "$REPO_ROOT/configs/zen/"*.json ~/.zen/cli_clients/
-    print_success "Copied CLI configs (*.json) to ~/.zen/cli_clients/"
+    ln -s "$AGENTS_DIR/$CLINK_AGENTS_DIRNAME" ~/.pal/cli_clients/systemprompts/$AGENTS_SUBDIR
+    print_success "Symlinked role prompts (for use with clink) to ~/.pal/cli_clients/systemprompts/$AGENTS_SUBDIR"
 
     echo ""
 fi
@@ -87,14 +84,14 @@ if agent_enabled "Claude Code"; then
     # Symlink Claude subagents folder
     if [[ -L ~/.claude/agents/$AGENTS_SUBDIR ]]; then
         rm ~/.claude/agents/$AGENTS_SUBDIR
-        print_success "Removed old symlink at ~/.claude/agents/$AGENTS_SUBDIR"
+        print_success "Removed existing Beehive symlink at ~/.claude/agents/$AGENTS_SUBDIR (to ensure consistency after any reconfiguration)"
     fi
     mkdir -p ~/.claude/agents
-    print_success "Created ~/.claude/agents directory"
+    print_success "Ensured/created ~/.claude/agents directory"
 
     # Symlink all Claude subagent files
     ln -s "$AGENTS_DIR/$CLAUDE_AGENTS_DIRNAME" ~/.claude/agents/$AGENTS_SUBDIR
-    print_success "Symlinked Claude subagent templates to ~/.claude/agents/$AGENTS_SUBDIR"
+    print_success "Symlinked Claude subagent templates/role prompts to ~/.claude/agents/$AGENTS_SUBDIR"
 
     echo ""
 else
@@ -177,7 +174,7 @@ echo -e "${GREEN}✓ Agent setup complete!${NC}"
 echo ""
 echo "Next steps:"
 echo "  1. Run the configs setup script: configs/scripts/set-up-configs.sh"
-echo "  2. Restart Zen MCP server to reload clink configs"
+echo "  2. Restart PAL MCP server to reload clink configs"
 echo "  3. Verify Claude Code agents with: claude (then run /agents)"
 echo "  4. Install claude-mem plugin:"
 echo "     > /plugin marketplace add thedotmack/claude-mem"

@@ -1,0 +1,42 @@
+# =============================================
+#  Beehive fixed configuration - DO NOT EDIT 
+# =============================================
+#
+# This file stores configuration values that are either:
+#   - an immutable reflection of some upstream value
+#   - very unlikely to be changed by the user
+
+# Fixed endpoints for cloud-hosted HTTP MCPs
+endpoint_for:
+  sourcegraph: https://sourcegraph.com
+  context7: https://mcp.context7.com/mcp
+  tavily: https://mcp.tavily.com/mcp/?tavilyApiKey=${TAVILY_API_KEY}
+
+# File paths for config files, connection settings, etc.
+path_to:
+  # Storage paths for memory backends (data directories, database files)
+  storage_for:
+    # Path to SQLite database for claude-mem's session summaries & observations
+    # Override by setting $CLAUDE_MEM_STORAGE_PATH
+    claude_mem: ~/.claude-mem/claude-mem.db
+
+    # Path to JSONL storage for Memory MCP's entity-relationship knowledge graph
+    # Override by setting $MEMORY_MCP_STORAGE_PATH
+    memory_mcp: ~/.memory-mcp/memory.jsonl
+
+    # Path to Qdrant Docker volume mount (vector database storage)
+    # Override by setting $QDRANT_STORAGE_PATH
+    qdrant: ~/.qdrant/storage
+
+qdrant:
+  # Name of the collection within the backing Qdrant DB in which to store semantic memories
+  # Override by setting $QDRANT_COLLECTION_NAME
+  collection: coding-memory
+
+  # Embedding model provider for generating vectors in Qdrant
+  # Override by setting $QDRANT_EMBEDDING_PROVIDER
+  embedding_provider: fastembed
+
+# Fixed clink tool disable list for PAL MCP
+# (all tools below require API keys, which Beehive assumes the user does not want to use)
+pal_disabled_tools: analyze,apilookup,challenge,chat,codereview,consensus,debug,docgen,planner,precommit,refactor,secaudit,testgen,thinkdeep,tracer

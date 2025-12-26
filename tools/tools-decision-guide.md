@@ -1,11 +1,14 @@
 # When to use each MCP tool: decision guide
 
-> **Audience:** Both humans (documentation) and coding agents (instructions)
-> **Purpose:** Optimal tool selection to maximize value, avoid rate limits, and minimize waste
+> [!NOTE]
+> - **Audience:** both humans (documentation) and coding agents (instructions)
+> - **Purpose:** optimal tool selection for
+>   
+>   - maximizing value
+>   - avoiding rate limits
+>   - minimizing waste *(of tokens, tool usage limits, etc.)*
 
----
-
-## Table of contents
+**<ins>Contents:</ins>**
 
 - [Quick Reference: Tool Usage Hierarchy](#quick-reference-tool-usage-hierarchy)
 - [Detailed Tool Profiles](#detailed-tool-profiles)
@@ -51,8 +54,6 @@
 
 -   **Playwright MCP** - Web automation (navigate, click, type, extract via accessibility tree)
 
----
-
 ## Detailed tool profiles
 
 ### Web research & search tools
@@ -76,8 +77,6 @@
 **Rate limits:** None apparent (free tier for public repos)
 
 **Why use first:** Purpose-built for code search with no strict limits
-
----
 
 #### Tavily MCP ⭐ **[PRIMARY FOR WEB]**
 
@@ -103,8 +102,6 @@
 
 **Why use second:** Best balance of features and generous limits
 
----
-
 #### Context7 MCP ⭐ **[PRIMARY FOR DOCS]**
 
 **What it does:**
@@ -124,8 +121,6 @@
 
 **Why use third:** Specialized for documentation, no apparent hard limits
 
----
-
 #### Brave MCP **[SECONDARY SEARCH]**
 
 **What it does:**
@@ -143,8 +138,6 @@
 **Rate limits:** 2000 queries/month (basic web search only on free tier)
 
 **Why use here:** Good fallback when Tavily exhausted, but limited to basic search
-
----
 
 #### Fetch MCP **[SIMPLE FALLBACK]**
 
@@ -169,20 +162,7 @@
 
 **Why use last:** No advanced features, but reliable and unlimited
 
----
-
 ### Memory & knowledge tools
-
-> [!IMPORTANT]
-> **MANDATORY STORAGE REQUIREMENT**
->
-> **After completing ANY task involving analysis, thinking, problem-solving, or discovery, you MUST:**
->
-> 1. **Store insights in Qdrant MCP** using `qdrant-store`
-> 2. **Track relationships in Memory MCP** using `create_entities`/`create_relations`
-> 3. **Ask yourself:** "Would future agents benefit from this?" → YES = STORE IT
->
-> **This is MANDATORY, not optional. Skipping memory storage = incomplete task.**
 
 #### Qdrant MCP ⭐ **[PRIMARY FOR SEMANTIC MEMORY]**
 
@@ -237,8 +217,6 @@
 -   Semantic code snippet search in your IDE
 
 **Why use:** Best tool for "find things similar to X" - works like a persistent, intelligent search over your saved knowledge
-
----
 
 #### Memory MCP ⭐ **[PRIMARY FOR KNOWLEDGE GRAPHS]**
 
@@ -314,8 +292,6 @@ Entity: Anthropic (type: company)
 
 **Why use:** Best tool for "X relates to Y" - maintains structured knowledge with queryable relationships
 
----
-
 ### Qdrant vs memory: quick decision guide
 
 **Use Qdrant when:**
@@ -336,8 +312,6 @@ Entity: Anthropic (type: company)
 
 -   Complex knowledge base needs both similarity search AND relationship tracking
 -   E.g., Qdrant for code snippets, Memory for tracking which projects use which patterns
-
----
 
 ### Code analysis & manipulation tools
 
@@ -361,8 +335,6 @@ Entity: Anthropic (type: company)
 
 **Why use:** Works at semantic level vs. whole-file operations
 
----
-
 #### Semgrep MCP
 
 **What it does:**
@@ -380,8 +352,6 @@ Entity: Anthropic (type: company)
 -   Custom rule enforcement
 
 **Rate limits:** None (free community edition, local server)
-
----
 
 #### Playwright MCP
 
@@ -403,8 +373,6 @@ Entity: Anthropic (type: company)
 
 **Rate limits:** None (local execution)
 
----
-
 #### Filesystem MCP
 
 **What it does:** Bulk file reads (filtered to `read_multiple_files` only)
@@ -413,8 +381,6 @@ Entity: Anthropic (type: company)
 - Batch reading 10+ files (30-60% token savings vs multiple Read calls)
 
 **Rate limits:** None (local)
-
----
 
 ## Decision trees by task type
 
@@ -512,8 +478,6 @@ Example: Code snippet library
     + Memory: Track which projects/patterns use which snippets
 ```
 
----
-
 ## Rate limit management
 
 ### Critical limits to track
@@ -540,8 +504,6 @@ Example: Code snippet library
 -   Can Brave do this basic search? (2k/month)
 -   Is this worth using monthly quota?
 -   Early in month vs. late in month?
-
----
 
 ## Special cases & gotchas
 
@@ -612,7 +574,7 @@ Example: Code snippet library
 **Data Persistence:**
 
 -   **Qdrant**: Data in Docker volume (survives restarts) OR cloud (persistent)
--   **Memory**: JSONL file (location: `MEMORY_FILE_PATH` or default in server dir)
+-   **Memory**: JSONL file (location: `MEMORY_MCP_STORAGE_PATH` or default `~/.memory-mcp/memory.jsonl`)
 -   Both require explicit deletion - data persists across sessions
 
 ### When multiple tools can work
@@ -621,8 +583,6 @@ Example: Code snippet library
 
 1.  Unlimited tools (Sourcegraph, Fetch)
 2.  Monthly-reset tools (Tavily, Brave) - prefer Tavily for citations
-
----
 
 ## Summary: golden rules
 
@@ -641,8 +601,6 @@ Example: Code snippet library
 10. **Qdrant needs Docker OR cloud**, Memory works out of the box
 11. **Memory relations in active voice** - "works_at" not "is_employed_by"
 12. **Data persists across sessions** - remember to clean up when done
-
----
 
 ## Quick decision flowchart
 
@@ -674,6 +632,3 @@ Is it code-related?
             Git? → Git MCP
 ```
 
----
-
-*Last updated: 2025-10-22*

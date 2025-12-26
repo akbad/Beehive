@@ -1,0 +1,68 @@
+# Settings for automated generation of PAL per-CLI config files
+#
+# This file defines how to generate PAL-specific configuration file for each CLI.
+# The generator script configs/scripts/generate-pal-configs.py script reads this file
+#   and produces one JSON config per CLI, using model settings from queen.yml (
+#   pal.<cli> sections, e.g., pal.claude.model).
+#
+# Role discovery is automatic: all .md files in agents/role-prompts/ are
+#   included unless explicitly filtered via YML configs.
+# See documentation or queen.yml for details.
+#
+# ┌─────────────────────────────────────────────────────────────────────────────┐
+# │  SECURITY NOTE                                                              │
+# │                                                                             │
+# │  The CLI args below include permissive flags (acceptEdits, bypass-sandbox,  │
+# │  yolo) that allow subagents to modify files without interactive approval.   │
+# │                                                                             │
+# │  This is intentional: subagents are spawned by a parent agent that already  │
+# │  has user trust. Interactive prompts would break automation.                │
+# │                                                                             │
+# │  To mitigate any potential destructive actions and ensure isolation,        │
+# │  instruct agents to run clink-spawned subagents in separate git worktrees.  │
+# └─────────────────────────────────────────────────────────────────────────────┘
+
+role_prompt_dir_in:
+  # Directory (within Beehive) containing role prompt source files for PAL MCP
+  # 
+  # - This path is used for auto-discovering role prompt files (to add to per-CLI config files)
+  # - The role prompt files in this directory are symlinked into `~/.pal/systemprompts/bees` 
+  #   for direct usage in PAL; hence the setting below
+  beehive: agents/role-prompts
+
+  # Directory where PAL MCP expects to find role prompt files at runtime
+  # (relative to ~/.pal/cli_clients)
+  pal: systemprompts/bees
+
+# CLI definitions
+# Placeholders like {model} and {effort} are substituted using values
+# from YML configs' pal.<cli> settings (e.g., pal.codex.model, pal.codex.effort)
+cli:
+  claude:
+    command: claude
+    additional_args:
+      - "--print"
+      - "--output-format"
+      - "json"
+      - "--permission-mode"
+      - "acceptEdits"
+      - "--model"
+      - "{model}"                            # Set with the value of pal.claude.model
+    env: {}
+
+  codex:
+    command: codex
+    additional_args:
+      - "--json"
+      - "--dangerously-bypass-approvals-and-sandbox"
+      - "--model"
+      - "{model}"                            # Set with the value of pal.codex.model
+      - "-c"
+      - 'model_reasoning_effort="{effort}"'  # Set with the value of pal.codex.effort
+    env: {}
+
+  gemini:
+    command: gemini
+    additional_args:
+      - "--yolo"
+    env: {}

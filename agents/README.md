@@ -154,24 +154,24 @@
 > | Maintenance decoupled | Update complex tool docs without touching simple ones |
 > | Token efficient | Most tasks complete with tier 1 + tier 2 (~1,200-1,500 tokens total) |
 
-## Using with Zen's `clink`
+## Using with PAL's `clink`
 
-This repo’s role bodies in `agents/role-prompts/` can be used as clink roles across any project. clink loads CLI client configs and role prompt files at startup.
+This repo's role bodies in `agents/role-prompts/` can be used as clink roles across any project. clink loads CLI client configs and role prompt files at startup.
 
 - Prereqs
-    - Run Zen MCP with clink enabled (for example via this repo’s setup script). Endpoint typically: `http://localhost:8781/mcp/`.
-    - Create user‑level CLI client configs under `~/.zen/cli_clients/*.json` (or point `CLI_CLIENTS_CONFIG_PATH` to your configs).
+    - Run PAL MCP with clink enabled (for example via this repo's setup script). Uses stdio transport.
+    - Create user‑level CLI client configs under `~/.pal/cli_clients/*.json` (or point `CLI_CLIENTS_CONFIG_PATH` to your configs).
 
 - Config search precedence
     - Repo built‑ins: `conf/cli_clients`
     - `CLI_CLIENTS_CONFIG_PATH` (directory or single JSON)
-    - User overrides: `~/.zen/cli_clients`
+    - User overrides: `~/.pal/cli_clients`
 
 - Map roles to these prompt files
     - Option A (absolute paths): point `prompt_path` at files in `agents/role-prompts/`.
-    - Option B (symlink + relative): symlink this folder under `~/.zen/cli_clients/systemprompts/` and use a relative `prompt_path`.
+    - Option B (symlink + relative): symlink this folder under `~/.pal/cli_clients/systemprompts/` and use a relative `prompt_path`.
 
-Example (`~/.zen/cli_clients/gemini.json`):
+Example (`~/.pal/cli_clients/gemini.json`):
 
 ```json
 {
@@ -193,9 +193,9 @@ Example (`~/.zen/cli_clients/gemini.json`):
 Or using a symlinked layout:
 
 ```bash
-mkdir -p ~/.zen/cli_clients/systemprompts/clink
+mkdir -p ~/.pal/cli_clients/systemprompts/clink
 ln -s "$PWD/beehive/agents/role-prompts" \
-      ~/.zen/cli_clients/systemprompts/clink/for-use-prompts
+      ~/.pal/cli_clients/systemprompts/clink/for-use-prompts
 ```
 
 ```json
@@ -212,16 +212,16 @@ ln -s "$PWD/beehive/agents/role-prompts" \
 ```
 
 - Prompt resolution rules
-    - Relative `prompt_path` resolves relative to the JSON’s directory, then falls back to the Zen project root.
+    - Relative `prompt_path` resolves relative to the JSON's directory, then falls back to the PAL project root.
     - Absolute paths are used as‑is.
     - Role names are per‑CLI. If duplicate CLI `name` definitions exist across search paths, later ones override earlier.
 
 - Verify and use
-    - Restart the Zen server to reload configs.
+    - Restart the PAL server to reload configs.
     - Invoke from your agent: `clink with gemini role=frontend to assess UI components in src/ui/`.
     - You can pass file paths as context, for example: `clink with codex role=architecture_audit on src/, services/auth/`.
     - If only one CLI is configured, clink can default to it and allow omitting `cli_name`.
-    - Troubleshoot: bad paths raise “Prompt file not found: …”. Server logs (setup script default): `/tmp/mcp-Zen MCP-server.log` (tail with `tail -n +1 -f "/tmp/mcp-Zen MCP-server.log"`).
+    - Troubleshoot: bad paths raise "Prompt file not found: …". Check PAL server logs for details.
     - The clink tool schema enumerates available `cli_name` and `role` values—use it to confirm your roles are loaded.
     - The example JSONs include permissive flags (for example, Codex `--dangerously-bypass-approvals-and-sandbox`). Remove or adjust them for stricter guardrails.
 

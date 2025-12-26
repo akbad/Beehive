@@ -1,0 +1,35 @@
+[project]
+name = "beehive"
+version = "0.1.0"
+description = "Multi-agent AI orchestration framework"
+requires-python = ">=3.12"
+dependencies = [
+    "pyyaml>=6.0",
+]
+
+[project.scripts]
+get-config = "lib.pollen.config_cli:main"
+sweep-hive = "lib.pollen.cleanup.core:main"
+validate-config = "lib.pollen.validate_config:main"
+
+[tool.uv]
+package = true
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["lib*"]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.0",
+    "pytest-mock>=3.12",
+    "pytest-cov>=4.1",
+    "responses>=0.25",
+    "mypy>=1.11",
+    "types-PyYAML>=6.0",
+    "types-requests>=2.31",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["lib/pollen/cleanup/tests"]
+pythonpath = ["."]

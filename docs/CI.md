@@ -1,5 +1,15 @@
 # CI pipeline
 
+## Running locally
+
+Mirror CI checks locally before pushing:
+
+| Command | Description |
+|---------|-------------|
+| `make test` | Run unit tests |
+| `make typecheck` | Run mypy type checking |
+| `make ci` | Run both (test + typecheck) |
+
 ## Key information
 
 ## Workflows

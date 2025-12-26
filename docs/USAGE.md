@@ -237,6 +237,14 @@ Simply explicitly mention the subagent you want to use and it will automatically
 
 - **GitHub SpecKit:** for devising detailed specifications and subsequently using them to devise development plans and tasks *(your agents will never hallucinate or get distracted again)*
 
+- **Beehive utilities:** convenience scripts for configuration and maintenance
+
+    | Command | Description |
+    |---------|-------------|
+    | `uv run get-config` | Display resolved Beehive configuration |
+    | `uv run sweep-hive` | Clean up temporary/generated files |
+    | `uv run validate-config` | Validate configuration files |
+
 ## Preserving context & memories across sessions
 
 There are 2 methods for this:

@@ -32,7 +32,7 @@ And other useful background stuff.
     
     - Pulls Qdrant DB Docker image and starts a container (to back the local Qdrant MCP)
 
-- Clones the Sourcegraph MCP and Serena repos locally so that they can be used to launch servers.
+- Clones the Sourcegraph MCP repo locally (required for custom fork with fixes).
 
 ## Tools set up by the script
 

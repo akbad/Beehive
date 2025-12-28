@@ -31,7 +31,6 @@ cfg() {
 # Setting MCP source clone paths
 CLONE_DIR="$(cfg path_to.mcp_clones)"
 export SOURCEGRAPH_REPO_PATH="$CLONE_DIR/sourcegraph-mcp"
-export SERENA_REPO_PATH="$CLONE_DIR/serena"
 
 SERVER_START_TIMEOUT="$(cfg startup_timeout_for.mcp_servers)"
 DOCKER_TIMEOUT="$(cfg startup_timeout_for.docker_daemon)"
@@ -707,11 +706,10 @@ configure_auto_approve() {
 
     # Build list of MCP server names being configured
     local mcp_servers=()
-    mcp_servers+=("pal" "qdrant" "semgrep" "fs" "fetch" "git" "memory" "playwright")
+    mcp_servers+=("pal" "serena" "qdrant" "semgrep" "fs" "fetch" "git" "memory" "playwright")
 
     # Add the other servers if they're available
     [[ "$SOURCEGRAPH_AVAILABLE" == true ]] && mcp_servers+=("sourcegraph")
-    [[ "$SERENA_AVAILABLE" == true ]] && mcp_servers+=("serena")
     [[ "$CONTEXT7_AVAILABLE" == true ]] && mcp_servers+=("context7")
     [[ "$TAVILY_AVAILABLE" == true ]] && mcp_servers+=("tavily")
     [[ "$BRAVE_AVAILABLE" == true ]] && mcp_servers+=("brave")
@@ -797,12 +795,6 @@ if [[ "$SOURCEGRAPH_AVAILABLE" == true ]]; then
     fi
 fi
 
-# Check if Serena repo is available (must be cloned from GitHub)
-SERENA_AVAILABLE=false
-if ensure_git_repo_cloned "Serena" "https://github.com/oraios/serena" "$SERENA_REPO_PATH"; then
-    SERENA_AVAILABLE=true
-fi
-
 # Configure MCP auto-approvals if requested
 if [[ "$AUTO_APPROVE_MCP" == true ]]; then
     log_separator
@@ -843,10 +835,9 @@ start_http_server "Semgrep MCP" "$SEMGREP_MCP_PORT" "SEMGREP_PID" \
     semgrep mcp -t streamable-http --port "$SEMGREP_MCP_PORT"
 
 # Serena MCP (semantic code analysis and editing)
-if [[ "$SERENA_AVAILABLE" == true ]]; then
-    start_http_server "Serena MCP" "$SERENA_MCP_PORT" "SERENA_PID" \
-        uv run --directory "$SERENA_REPO_PATH" --python 3.11 serena start-mcp-server --transport streamable-http --port "$SERENA_MCP_PORT"
-fi
+start_http_server "Serena MCP" "$SERENA_MCP_PORT" "SERENA_PID" \
+    uvx --from git+https://github.com/oraios/serena \
+    serena start-mcp-server --transport streamable-http --port "$SERENA_MCP_PORT"
 
 # ============================================================================
 #   Configure agents to use MCP servers
@@ -874,11 +865,9 @@ log_separator
 log_info "Configuring agents to use Semgrep MCP (HTTP)..."
 setup_http_mcp "semgrep" "http://localhost:$SEMGREP_MCP_PORT/mcp/"
 
-if [[ "$SERENA_AVAILABLE" == true ]]; then
-    log_separator
-    log_info "Configuring agents to use Serena MCP (HTTP - local semantic code analysis)..."
-    setup_http_mcp "serena" "http://localhost:$SERENA_MCP_PORT/mcp/"
-fi
+log_separator
+log_info "Configuring agents to use Serena MCP (HTTP - local semantic code analysis)..."
+setup_http_mcp "serena" "http://localhost:$SERENA_MCP_PORT/mcp/"
 
 if [[ "$CONTEXT7_AVAILABLE" == true ]] && (agent_enabled "$GEMINI" || agent_enabled "$CLAUDE"); then
     log_separator
@@ -958,11 +947,8 @@ fi
 log_info "  • Semgrep MCP: http://localhost:$SEMGREP_MCP_PORT/mcp/ (PID: $SEMGREP_PID)"
 log_info "    └─ Static analysis and security scanning (5000+ rules)"
 
-if [[ "$SERENA_AVAILABLE" == true ]]; then
-    log_info "  • Serena MCP: http://localhost:$SERENA_MCP_PORT/mcp/ (PID: $SERENA_PID)"
-    log_info "    └─ Semantic code analysis and editing with LSP integration"
-    log_info "    └─ Repository: $SERENA_REPO_PATH"
-fi
+log_info "  • Serena MCP: http://localhost:$SERENA_MCP_PORT/mcp/ (PID: $SERENA_PID)"
+log_info "    └─ Semantic code analysis and editing with LSP integration"
 
 log_empty_line
 
@@ -1018,10 +1004,7 @@ if [[ "$SOURCEGRAPH_AVAILABLE" == true ]]; then
 fi
 
 log_info "  • Semgrep MCP: /tmp/mcp-Semgrep MCP-server.log"
-
-if [[ "$SERENA_AVAILABLE" == true ]]; then
-    log_info "  • Serena MCP: /tmp/mcp-Serena MCP-server.log"
-fi
+log_info "  • Serena MCP: /tmp/mcp-Serena MCP-server.log"
 
 if agent_enabled "OpenCode"; then
     log_separator
@@ -1071,7 +1054,7 @@ pidlist=""
 [[ -n "$QDRANT_PID" ]] && pidlist+=" $QDRANT_PID"
 [[ "$SOURCEGRAPH_AVAILABLE" == "true" && -n "$SOURCEGRAPH_PID" ]] && pidlist+=" $SOURCEGRAPH_PID"
 [[ -n "$SEMGREP_PID" ]] && pidlist+=" $SEMGREP_PID"
-[[ "$SERENA_AVAILABLE" == "true" && -n "$SERENA_PID" ]] && pidlist+=" $SERENA_PID"
+[[ -n "$SERENA_PID" ]] && pidlist+=" $SERENA_PID"
 
 # Trim leading space and create kill command
 pidlist="${pidlist# }"

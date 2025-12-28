@@ -28,13 +28,19 @@
 2.  **Tavily MCP** - Web research with citations (1000 credits/month)
 3.  **Context7 MCP** - API documentation and examples
 
-**Tier 2: Specialized Tools (Conditional Use)**
+**Tier 2: Secondary Search (Fallback)**
 
 4.  **Brave MCP** - Privacy-focused search (2000 queries/month)
+5.  **WebSearchAPI MCP** - Google-quality search (2000 queries/month)
 
-**Tier 3: Fallback Tools (Last Resort)**
+**Tier 3: Unlimited Fallback (Last Resort)**
 
-5.  **Fetch MCP** - Simple URL fetching (no rate limits)
+6.  **web-search-mcp** - Browser-based search (unlimited, slower)
+7.  **Fetch MCP** - Simple URL fetching (unlimited)
+
+**Specialized Extraction:**
+
+-   **crawl4ai MCP** - JS rendering + boilerplate removal (unlimited, Docker)
 
 ### Memory & coding tools (use as needed)
 
@@ -403,9 +409,12 @@ START
     ↓
 What type of information?
     ├─ API docs/library info → Context7 MCP
-    ├─ Current events/general web → Tavily MCP
-    ├─ Basic search (Tavily exhausted) → Brave MCP
+    ├─ Current events/general web → Tavily MCP (citations!)
+    │   └─ Tavily exhausted? → Brave MCP
+    │       └─ Brave exhausted? → WebSearchAPI MCP
+    │           └─ All APIs exhausted? → web-search-mcp (unlimited)
     └─ Simple URL content → Fetch MCP
+        └─ JS/dynamic content? → crawl4ai MCP
 ```
 
 ### Website crawling/scraping
@@ -414,13 +423,15 @@ What type of information?
 START
     ↓
 Single URL or simple extraction?
-    ├─ YES → Fetch MCP (unlimited) or Tavily extract
+    ├─ YES → Static page? → Fetch MCP (unlimited)
+    │        JS/dynamic content? → crawl4ai MCP
+    │        Need boilerplate removed? → crawl4ai MCP
     └─ NO  → Multiple pages/complex?
         ↓
         Try Tavily search/extract/map/crawl
         ↓ Still need more?
         ↓
-        Use Fetch iteratively on known URLs
+        Use Fetch or crawl4ai iteratively on known URLs
 ```
 
 ### Code manipulation
@@ -486,6 +497,9 @@ Example: Code snippet library
 |------|-----------|---------|-------|----------|
 | Tavily | Monthly | 1000 credits | 1st of month | 🟡 MEDIUM |
 | Brave | Monthly | 2000 queries | Monthly | 🟡 MEDIUM |
+| WebSearchAPI | Monthly | 2000 queries | Monthly | 🟡 MEDIUM |
+| web-search-mcp | None | ∞ | N/A | 🟢 SAFE |
+| crawl4ai | None | ∞ | N/A | 🟢 SAFE |
 | Sourcegraph | None | ∞ | N/A | 🟢 SAFE |
 | Fetch | None | ∞ | N/A | 🟢 SAFE |
 | Playwright | None | ∞ | N/A | 🟢 SAFE |
@@ -539,9 +553,10 @@ Example: Code snippet library
 
 **Use this priority:**
 
-1.  Playwright (for JS-heavy sites, form interactions, dynamic content)
-2.  Tavily extract (for simpler extractions)
-3.  Fetch MCP (for static HTML only)
+1.  crawl4ai (for JS rendering + boilerplate removal, no interaction needed)
+2.  Playwright (for JS-heavy sites, form interactions, user simulation)
+3.  Tavily extract (for simpler extractions with citations)
+4.  Fetch MCP (for static HTML only)
 
 ### Memory & knowledge storage
 
@@ -589,10 +604,11 @@ Example: Code snippet library
 ### Search & research
 
 1.  **Sourcegraph first for code**, Tavily first for web
-2.  **Fetch is unlimited** - use liberally for simple fetches
-3.  **Context7 for official docs**, Sourcegraph for real examples
-4.  **Tavily for citations**, Brave as fallback when Tavily exhausted
-5.  **Front-load Tavily early each month** before credits run out
+2.  **Fetch is unlimited** - use liberally for static pages
+3.  **crawl4ai for JS/dynamic pages** - unlimited, handles boilerplate
+4.  **Context7 for official docs**, Sourcegraph for real examples
+5.  **Tavily for citations**, fallback chain: Brave → WebSearchAPI → web-search-mcp
+6.  **Front-load Tavily early each month** before credits run out
 
 ### Memory & knowledge
 
@@ -617,13 +633,13 @@ Is it code-related?
     │        Security scan? → Semgrep
     │
     └─ NO  → Is it web/research?
-        ├─ YES → General info? → Tavily
+        ├─ YES → General info? → Tavily → Brave → WebSearchAPI → web-search-mcp
         │        ↓
-        │        Simple URL? → Fetch
+        │        Simple static URL? → Fetch
         │        ↓
-        │        Need semantic search? → Try Tavily first, then Exa
+        │        JS/dynamic URL? → crawl4ai
         │        ↓
-        │        Complex crawl? → Try Tavily, then consider Firecrawl
+        │        Complex crawl? → Tavily crawl
         │
         └─ NO  → Memory storage? → Qdrant (semantic) or Memory (graph)
             ↓

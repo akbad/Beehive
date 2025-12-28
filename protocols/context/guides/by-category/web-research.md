@@ -6,6 +6,9 @@
 |------|----------|-------|-------------|-----------|
 | **Tavily** | General web + citations | 1k/mo | Current info, multi-source research | Credits low |
 | **Brave** | Privacy search | 2k/mo | Tavily exhausted, basic search | Need advanced features |
+| **WebSearchAPI** | Google-quality results | 2k/mo | Tavily+Brave exhausted, need quality | All quotas available |
+| **web-search-mcp** | Unlimited browser search | ∞ | All API quotas exhausted | Speed matters |
+| **crawl4ai** | Quality extraction | ∞ | JS rendering, clean extraction | Simple static pages |
 | **Fetch** | Simple URL fetch | ∞ | Known URL, simple content | Need search/crawl |
 
 ## Tool usage guides
@@ -54,6 +57,75 @@
 
 **When to use:** After Tavily credits exhausted, need basic search
 
+### WebSearchAPI (tertiary choice)
+
+**Strengths:**
+- Google-quality search results
+- 2k queries/month (extends API capacity)
+- Clean JSON response format
+- Content extraction included
+
+**Tools:**
+- `websearch` - Search query (returns title, URL, snippet)
+- `extract_content` - Extract clean text from URL (removes boilerplate)
+
+**Examples:**
+```
+"GraphQL best practices 2024" → websearch
+"Extract content from blog.example.com/post" → extract_content
+```
+
+**When to use:** After Tavily + Brave exhausted, need quality results before slow fallback
+
+**When NOT to use:** Tavily or Brave credits available (prefer those first)
+
+### web-search-mcp (unlimited fallback)
+
+**Strengths:**
+- Unlimited queries (no rate limits)
+- Real browser execution via Playwright
+- Handles dynamic/JS-rendered content
+- Works when all API quotas exhausted
+
+**Limitations:**
+- Slower than API-based tools (launches browser)
+- Higher resource usage
+- No citation metadata
+
+**Examples:**
+```
+"Latest Rust async patterns" → search
+"Find React 19 migration guides" → search
+```
+
+**When to use:** All API quotas exhausted (Tavily + Brave + WebSearchAPI)
+
+**When NOT to use:** Speed is critical; any API quota available
+
+### crawl4ai (quality extraction)
+
+**Strengths:**
+- JS rendering for dynamic content
+- Intelligent boilerplate removal
+- Handles complex page structures
+- Docker-based (zero local deps)
+- Unlimited usage
+
+**Limitations:**
+- Requires Docker
+- No search capability (extraction only)
+- Slower than simple Fetch
+
+**Examples:**
+```
+"Extract article from spa-site.com/article" → crawl (JS rendered)
+"Get clean content from cluttered-blog.com" → crawl (boilerplate removed)
+```
+
+**When to use:** Dynamic/JS pages, need clean extraction, Fetch not working
+
+**When NOT to use:** Static pages where Fetch works fine
+
 ### Fetch (simple fallback)
 
 **Strengths:**
@@ -81,24 +153,34 @@ fetch("https://example.com/article.html") → returns markdown
 Need web content?
     ↓
 Known URL(s)?
-├─ YES → Single URL? → Fetch
-│        Multiple or complex? → Tavily extract
+├─ YES → Single static URL? → Fetch
+│        JS/dynamic content? → crawl4ai
+│        Multiple URLs? → Tavily extract
 └─ NO → Need search
     ↓
     Tavily credits OK?
     ├─ YES → Use Tavily (citations!)
-    └─ NO → Use Brave (2k/mo)
+    └─ NO → Brave credits OK?
+        ├─ YES → Use Brave (2k/mo)
+        └─ NO → WebSearchAPI credits OK?
+            ├─ YES → Use WebSearchAPI (Google-quality)
+            └─ NO → Use web-search-mcp (unlimited, slower)
 ```
 
 ## Best practices
 
-**Always start with:** Tavily (best balance of features + limits)
+**Search priority order:**
+1. Tavily (citations, best features)
+2. Brave (2k/mo backup)
+3. WebSearchAPI (Google-quality, +2k/mo)
+4. web-search-mcp (unlimited, slowest)
 
-**Use Brave when:** Tavily credits low, need basic search
+**Extraction priority order:**
+1. Fetch (static pages, fastest)
+2. crawl4ai (JS pages, boilerplate removal)
+3. Tavily extract (multiple URLs, credits permitting)
 
-**Use Fetch when:** Known URL, simple content, other tools overkill
-
-**Track limits:** Check monthly resets (Tavily: 1st, Brave: varies)
+**Track limits:** Check monthly resets (Tavily: 1st, Brave/WebSearchAPI: varies)
 
 ## Common mistakes to avoid
 
@@ -110,4 +192,7 @@ Known URL(s)?
 
 - [Tavily deep dive](../deep-dives/tavily.md)
 - [Brave deep dive](../deep-dives/brave.md)
+- [WebSearchAPI deep dive](../deep-dives/websearchapi.md)
+- [web-search-mcp deep dive](../deep-dives/web-search-mcp.md)
+- [crawl4ai deep dive](../deep-dives/crawl4ai.md)
 - [Fetch deep dive](../deep-dives/fetch.md)

@@ -73,6 +73,7 @@ class EndpointForConfig(TypedDict):
     sourcegraph: str
     context7: str
     tavily: str
+    websearchapi: str
 
 
 class Config(TypedDict, total=False):

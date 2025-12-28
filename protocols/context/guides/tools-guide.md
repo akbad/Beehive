@@ -18,11 +18,14 @@
 
 ## Web research
 
-- For **general web info**: use Tavily (cited results; 1k/mo) ([deep dive](deep-dives/tavily.md))
+- For **general web info** (use in the given order, falling back to the next option if all previous options are unavailable/rate-limited):
 
-    - Fallback if *Tavily is exhausted*: use Brave (2k/mo) ([deep dive](deep-dives/brave.md))
+    1. **Tavily** (cited results) ([deep dive](deep-dives/tavily.md))
+    2. **Brave** ([deep dive](deep-dives/brave.md))
+    3. **WebSearchAPI** ([deep dive](deep-dives/websearchapi.md))
+    4. **`web-search-mcp`** (unlimited, browser-based) ([deep dive](deep-dives/web-search-mcp.md))
 
-    - Fallback if *Tavily and Brave are exhausted*: use Playwright to use the browser to search the web (unlimited)
+- For **quality content extraction** (JS rendering, boilerplate removal): use crawl4ai ([deep dive](deep-dives/crawl4ai.md))
 
 - For **simple URL fetches**: use Fetch (unlimited) ([deep dive](deep-dives/fetch.md))
 
@@ -181,4 +184,7 @@ All non-listed MCPs are local and/or have no usage limits.
 |-------------|--------------------------|------------------------------------------------|
 | Tavily      | 1,000 credits/month      | Resets on 1st of month                        |
 | Brave       | 2,000 queries/month      | Free tier; basic web search                    |
+| WebSearchAPI| 2,000 queries/month      | Free tier; Google-quality results              |
+| web-search  | Unlimited                | Browser-based; slowest but no rate limits      |
+| crawl4ai    | Unlimited                | Docker-based; quality extraction               |
 | Sourcegraph | Interactive limits       | use count:all to make the search exhaustive, bump timeout if needed; switch to src-cli for very large result sets beyond the UI display limit. |

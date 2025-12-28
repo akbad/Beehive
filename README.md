@@ -11,30 +11,40 @@
 > - [**Usage guide**](docs/USAGE.md)
 > - [**Configuration reference**](docs/CONFIGURATION.md)
 
-## Purpose
+## What Bureau provides
+
+- **A unified, cohesive set of MCP servers (+ extra plugins)** across all 3 platforms covering a wide range of daily task categories
+- **66 specialized agent roles** that are:
+    - usable everywhere
+    - spawnable as ***cross-CLI* subagents**
+- **Minimal task delegation overhead** (reduced from minutes of setup to *<30 seconds*)
+- **A *near-zero* learning curve** via:
+  
+  - **automated context injection** that ensures:
+
+    - Agents *automatically and judiciously* use all functionality Bureau configures them to have access to
+    - **minimal explicit directions** are needed from the user
+  
+  - **sensible default settings for quick setup**, accompanied by extensive configuration options for power users
+
+### Why?
 
 Agentic coding CLIs, such as Claude Code, Gemini CLI, and Codex, are fragmented: each have unique strengths but incompatible tooling. 
 
-- Power users rotating between these (as is often the best option, given providers' unpredictable model throttling and capricious rate limit changes, even for paid plans) **lose time rebuilding and reconfiguring context, tools, and custom workflows**. 
-- Meanwhile, many agentic orchestration frameworks intending to help solve this problem:
-  
-    - have **considerable learning curves** 
-    - enforce **opinionated orchestration patterns** (e.g. graphs, crews, pipelines)
+Further, users often rotate between CLIs due to:
     
-    rather than adapting to users' ad-hoc workflows or permitting open-ended exploration/building.
+- their corresponding models being better suited for particular development tasks, workflows and/or styles
+- new features and model releases 
+- providers' capricious and scarcely-communicated model throttling and rate limit shifts
 
-**<ins>Bureau solves that</ins>** by:
+But **rotating often means losing time rebuilding and reconfiguring context, tools, and custom workflows**. 
 
-- **Providing a unified, cohesive set of MCP servers (+ extra plugins)** across all 3 platforms covering a wide range of daily task categories
-- **Defining 66 specialized agent roles** once and making them:
-    - usable everywhere
-    - spawnable as ***cross-CLI* subagents**
-- **Minimizing task delegation overhead** from minutes of setup to *<30 seconds*
-- **Reducing the learning curve** to ***near-zero*** (while offering thorough customization for power users):
+Meanwhile, many agentic orchestration frameworks intending to help solve this problem have:
 
-  - **Automated context injection** ensures agents *automatically and judiciously* use all functionality Bureau configures them to have access to
-  - **Minimal explicit directions needed** from the user
-  - **Sensible defaults** for quick setup 
+- considerable learning curves 
+- opinionated orchestration & development patterns pushed upon users
+    
+rather than adapting to users' ad-hoc workflows or permitting open-ended exploration/building.
 
 ## Feature list
 
@@ -65,7 +75,7 @@ Agentic coding CLIs, such as Claude Code, Gemini CLI, and Codex, are fragmented:
 | **Codex** & **Gemini CLI** | Use **custom role-specific launch wrappers** (e.g. `codex-debugger`, `gemini-architect`) set up by Bureau |
 
 > [!TIP]
-> See details on how to use these 2 agent invocation methods in the [*Usage patterns* section below](#usage-patterns). 
+> See details for these 2 invocation methods in the [*agent role usage patterns* section below](#agent-role-usage-patterns). 
 
 ### Cohesive MCP server set
 
@@ -104,17 +114,9 @@ Injected via these files (created in setup steps)
 
 with each of the 3 files above generated from templates (for portability regardless of repo clone location).
 
-> [!NOTE]
-> 
-> **Enabling/disabling CLI agents for use with Bureau**
->
-> - Configure which CLIs to set up by overriding the `agents` list (in `directives.yml`) in your `local.yml`
-> - See [docs/CONFIGURATION.md](docs/CONFIGURATION.md#agents) for details
-
 ### Spec-driven development *(maintainer favourite)* 
 
-> *This is provided by the [GitHub's open-source `spec-kit` CLI](https://github.com/github/spec-kit), which Bureau's setup scripting automatically installs*\
-> *(via `uv tool install` for global availability).*
+> *This is provided by the [GitHub's open-source `spec-kit` CLI](https://github.com/github/spec-kit), which Bureau's setup scripting automatically installs via `uv tool install` for global availability.*
 
 **Significantly reduces agents' mistakes, bugs and unintended implementation omissions** by providing an intuitive, painless workflow *driven by intra-CLI commands* where agents: 
     
@@ -127,7 +129,7 @@ with each of the 3 files above generated from templates (for portability regardl
 > 
 > To get started fast, **read [Bureau's 5-minute guide to `spec-kit`](docs/USAGE.md#using-github-speckit-cli)**.
 
-## Usage patterns
+## Agent role usage patterns
 
 ### Spawning subagents
 
@@ -183,12 +185,11 @@ Use the built-in [primary agents mechanism](https://opencode.ai/docs/agents/#pri
 | File | Purpose | Tracked? |
 | :--- | :--- | :--- |
 | `charter.yml` | Fixed, rarely-changed system defaults | Yes |
-| `directives.yml` | User-oriented, often-tweaked settings | Yes |
+| `directives.yml` | Streamlined collection of user-oriented, often-tweaked settings | Yes |
 | **`local.yml`** | **Personal customizations/overrides** (gitignored) | **No** (gitignored) |
 
-> [!IMPORTANT]
-> Configuration loads based on the following hierarchy *(later config sources override earlier ones)*: \
-> **`charter.yml` → `directives.yml` → `local.yml` → environment variables**
+Configuration loads based on the following hierarchy *(later config sources override earlier ones)*: \
+**`charter.yml` → `directives.yml` → `local.yml` → environment variables**
 
 See [`docs/CONFIGURATION.md`](docs/CONFIGURATION.md) for full reference.
 

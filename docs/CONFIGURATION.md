@@ -249,7 +249,7 @@ File and directory paths used by Bureau and its tools.
 | Setting | Default | Description |
 |:--------|:--------|:------------|
 | `workspace` | `~/code` | Base workspace directory; other paths derive from this |
-| `serena_projects` | (= `workspace`) | Where Serena looks for project memories |
+| `serena_memories_root` | (= `workspace`) | Root directory for scanning Serena memory files *(used for **Bureau-run cleanup only**)* |
 | `fs_mcp_whitelist` | (= `workspace`) | Directory boundary for Filesystem MCP access |
 | `mcp_clones` | `.mcp-servers/` | Clone location for MCP server source code |
 | `storage_for.claude_mem` | `~/.claude-mem/claude-mem.db` | Claude-mem SQLite database path |
@@ -261,8 +261,8 @@ File and directory paths used by Bureau and its tools.
 > #### Paths automatically derived from `workspace`
 > 
 > When `workspace` is set, the following paths are automatically derived from it (unless explicitly overridden):
-> 
-> - `serena_projects` → same as `workspace`
+>
+> - `serena_memories_root` → same as `workspace`
 > - `fs_mcp_whitelist` → same as `workspace`
 > 
 > This means you only need to configure `workspace` in `local.yml` to change all workspace-related paths at once.
@@ -273,7 +273,7 @@ File and directory paths used by Bureau and its tools.
 path_to:
   # User-tunable paths
   workspace: ~/code                           # Base workspace directory
-  serena_projects: ~/code                     # Serena project search location
+  serena_memories_root: ~/code                # Root for scanning Serena memory files (used by Bureau-run cleanup only)
   fs_mcp_whitelist: ~/code                    # Filesystem MCP security boundary
   mcp_clones: .mcp-servers/                   # MCP server clone location (in repo root)
 
@@ -317,7 +317,7 @@ Some configuration values can be overridden via environment variables:
 
 | Environment Variable | Overrides | Description |
 |:---------------------|:----------|:------------|
-| `BUREAU_WORKSPACE` | `path_to.serena_projects` | Base project directory |
+| `BUREAU_WORKSPACE` | `path_to.serena_memories_root` | Root for scanning Serena memory files |
 | `MEMORY_MCP_STORAGE_PATH` | `path_to.storage_for.memory_mcp` | Memory MCP storage path |
 | `CLAUDE_MEM_STORAGE_PATH` | `path_to.storage_for.claude_mem` | Claude-mem database path |
 | `QDRANT_STORAGE_PATH` | `path_to.storage_for.qdrant` | Qdrant storage directory |

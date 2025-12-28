@@ -235,7 +235,7 @@ def with_jsonl_data(
 # =============================================================================
 
 @pytest.fixture
-def serena_projects(tmp_path: Path) -> Path:
+def serena_memories_root(tmp_path: Path) -> Path:
     """Realistic Serena project structure including symlink edge case.
 
     Creates:
@@ -245,11 +245,11 @@ def serena_projects(tmp_path: Path) -> Path:
     The external directory is at tmp_path / "external" for tests that need
     to verify it wasn't touched.
     """
-    projects_dir = tmp_path / "projects"
+    memories_root = tmp_path / "projects"
 
     # Create two regular projects with .serena/memories/
     for i in range(2):
-        project_dir = projects_dir / f"project_{i}"
+        project_dir = memories_root / f"project_{i}"
         memories_dir = project_dir / ".serena" / "memories"
         memories_dir.mkdir(parents=True, exist_ok=True)
 
@@ -264,11 +264,11 @@ def serena_projects(tmp_path: Path) -> Path:
     external_memories.mkdir(parents=True)
     (external_memories / "external_memory.md").write_text("External memory")
 
-    # Create symlink inside projects_dir pointing to external
-    symlinked_project = projects_dir / "symlinked_project"
+    # Create symlink inside memories_root pointing to external
+    symlinked_project = memories_root / "symlinked_project"
     symlinked_project.symlink_to(external_dir)
 
-    return projects_dir
+    return memories_root
 
 
 # =============================================================================
@@ -322,7 +322,7 @@ def apply_mock_patches(
     tmp_path: Path,
     sqlite_db: Path,
     jsonl_file: Path,
-    serena_projects: Path,
+    serena_memories_root: Path,
     archives_dir: Path,
     qdrant_base_url: str,
     qdrant_collection: str,
@@ -363,7 +363,7 @@ def apply_mock_patches(
     # define replacement functions
     def mock_get_path(path_name: str) -> Path:
         paths = {
-            "serena_projects": serena_projects,
+            "serena_memories_root": serena_memories_root,
         }
         return paths.get(path_name, tmp_path / path_name)
 

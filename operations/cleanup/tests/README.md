@@ -121,7 +121,7 @@ Pytest **discovers tests without registration** via naming conventions:
 
 | Fixture | Description |
 | :--- | :--- |
-| `serena_projects` | Directory tree with 2 regular projects + 1 symlinked project (to test that it won't be touched), each real project containing `.serena/memories/*.md` |
+| `serena_memories_root` | Directory tree with 2 regular projects + 1 symlinked project (to test that it won't be touched), each real project containing `.serena/memories/*.md` |
 
 #### Qdrant (for the HTTP API handler)
 
@@ -166,7 +166,7 @@ This fixture is the **central orchestrator** patching all configuration function
 | :--- | :--- |
 | `get_storage("claude_mem")` | `tmp_path/claude-mem.db` |
 | `get_storage("memory_mcp")` | `tmp_path/memory.jsonl` |
-| `get_path("serena_projects")` | `tmp_path/projects/` |
+| `get_path("serena_memories_root")` | `tmp_path/projects/` |
 | `get_qdrant_url()` | `http://127.0.0.1:8780` |
 | `get_qdrant_collection()` | `coding-memory` |
 | `get_archives_dir()` | `tmp_path/.archives/` |

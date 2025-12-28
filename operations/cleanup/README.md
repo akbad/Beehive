@@ -200,15 +200,15 @@ Each handler is implemented corresponding to its memory storage backend's underl
 
 #### Serena
 
-- **Storage model:** `.serena/memories/*.md` files under `path_to.serena_projects` (default: `~/code`)
+- **Storage model:** `.serena/memories/*.md` files under `path_to.serena_memories_root` (default: `~/code`)
 
 - **Implementation:**
 
-    1. Recursively discover all `.serena/memories/` directories at any depth within the configured `path_to.serena_projects` directory
+    1. Recursively discover all `.serena/memories/` directories at any depth within the configured `path_to.serena_memories_root` directory
 
-        - **Symbolic links are skipped** to prevent accessing any locations outside the `path_to.serena_projects` directory
+        - **Symbolic links are skipped** to prevent accessing any locations outside the `path_to.serena_memories_root` directory
 
-            > Note any symlinked directories would also cause an infinite loop in this step if `path_to.serena_projects` was a descendant of theirs.
+            > Note any symlinked directories would also cause an infinite loop in this step if `path_to.serena_memories_root` was a descendant of theirs.
 
     2. Identify stale memory files using the file's modification time (`st_mtime`)
     3. Move stale memory files to trash, *preserving project structure* for easy search & recovery of trashed memories if needed.

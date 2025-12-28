@@ -58,7 +58,7 @@ class StorageForConfig(TypedDict, total=False):
 
 class PathToConfig(TypedDict, total=False):
     workspace: str
-    serena_projects: str
+    serena_memories_root: str
     fs_mcp_whitelist: str
     mcp_clones: str
     storage_for: StorageForConfig
@@ -231,7 +231,7 @@ def get_config() -> Config:
     # Apply environment variable overrides for path_to
     path_to = config.get("path_to", {})
     path_env_overrides = {
-        "serena_projects": "BUREAU_WORKSPACE",
+        "serena_memories_root": "BUREAU_WORKSPACE",
     }
 
     for path_key, env_var in path_env_overrides.items():
@@ -253,8 +253,8 @@ def get_config() -> Config:
     # Derive paths from workspace if not explicitly set
     if workspace := path_to.get("workspace"):
         # Only set these if not already configured
-        if "serena_projects" not in path_to:
-            path_to["serena_projects"] = workspace
+        if "serena_memories_root" not in path_to:
+            path_to["serena_memories_root"] = workspace
         if "fs_mcp_whitelist" not in path_to:
             path_to["fs_mcp_whitelist"] = workspace
 
@@ -338,7 +338,7 @@ def get_path(path_name: str) -> Path:
     """Get a configured file path, expanded.
 
     Args:
-        path_name: Path key (serena_projects, fs_mcp_whitelist, mcp_clones).
+        path_name: Path key (serena_memories_root, fs_mcp_whitelist, mcp_clones).
 
     Returns:
         Expanded Path object.

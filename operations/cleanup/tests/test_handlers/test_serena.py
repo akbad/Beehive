@@ -12,7 +12,7 @@ class TestSerenaFindSerenaDirs:
 
     def test_finds_serena_memories_dirs(
         self,
-        serena_projects: Path,
+        serena_memories_root: Path,
         apply_mock_patches: dict,
     ):
         """Finds all .serena/memories directories."""
@@ -26,7 +26,7 @@ class TestSerenaFindSerenaDirs:
 
     def test_symlink_in_parent_skipped(
         self,
-        serena_projects: Path,
+        serena_memories_root: Path,
         apply_mock_patches: dict,
     ):
         """Regression test: symlinked directories are skipped (Issue #8)."""
@@ -179,13 +179,13 @@ class TestSerenaGetExpiredItems:
 
     def test_project_name_extraction(
         self,
-        serena_projects: Path,
+        serena_memories_root: Path,
         apply_mock_patches: dict,
     ):
         """Project name is extracted from directory structure."""
         # set old mtime on all memory files
         old_time = datetime(2024, 1, 1, tzinfo=timezone.utc).timestamp()
-        for f in serena_projects.rglob("*.md"):
+        for f in serena_memories_root.rglob("*.md"):
             os.utime(f, (old_time, old_time))
 
         handler = SerenaHandler()
@@ -199,7 +199,7 @@ class TestSerenaGetExpiredItems:
 
     def test_new_files_not_expired(
         self,
-        serena_projects: Path,
+        serena_memories_root: Path,
         apply_mock_patches: dict,
     ):
         """Files with recent mtime are not expired."""
@@ -275,7 +275,7 @@ class TestSerenaWipe:
 
     def test_wipe_all_memory_files(
         self,
-        serena_projects: Path,
+        serena_memories_root: Path,
         apply_mock_patches: dict,
     ):
         """Wipe removes all memory files from all projects."""
@@ -286,12 +286,12 @@ class TestSerenaWipe:
         assert result["wiped"] == 4
 
         # verify files are gone
-        remaining = list(serena_projects.rglob("*.md"))
+        remaining = list(serena_memories_root.rglob("*.md"))
         assert len(remaining) == 0
 
     def test_wipe_no_backup(
         self,
-        serena_projects: Path,
+        serena_memories_root: Path,
         apply_mock_patches: dict,
     ):
         """Wipe without backup deletes files directly."""
@@ -302,7 +302,7 @@ class TestSerenaWipe:
         assert "backup_path" not in result
 
         # files should be deleted
-        remaining = list(serena_projects.rglob("*.md"))
+        remaining = list(serena_memories_root.rglob("*.md"))
         assert len(remaining) == 0
 
     def test_wipe_empty_projects(

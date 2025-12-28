@@ -13,32 +13,32 @@ class SerenaHandler(CleanupHandler):
 
     name = "serena"
 
-    def _get_projects_dir(self) -> Path:
-        """Get the Serena projects directory."""
-        return get_path("serena_projects")
+    def _get_memories_root(self) -> Path:
+        """Get root directory for scanning Serena memory files."""
+        return get_path("serena_memories_root")
 
     def _find_serena_dirs(self) -> list[Path]:
-        """Find all .serena/memories directories under projects dir.
+        """Find all .serena/memories directories under memories root.
 
         Skips directories reached via symlinks to avoid scanning
-        unintended locations outside the projects directory.
+        unintended locations outside the memories root.
         """
         serena_dirs: list[Path] = []
-        projects_dir = self._get_projects_dir()
+        memories_root = self._get_memories_root()
 
-        if not projects_dir.exists():
+        if not memories_root.exists():
             return serena_dirs
 
         # search for .serena/memories directories
-        for serena_dir in projects_dir.rglob(".serena"):
+        for serena_dir in memories_root.rglob(".serena"):
             # skip if .serena itself is a symlink
             if serena_dir.is_symlink():
                 continue
 
             # skip if any parent in the path is a symlink
             try:
-                rel_path = serena_dir.relative_to(projects_dir)
-                current = projects_dir
+                rel_path = serena_dir.relative_to(memories_root)
+                current = memories_root
                 followed_symlink = False
                 for part in rel_path.parts:
                     current = current / part
@@ -48,7 +48,7 @@ class SerenaHandler(CleanupHandler):
                 if followed_symlink:
                     continue
             except ValueError:
-                continue  # not relative to projects_dir, skip
+                continue  # not relative to memories_root, skip
 
             memories_dir = serena_dir / "memories"
             if memories_dir.exists() and memories_dir.is_dir():

@@ -79,11 +79,21 @@ fi
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
-# Ensure Python 3.12 and sync dependencies
+# Reuse Python version in .python-version
+PYTHON_VERSION=$(cat "$REPO_ROOT/.python-version" | tr -d '[:space:]')
+
+# Verify .python-version and pyproject.toml's `requires-python` match
+PYPROJECT_PYTHON=$(grep 'requires-python' "$REPO_ROOT/pyproject.toml" | grep -oE '[0-9]+\.[0-9]+')
+if [[ "$PYTHON_VERSION" != "$PYPROJECT_PYTHON" ]]; then
+    echo -e "${YELLOW}⚠${NC} Version mismatch: .python-version ($PYTHON_VERSION) vs pyproject.toml ($PYPROJECT_PYTHON)"
+    echo -e "  └─ ${YELLOW}Update both files to match${NC}"
+fi
+
+# Ensure correct Python version and sync dependencies
 [[ "$QUIET" == false ]] && echo -e "\nSetting up Python environment...\n"
 
-uv python install 3.12 --quiet 2>/dev/null || true
-[[ "$QUIET" == false ]] && echo -e "${GREEN}✓${NC} Python 3.12 ready"
+uv python install "$PYTHON_VERSION" --quiet 2>/dev/null || true
+[[ "$QUIET" == false ]] && echo -e "${GREEN}✓${NC} Python $PYTHON_VERSION ready"
 
 (cd "$REPO_ROOT" && uv sync --quiet 2>/dev/null) || true
 [[ "$QUIET" == false ]] && echo -e "${GREEN}✓${NC} Python dependencies installed"

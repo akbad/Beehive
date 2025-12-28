@@ -2,26 +2,72 @@
 
 Bureau uses a YAML-based configuration system with a three-tier hierarchy that allows team-wide defaults while supporting personal overrides.
 
-## Config file precedence
+> [!IMPORTANT]
+>
+> **[`open-bureau`](../bin/open-bureau) <ins>must</ins> be re-run after editing any config values** in *any* of [the configuration sources used by Bureau](#configuration-sources-and-precedence).
+
+***Contents***:
+
+- [Configuration sources and precedence](#configuration-sources-and-precedence)
+  - [When to use each file](#when-to-use-each-file)
+- [Settings](#settings)
+  - [`agents`](#agents)
+  - [`mcp`](#mcp)
+  - [`pal`](#pal)
+  - [`retention_period_for`](#retention_period_for)
+  - [`cleanup`](#cleanup)
+  - [`trash`](#trash)
+  - [`startup_timeout_for`](#startup_timeout_for)
+  - [`port_for`](#port_for)
+  - [`path_to`](#path_to)
+  - [`endpoint_for`](#endpoint_for)
+  - [`qdrant`](#qdrant)
+- [Environment variable overrides](#environment-variable-overrides)
+- [Examples](#examples)
+  - [Disable specific CLI agents locally](#disable-specific-cli-agents-locally)
+  - [Enable MCP tool auto-approval](#enable-mcp-tool-auto-approval)
+  - [Keep memories longer](#keep-memories-longer)
+  - [Use different workspace directory](#use-different-workspace-directory)
+  - [Change ports to avoid conflicts](#change-ports-to-avoid-conflicts)
+- [Security note for subagents spawned via PAL MCP's `clink`](#security-note-for-subagents-spawned-via-pal-mcps-clink)
+  - [Solutions](#solutions)
+- [Related commands](#related-commands)
+
+
+## Configuration sources and precedence
 
 Configuration is loaded and merged in this order (later sources override earlier):
 
 | Priority | File | Purpose | Tracked by git? |
 |:---------|:-----|:--------|:------------------|
-| 1 (lowest) | `charter.yml` | Fixed system defaults | Yes |
-| 2 | `directives.yml` | Team-tunable settings | Yes |
-| 3 | `local.yml` | Personal overrides | No |
-| 4 (highest) | Environment variables | Runtime overrides | N/A |
+| 1 (lowest) | **`charter.yml`** | Fixed system defaults | Yes |
+| 2 | **`directives.yml`** | Streamlined collection of team-/user-oriented settings that are often tweaked | Yes |
+| 3 | **`local.yml`** | Personal overrides | No |
+| 4 (highest) | **Environment variables** | Runtime overrides *(should be used rarely; for more persistent personal overrides, use `local.yml`)* | N/A |
 
 ### When to use each file
 
-- **`charter.yml`**: Don't edit unless you're changing upstream service endpoints or package conventions. These are values that rarely (if ever) need changing.
+#### `charter.yml`
 
-- **`directives.yml`**: Edit to change team-wide defaults like retention periods, enabled agents, ports, or paths. Changes here affect everyone using this Bureau installation.
+- Don't edit unless you're changing upstream service endpoints or package conventions. 
+- These are values that rarely (if ever) need changing.
 
-- **`local.yml`**: Create this file for personal overrides that shouldn't be shared (e.g., different workspace paths, custom retention periods, disabling certain agents locally).
+#### `directives.yml` 
 
-## Configuration sections
+- *Read* to see examples of how to set config values (to then override in your `local.yml`).
+- *Edit* to change team-wide defaults like retention periods, enabled agents, ports, or paths. 
+
+    - Changes here affect everyone using *that* particular Bureau installation.
+
+#### `local.yml` 
+
+Create and write to this file for personal overrides that shouldn't be shared, e.g.: 
+
+- custom workspace paths 
+- custom retention periods for memories (configured per-MCP)
+- disabling Bureau configuration for agent CLIs you don't use
+
+## Settings
 
 ### `agents`
 
@@ -61,15 +107,6 @@ When set to `yes` or `true`, agents won't prompt for permission before using MCP
 **File:** `directives.yml`
 
 Configures the PAL MCP server's `clink` tool, which spawns subagents across different coding CLIs (Claude, Codex, Gemini). These settings control which models are used and which role prompts are available.
-
-> [!IMPORTANT]
-> After changing any `pal` settings:
-> 
-> 1. Regenerate configs by running:
->    ```bash
->    ./protocols/scripts/set-up-configs.sh
->    ```
-> 2. Restart coding CLIs (or use their MCP-related commands to reconnect to PAL).
 
 #### `pal.base-roles`
 

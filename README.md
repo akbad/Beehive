@@ -128,22 +128,37 @@ with each of the 3 files above generated from templates (for portability regardl
 
 ### Activating interactive main agents
 
-- **Claude Code** ➔ use slash commands:
+#### Claude Code
+  
+Use Bureau-configured slash commands:
 
-    ```bash
-    claude
-    > /explainer
-    # explainer role activated, interactive conversation begins
-    ```
+```bash
+$ claude
+# ... startup output ...
+> /explainer
+# explainer role activated, interactive conversation begins
+```
 
-- **Gemini/Codex** ➔ use launch wrapper scripts:
+#### Gemini CLI & Codex
 
-    ```bash
-    gemini-explainer                        # launch Gemini CLI w/ explainer role active
-    codex-architect --model gpt-5.2-codex   # launch Codex using GPT-5.2-Codex w/ architect role active
-    ```
+> [!IMPORTANT] 
+> **`~/.local/bin/` must be in your `$PATH`** to use the method.
 
-- **OpenCode** ➔ use the built-in [primary agents mechanism](https://opencode.ai/docs/agents/#primary-agents): simply cycle through available agents using the `Tab` key.
+Use Bureau-configured launch wrapper scripts:
+
+```bash
+# launch Gemini CLI w/ explainer role active
+$ gemini-explainer
+
+# launch Codex using GPT-5.2-Codex w/ architect role active
+$ codex-architect --model gpt-5.2-codex
+```
+#### OpenCode
+
+Use the built-in [primary agents mechanism](https://opencode.ai/docs/agents/#primary-agents): simply cycle through available agents using the `Tab` key.
+
+> [!NOTE]
+> Bureau-provided agents will be named/shown as `Bureau-Agents/<rolename>` in the OpenCode interface.
 
 ## Configuration
 
@@ -152,7 +167,6 @@ with each of the 3 files above generated from templates (for portability regardl
 | `charter.yml` | Fixed, rarely-changed system defaults | Yes |
 | `directives.yml` | User-oriented, often-tweaked settings | Yes |
 | **`local.yml`** | **Personal customizations/overrides** (gitignored) | **No** (gitignored) |
-
 
 > [!IMPORTANT]
 > Configuration loads based on the following hierarchy *(later config sources override earlier ones)*: \

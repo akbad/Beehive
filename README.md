@@ -7,25 +7,31 @@
 > [!IMPORTANT]
 > ### Shortcuts to key resources
 >
-> - [**Setup guide *(5 minutes)***](docs/SETUP.md)
+> - [**Setup guide**](docs/SETUP.md)
 > - [**Usage guide**](docs/USAGE.md)
 > - [**Configuration reference**](docs/CONFIGURATION.md)
 
 ## What Bureau provides
 
-- **A unified, cohesive set of MCP servers (+ extra plugins)** across all 3 platforms covering a wide range of daily task categories
-- **66 specialized agent roles** that are:
-    - usable everywhere
-    - spawnable as ***cross-CLI* subagents**
-- **Minimal task delegation overhead** (reduced from minutes of setup to *<30 seconds*)
-- **A *near-zero* learning curve** via:
-  
-  - **automated context injection** that ensures:
+- A unified, cohesive set of MCP servers and plugins
+- 66 specialized agent roles that are:
+    
+    - spawnable as **cross-CLI subagents** with *minimal* task delegation overhead
+    - usable in *every* supported CLI as both: 
+        
+        - **isolated subagents** 
+        - **interactive main agents**
 
-    - Agents *automatically and judiciously* use all functionality Bureau configures them to have access to
-    - **minimal explicit directions** are needed from the user
+- A **<ins>*near-zero* learning curve</ins>** via:
   
-  - **sensible default settings for quick setup**, accompanied by extensive configuration options for power users
+  1. **automated context injection** that ensures:
+
+     - **agents *automatically and judiciously* use all functionality** Bureau configures them to have access to
+     - *minimal/no* explicit directions are needed from the user
+  
+  2. sensible default settings for quick setup, accompanied by **extensive configuration options** for power users
+
+- **<ins>Setup that takes *minutes*</ins>**, including **automatic installation & configuration** of all the functionality above for each supported CLI
 
 ### Why?
 

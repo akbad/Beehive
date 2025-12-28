@@ -11,12 +11,21 @@ from pathlib import Path
 from operations import json_config_utils as cu
 
 
-def merge_missing(base: dict, add: dict) -> dict:
+def merge_missing(base: dict, add: dict, parent_key: str = "") -> dict:
+    """
+    Merge 'add' into 'base', filling missing keys and skipping existing ones.
+
+    EXCEPTION: MCP startup command arrays are always overwritten.
+    """
     for k, v in add.items():
-        if k not in base or base[k] is None:
+        is_mcp_command = parent_key == "mcp" and k == "command"
+
+        if k not in base or base[k] is None or is_mcp_command:
             base[k] = v
         elif isinstance(base[k], dict) and isinstance(v, dict):
-            merge_missing(base[k], v)
+            # For MCP server entries, pass the key so nested merge knows context
+            ctx = "mcp" if parent_key == "mcp" or k == "mcp" else parent_key
+            merge_missing(base[k], v, parent_key=ctx)
     return base
 
 

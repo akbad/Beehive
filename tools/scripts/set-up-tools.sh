@@ -1066,7 +1066,7 @@ if agent_enabled "OpenCode"; then
 
     if [[ -f "$TEMPLATE_OC" ]]; then
         mkdir -p "$(dirname "$GENERATED_OC")"
-        if ! sed -e "s|{{REPO_ROOT}}|$REPO_ROOT|g" -e "s|{{PAL_DISABLED_TOOLS}}|$PAL_DISABLED_TOOLS|g" -e "s|{{CLI_BIN_PATHS}}|$CLI_BIN_PATHS|g" "$TEMPLATE_OC" > "$GENERATED_OC"; then
+        if ! sed -e "s|{{REPO_ROOT}}|$REPO_ROOT|g" -e "s|{{FS_MCP_WHITELIST}}|$FS_MCP_WHITELIST|g" -e "s|{{PAL_DISABLED_TOOLS}}|$PAL_DISABLED_TOOLS|g" -e "s|{{CLI_BIN_PATHS}}|$CLI_BIN_PATHS|g" "$TEMPLATE_OC" > "$GENERATED_OC"; then
             log_warning "Failed to render OpenCode template; skipping OpenCode sync"
             GENERATED_OC=""
         fi

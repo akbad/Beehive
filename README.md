@@ -47,10 +47,10 @@ But **rotating often means losing time rebuilding and reconfiguring context, too
 
 Meanwhile, many agentic orchestration frameworks intending to help solve this problem have:
 
-- considerable learning curves 
-- opinionated orchestration & development patterns pushed upon users
+- **considerable learning curves**
+- **opinionated workflows/patterns *pushed*** upon users
     
-rather than adapting to users' ad-hoc workflows or permitting open-ended exploration/building.
+rather than adapting to users' ad-hoc workflows, permitting open-ended exploration/building, or **simply getting out of the way**.
 
 ## Feature list
 

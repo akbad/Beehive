@@ -155,7 +155,7 @@ Good: Check Docker first, fallback to alternatives
 
 **Auto-installed by Bureau:** Docker image pulled automatically on first run.
 
-**Docker image:** `uysalsadi/crawl4ai-mcp-server:latest`
+**Docker image:** `stgmt/crawl4ai-mcp:latest`
 
 ## Quick Reference
 
@@ -181,4 +181,4 @@ Good: Check Docker first, fallback to alternatives
 **Links:**
 - [Category guide: Web research](../by-category/web-research.md)
 - [Tools guide](../tools-guide.md)
-- [Docker Hub](https://hub.docker.com/r/uysalsadi/crawl4ai-mcp-server)
+- [Docker Hub](https://hub.docker.com/r/stgmt/crawl4ai-mcp)

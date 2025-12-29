@@ -104,6 +104,37 @@
       "type": "remote",
       "url": "http://localhost:8782/mcp/",
       "enabled": true
+    },
+    "websearchapi": {
+      "type": "local",
+      "command": [
+        "sh",
+        "-c",
+        "for p in $(which uvx 2>/dev/null) $HOME/.local/bin/uvx /opt/homebrew/bin/uvx /usr/local/bin/uvx uvx; do [ -x \"$p\" ] && exec \"$p\" --from {{REPO_ROOT}}/tools/mcps/websearchapi-mcp websearchapi-mcp; done; echo 'uvx not found' >&2; exit 1"
+      ],
+      "enabled": true
+    },
+    "web-search": {
+      "type": "local",
+      "command": [
+        "node",
+        "{{MCP_CLONES}}/web-search-mcp/dist/index.js"
+      ],
+      "enabled": true
+    },
+    "crawl4ai": {
+      "type": "local",
+      "command": [
+        "docker",
+        "run",
+        "-i",
+        "--rm",
+        "--entrypoint",
+        "crawl4ai-mcp",
+        "stgmt/crawl4ai-mcp:latest",
+        "--stdio"
+      ],
+      "enabled": true
     }
   },
   "agent": {}

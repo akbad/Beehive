@@ -802,6 +802,45 @@ if [[ "$SOURCEGRAPH_AVAILABLE" == true ]]; then
     fi
 fi
 
+# Check if web-search-mcp is available (clone if not present, rebuild if needed)
+WEB_SEARCH_MCP_PATH="$CLONE_DIR/web-search-mcp"
+WEB_SEARCH_MCP_AVAILABLE=false
+
+# Clone using existing helper (consistent with Sourcegraph pattern)
+ensure_git_repo_cloned "web-search-mcp" "https://github.com/mrkrsl/web-search-mcp.git" "$WEB_SEARCH_MCP_PATH"
+
+# Build if needed: no dist/ exists OR package.json is newer than dist/
+if [[ -d "$WEB_SEARCH_MCP_PATH" ]]; then
+    needs_build=false
+    [[ ! -f "$WEB_SEARCH_MCP_PATH/dist/index.js" ]] && needs_build=true
+    [[ "$WEB_SEARCH_MCP_PATH/package.json" -nt "$WEB_SEARCH_MCP_PATH/dist/index.js" ]] && needs_build=true
+
+    if [[ "$needs_build" == true ]]; then
+        log_info "Building web-search-mcp (npm install + Playwright + build)..."
+        if (cd "$WEB_SEARCH_MCP_PATH" && npm install && npx playwright install chromium && npm run build); then
+            log_success "web-search-mcp built successfully"
+        else
+            log_warning "Failed to build web-search-mcp - browser search fallback will not be available"
+        fi
+    fi
+fi
+
+[[ -f "$WEB_SEARCH_MCP_PATH/dist/index.js" ]] && WEB_SEARCH_MCP_AVAILABLE=true
+
+# Check if crawl4ai Docker image is available (pull if not present)
+CRAWL4AI_AVAILABLE=false
+if docker image inspect stgmt/crawl4ai-mcp:latest &>/dev/null; then
+    CRAWL4AI_AVAILABLE=true
+else
+    log_info "Pulling crawl4ai Docker image (quality content extraction)..."
+    if docker pull stgmt/crawl4ai-mcp:latest; then
+        CRAWL4AI_AVAILABLE=true
+        log_success "crawl4ai Docker image pulled successfully"
+    else
+        log_warning "Failed to pull crawl4ai image - quality extraction will not be available"
+    fi
+fi
+
 # Configure MCP auto-approvals if requested
 if [[ "$AUTO_APPROVE_MCP" == true ]]; then
     log_separator
@@ -927,6 +966,21 @@ if [[ "$BRAVE_AVAILABLE" == true ]]; then
     setup_stdio_mcp "brave" "env" "BRAVE_API_KEY=$BRAVE_API_KEY" "npx" "-y" "@brave/brave-search-mcp-server" "--transport" "stdio"
 fi
 
+if [[ "$WEBSEARCHAPI_AVAILABLE" == true ]]; then
+    log_separator
+    log_info "Configuring agents to use WebSearchAPI MCP (stdio)..."
+    setup_stdio_mcp "websearchapi" "uvx" "--from" "$REPO_ROOT/tools/mcps/websearchapi-mcp" "websearchapi-mcp"
+fi
+
+log_separator
+log_info "Configuring agents to use web-search-mcp (stdio - unlimited browser search)..."
+setup_stdio_mcp "web-search" "node" "$WEB_SEARCH_MCP_PATH/dist/index.js"
+
+log_separator
+log_info "Configuring agents to use crawl4ai MCP (stdio via Docker - quality extraction)..."
+setup_stdio_mcp "crawl4ai" "docker" "run" "-i" "--rm" "--entrypoint" "crawl4ai-mcp" "stgmt/crawl4ai-mcp:latest" "--stdio"
+
+
 if [[ "$CONTEXT7_AVAILABLE" == true ]] && agent_enabled "$CODEX"; then
     log_separator
     log_info "Configuring Codex to use Context7 MCP (stdio)..."
@@ -996,6 +1050,19 @@ if [[ "$BRAVE_AVAILABLE" == true ]]; then
     log_info "    └─ Privacy-focused web search (2,000 queries/month free)"
 fi
 
+if [[ "$WEBSEARCHAPI_AVAILABLE" == true ]]; then
+    log_info "  • WebSearchAPI MCP (all agents)"
+    log_info "    └─ Google-quality search results (2,000 queries/month free)"
+fi
+
+log_info "  • web-search-mcp (all agents)"
+log_info "    └─ Unlimited browser-based search fallback (Playwright-powered)"
+log_info "    └─ Repository: $WEB_SEARCH_MCP_PATH"
+
+log_info "  • crawl4ai MCP (all agents)"
+log_info "    └─ Quality content extraction with JS rendering and boilerplate removal"
+log_info "    └─ Docker image: stgmt/crawl4ai-mcp:latest"
+
 if [[ "$CONTEXT7_AVAILABLE" == true ]] && agent_enabled "$CODEX"; then
     log_info "  • Context7 MCP (Codex only)"
     log_info "    └─ Codex HTTP doesn't support custom headers, so using stdio mode"
@@ -1022,7 +1089,7 @@ if agent_enabled "OpenCode"; then
 
     if [[ -f "$TEMPLATE_OC" ]]; then
         mkdir -p "$(dirname "$GENERATED_OC")"
-        if ! sed -e "s|{{REPO_ROOT}}|$REPO_ROOT|g" -e "s|{{FS_MCP_WHITELIST}}|$FS_MCP_WHITELIST|g" -e "s|{{PAL_DISABLED_TOOLS}}|$PAL_DISABLED_TOOLS|g" -e "s|{{CLI_BIN_PATHS}}|$CLI_BIN_PATHS|g" "$TEMPLATE_OC" > "$GENERATED_OC"; then
+        if ! sed -e "s|{{REPO_ROOT}}|$REPO_ROOT|g" -e "s|{{MCP_CLONES}}|$CLONE_DIR|g" -e "s|{{FS_MCP_WHITELIST}}|$FS_MCP_WHITELIST|g" -e "s|{{PAL_DISABLED_TOOLS}}|$PAL_DISABLED_TOOLS|g" -e "s|{{CLI_BIN_PATHS}}|$CLI_BIN_PATHS|g" "$TEMPLATE_OC" > "$GENERATED_OC"; then
             log_warning "Failed to render OpenCode template; skipping OpenCode sync"
             GENERATED_OC=""
         fi

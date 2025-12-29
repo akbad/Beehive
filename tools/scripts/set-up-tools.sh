@@ -73,6 +73,7 @@ DOCKER_TIMEOUT="$(cfg startup_timeout_for.docker_daemon)"
 export SOURCEGRAPH_ENDPOINT="${SOURCEGRAPH_ENDPOINT:-$(cfg endpoint_for.sourcegraph)}"
 export CONTEXT7_URL="${CONTEXT7_URL:-$(cfg endpoint_for.context7)}"
 export TAVILY_URL="${TAVILY_URL:-$(cfg endpoint_for.tavily)}"
+export WEBSEARCHAPI_URL="${WEBSEARCHAPI_URL:-$(cfg endpoint_for.websearchapi)}"
 
 # PAL MCP: disable all tools except clink (since they need an API key)
 export PAL_DISABLED_TOOLS="${PAL_DISABLED_TOOLS:-$(cfg pal_disabled_tools)}"
@@ -741,7 +742,7 @@ configure_auto_approve() {
 
     # Build list of MCP server names being configured
     local mcp_servers=()
-    mcp_servers+=("pal" "qdrant" "semgrep" "fs" "fetch" "git" "memory" "playwright")
+    mcp_servers+=("pal" "qdrant" "semgrep" "fs" "fetch" "git" "memory" "playwright" "web-search" "crawl4ai" "websearchapi")
 
     # Add the other servers if they're available
     [[ "$SOURCEGRAPH_AVAILABLE" == true ]] && mcp_servers+=("sourcegraph")
@@ -749,6 +750,7 @@ configure_auto_approve() {
     [[ "$CONTEXT7_AVAILABLE" == true ]] && mcp_servers+=("context7")
     [[ "$TAVILY_AVAILABLE" == true ]] && mcp_servers+=("tavily")
     [[ "$BRAVE_AVAILABLE" == true ]] && mcp_servers+=("brave")
+    [[ "$WEBSEARCHAPI_AVAILABLE" == true]] && mcp_servers+=("websearchapi")
 
     # Configure each agent
     for agent in "${AGENTS[@]}"; do
@@ -801,6 +803,7 @@ CONTEXT7_AVAILABLE=false
 TAVILY_AVAILABLE=false
 BRAVE_AVAILABLE=false
 SOURCEGRAPH_AVAILABLE=false
+WEBSEARCHAPI_AVAILABLE=false
 
 if check_env_var "CONTEXT7_API_KEY" "Context7 MCP will not work. Get a key at https://console.upstash.com/"; then
     CONTEXT7_AVAILABLE=true
@@ -812,6 +815,10 @@ fi
 
 if check_env_var "BRAVE_API_KEY" "Brave Search MCP will not work. Get a key at https://brave.com/search/api/"; then
     BRAVE_AVAILABLE=true
+fi
+
+if check_env_var "WEBSEARCHAPI_KEY" "WebSearchAPI MCP will not work. Get a key at https://websearchapi.ai/"; then
+    WEBSEARCHAPI_AVAILABLE=true
 fi
 
 log_success "API key check complete."

@@ -113,7 +113,7 @@ async def _fetch_api(
         else:
             return f"HTTP Error {e.response.status_code}: {e.response.text}"
     except httpx.RequestError as e:
-        return f"Request Error: {e}"
+        return f"Request Error ({type(e).__name__}): {e!r}"
     except json.JSONDecodeError:
         return "Error: Invalid JSON response from API"
 

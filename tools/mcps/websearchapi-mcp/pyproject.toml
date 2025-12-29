@@ -1,6 +1,6 @@
 [project]
 name = "websearchapi-mcp"
-version = "0.1.1"
+version = "0.1.2"
 description = "MCP server for websearchapi.ai - Google-quality search results"
 requires-python = ">=3.10"
 dependencies = [

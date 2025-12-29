@@ -85,6 +85,7 @@ export MEMORY_MCP_STORAGE_PATH="${MEMORY_MCP_STORAGE_PATH/#\~/$HOME}"
 
 # Directories
 FS_MCP_WHITELIST="${FS_MCP_WHITELIST:-$(cfg path_to.fs_mcp_whitelist)}"
+NPM_WRITABLE_ROOT="${BUREAU_NPM_WRITABLE_ROOT:-$HOME/.npm}"
 
 # Source agent selection library
 source "$REPO_ROOT/bin/lib/agent-selection.sh"
@@ -723,9 +724,6 @@ configure_auto_approve() {
             "$CLAUDE")
                 uv run "$SCRIPT_DIR/add-claude-auto-approvals.py" "$CLAUDE_CONFIG" "${mcp_servers[@]}"
                 ;;
-            "$CODEX")
-                uv run "$SCRIPT_DIR/add-codex-auto-approvals.py" "$CODEX_CONFIG"
-                ;;
             "$GEMINI")
                 uv run "$SCRIPT_DIR/add-gemini-auto-approvals.py" "$GEMINI_CONFIG" "${mcp_servers[@]}"
                 ;;
@@ -738,6 +736,19 @@ configure_auto_approve() {
     log_empty_line
     log_success "Agent auto-approvals successfully configured."
     log_info "MCP tools will now be auto-approved without permission prompts"
+}
+
+# Ensure Codex config has writable roots for npm cache (and auto-approve settings when enabled)
+configure_codex_config() {
+    log_info "Configuring Codex config (sandbox writable roots)..."
+    local codex_cmd=(uv run "$SCRIPT_DIR/update-codex-config.py" "$CODEX_CONFIG" \
+        --ensure-writable-root "$NPM_WRITABLE_ROOT")
+
+    if [[ "$AUTO_APPROVE_MCP" == true ]]; then
+        codex_cmd+=(--auto-approve)
+    fi
+
+    "${codex_cmd[@]}"
 }
 
 # --- CHECK DEPENDENCIES ---
@@ -801,6 +812,11 @@ fi
 if [[ "$AUTO_APPROVE_MCP" == true ]]; then
     log_separator
     configure_auto_approve
+fi
+
+if agent_enabled "$CODEX"; then
+    log_separator
+    configure_codex_config
 fi
 
 # ============================================================================

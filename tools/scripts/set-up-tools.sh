@@ -40,7 +40,6 @@ export SOURCEGRAPH_ENDPOINT="${SOURCEGRAPH_ENDPOINT:-$(cfg endpoint_for.sourcegr
 export CONTEXT7_URL="${CONTEXT7_URL:-$(cfg endpoint_for.context7)}"
 export TAVILY_URL="${TAVILY_URL:-$(cfg endpoint_for.tavily)}"
 export WEBSEARCHAPI_URL="${WEBSEARCHAPI_URL:-$(cfg endpoint_for.websearchapi)}"
-export WEBSEARCHAPI_URL="${WEBSEARCHAPI_URL:-$(cfg endpoint_for.websearchapi)}"
 
 # PAL MCP: disable all tools except clink (since they need an API key)
 export PAL_DISABLED_TOOLS="${PAL_DISABLED_TOOLS:-$(cfg pal_disabled_tools)}"
@@ -771,7 +770,6 @@ TAVILY_AVAILABLE=false
 BRAVE_AVAILABLE=false
 SOURCEGRAPH_AVAILABLE=false
 WEBSEARCHAPI_AVAILABLE=false
-WEBSEARCHAPI_AVAILABLE=false
 
 if check_env_var "CONTEXT7_API_KEY" "Context7 MCP will not work. Get a key at https://console.upstash.com/"; then
     CONTEXT7_AVAILABLE=true
@@ -783,10 +781,6 @@ fi
 
 if check_env_var "BRAVE_API_KEY" "Brave Search MCP will not work. Get a key at https://brave.com/search/api/"; then
     BRAVE_AVAILABLE=true
-fi
-
-if check_env_var "WEBSEARCHAPI_KEY" "WebSearchAPI MCP will not work. Get a key at https://websearchapi.ai/"; then
-    WEBSEARCHAPI_AVAILABLE=true
 fi
 
 if check_env_var "WEBSEARCHAPI_KEY" "WebSearchAPI MCP will not work. Get a key at https://websearchapi.ai/"; then

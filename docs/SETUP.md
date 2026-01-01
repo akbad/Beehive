@@ -308,5 +308,5 @@ pal:
 > | --- | --- |
 > | [`bin/open-bureau`](../bin/open-bureau) | Main bootstrap/setup convenience/wrapper script |
 > | [`tools/scripts/set-up-tools.sh`](../tools/scripts/set-up-tools.sh) | MCP/tooling setup | 
-> | [`protocols/scripts/set-up-configs.sh`](../protocols/scripts/set-up-configs.sh) | Config/context file setup |
+> | [`protocols/scripts/set-up-protocols.sh`](../protocols/scripts/set-up-protocols.sh) | Config/context file setup |
 > | [`agents/scripts/set-up-agents.sh`](../agents/scripts/set-up-agents.sh) | Agent-/role-related setup |

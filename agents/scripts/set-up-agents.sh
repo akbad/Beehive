@@ -147,7 +147,7 @@ fi
 echo -e "${GREEN}✓ Agent setup complete!${NC}"
 echo ""
 echo "Next steps:"
-echo "  1. Run the configs setup script: protocols/scripts/set-up-configs.sh"
+echo "  1. Run the configs setup script: protocols/scripts/set-up-protocols.sh"
 echo "  2. Restart PAL MCP server to reload clink configs"
 echo "  3. Verify Claude Code agents with: claude (then run /agents)"
 echo "  4. Install claude-mem plugin:"

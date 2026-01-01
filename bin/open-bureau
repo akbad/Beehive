@@ -63,7 +63,7 @@ tools/scripts/set-up-tools.sh "$@"
 echo ""
 echo -e "${BLUE}Setting up config files...${NC}"
 echo ""
-protocols/scripts/set-up-configs.sh
+protocols/scripts/set-up-protocols.sh
 
 echo ""
 echo -e "${GREEN}==========================================================${NC}"

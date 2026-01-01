@@ -189,6 +189,8 @@ fi
 
 echo -e "${YELLOW}Removing existing Bureau skill installs...${NC}\n"
 
+# Always remove skill directories to ensure install is consistent 
+#   with source of truth (bureau/protocols/context/static/skills/)
 remove_bureau_skill_dirs "$CLAUDE_SKILLS_DIR"
 remove_bureau_skill_dirs "$OPENCODE_SKILLS_DIR"
 remove_bureau_skill_dirs "$CODEX_SKILLS_DIR"

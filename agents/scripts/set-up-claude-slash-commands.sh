@@ -24,7 +24,7 @@ source "$REPO_ROOT/bin/lib/agent-selection.sh"
 discover_agents
 
 # Skip entirely if Claude not enabled
-if ! agent_enabled "Claude Code"; then
+if ! agent_enabled "ClaudeCode"; then
     echo -e "${YELLOW}Claude Code not enabled. Skipping slash commands setup.${NC}"
     echo "To enable Claude Code:"
     echo "  mkdir -p ~/.claude"

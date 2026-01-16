@@ -24,7 +24,7 @@ source "$REPO_ROOT/bin/lib/agent-selection.sh"
 discover_agents
 
 # Skip entirely if Gemini not enabled
-if ! agent_enabled "Gemini CLI"; then
+if ! agent_enabled "GeminiCLI"; then
     echo -e "${YELLOW}Gemini CLI not enabled. Skipping role launchers setup.${NC}"
     echo "To enable Gemini CLI:"
     echo "  mkdir -p ~/.gemini"

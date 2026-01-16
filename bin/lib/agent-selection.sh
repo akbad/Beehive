@@ -5,9 +5,9 @@
 # > Used across all setup scripts to determine agents to configure
 
 # Agent name constants
-CLAUDE="Claude Code"
+CLAUDE="ClaudeCode"
 CODEX="Codex"
-GEMINI="Gemini CLI"
+GEMINI="GeminiCLI"
 OPENCODE="OpenCode"
 
 # Colors for logging (define individually if not already set)
@@ -56,31 +56,31 @@ _get_repo_root() {
 _get_config() {
     local repo_root
     repo_root="$(_get_repo_root)"
-    (cd "$repo_root" && uv run get-config "$@")
+    (cd "$repo_root" && uv run python -m operations.config_cli "$@")
 }
 
-declare -A AGENT_MAP=(
-  ["Claude Code"]="claude"
-  ["Gemini CLI"]="gemini"
-  ["Codex"]="codex"
-  ["OpenCode"]="opencode"
-)
-
+# Convert display name to config name
 _agent_config_name() {
     local agent_name="$1"
-    echo "${AGENT_MAP[$agent_name]:-}"
+    case "$agent_name" in
+        "ClaudeCode") echo "claude" ;;
+        "GeminiCLI") echo "gemini" ;;
+        "Codex") echo "codex" ;;
+        "OpenCode") echo "opencode" ;;
+        *) echo "" ;;
+    esac
 }
 
+# Convert config name to display name
 _agent_display_name() {
     local config_name="$1"
-    local name
-    for name in "${!AGENT_MAP[@]}"; do
-        if [[ "${AGENT_MAP[$name]}" == "$config_name" ]]; then
-            echo "$name"
-            return
-        fi
-    done
-    echo ""
+    case "$config_name" in
+        "claude") echo "ClaudeCode" ;;
+        "gemini") echo "GeminiCLI" ;;
+        "codex") echo "Codex" ;;
+        "opencode") echo "OpenCode" ;;
+        *) echo "" ;;
+    esac
 }
 
 # Check if an agent is enabled in directives.yml

@@ -25,11 +25,15 @@ REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 # Helper to read from merged config (merge order: charter.yml → directives.yml → local.yml → env)
 cfg() {
     local key="$1"
-    (cd "$REPO_ROOT" && uv run get-config "$key" 2>/dev/null) || true
+    (cd "$REPO_ROOT" && uv run python -m operations.config_cli "$key" 2>/dev/null) || true
 }
 
 # Setting MCP source clone paths
 CLONE_DIR="$(cfg path_to.mcp_clones)"
+# Resolve relative paths relative to repo root
+if [[ "$CLONE_DIR" != /* ]]; then
+    CLONE_DIR="$REPO_ROOT/$CLONE_DIR"
+fi
 export SOURCEGRAPH_REPO_PATH="$CLONE_DIR/sourcegraph-mcp"
 
 SERVER_START_TIMEOUT="$(cfg startup_timeout_for.mcp_servers)"
@@ -54,7 +58,7 @@ for cli in claude gemini codex; do
             CLI_BIN_PATHS="${CLI_BIN_PATHS:+$CLI_BIN_PATHS:}$cli_dir"
         fi
     else
-        log_warning "CLI '$cli' not found in PATH - clink won't be able to use it"
+        echo "Warning: CLI '$cli' not found in PATH - clink won't be able to use it" >&2
     fi
 done
 export CLI_BIN_PATHS
@@ -79,20 +83,18 @@ export QDRANT_EMBEDDING_PROVIDER="${QDRANT_EMBEDDING_PROVIDER:-$(cfg qdrant.embe
 # - Docker compatibility (QDRANT_STORAGE_PATH)
 # - mkdir/Node compatibility (MEMORY_MCP_STORAGE_PATH)
 MEMORY_MCP_STORAGE_PATH="${MEMORY_MCP_STORAGE_PATH:-$(cfg path_to.storage_for.memory_mcp)}"
+MEMORY_MCP_STORAGE_PATH="${MEMORY_MCP_STORAGE_PATH:-$HOME/.memory-mcp}"
 QDRANT_STORAGE_PATH="${QDRANT_STORAGE_PATH:-$(cfg path_to.storage_for.qdrant)}"
+QDRANT_STORAGE_PATH="${QDRANT_STORAGE_PATH:-$HOME/.qdrant/storage}"
 export QDRANT_STORAGE_PATH="${QDRANT_STORAGE_PATH/#\~/$HOME}"
 export MEMORY_MCP_STORAGE_PATH="${MEMORY_MCP_STORAGE_PATH/#\~/$HOME}"
 
 # Directories
 FS_MCP_WHITELIST="${FS_MCP_WHITELIST:-$(cfg path_to.fs_mcp_whitelist)}"
+FS_MCP_WHITELIST="${FS_MCP_WHITELIST:-$HOME/code}"
 
 # Source agent selection library
 source "$REPO_ROOT/bin/lib/agent-selection.sh"
-
-# Supported agents' printable string names 
-CLAUDE="Claude Code"
-CODEX="Codex"
-GEMINI="Gemini CLI"
 
 # User-level config locations for supported coding CLIs
 GEMINI_CONFIG="$HOME/.gemini/settings.json"
@@ -116,7 +118,9 @@ NC='\033[0m'
 
 # Read auto-approve setting from config (accepts yes/true/no/false)
 _auto_approve_cfg="$(cfg mcp.auto_approve)"
-case "${_auto_approve_cfg,,}" in
+# Convert to lowercase (bash 3.x compatible)
+_auto_approve_lower="$(echo "$_auto_approve_cfg" | tr '[:upper:]' '[:lower:]')"
+case "$_auto_approve_lower" in
     yes|true) AUTO_APPROVE_MCP=true ;;
     *) AUTO_APPROVE_MCP=false ;;
 esac

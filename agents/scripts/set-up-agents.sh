@@ -78,7 +78,7 @@ fi
 # ============================================================================
 # Step 2: Set up Claude Code subagents
 # ============================================================================
-if agent_enabled "Claude Code"; then
+if agent_enabled "ClaudeCode"; then
     print_step "Setting up Claude Code subagents"
 
     # Symlink Claude subagents folder
@@ -104,7 +104,7 @@ fi
 # ============================================================================
 
 # Claude Code slash commands
-if agent_enabled "Claude Code"; then
+if agent_enabled "ClaudeCode"; then
     print_step "Setting up Claude Code slash commands"
     "$AGENTS_DIR/scripts/set-up-claude-slash-commands.sh"
     echo ""
@@ -118,7 +118,7 @@ if agent_enabled "Codex"; then
 fi
 
 # Gemini CLI role launchers
-if agent_enabled "Gemini CLI"; then
+if agent_enabled "GeminiCLI"; then
     print_step "Setting up Gemini CLI role launchers"
     "$AGENTS_DIR/scripts/set-up-gemini-role-launchers.sh"
     echo ""

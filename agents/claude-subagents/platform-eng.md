@@ -24,9 +24,9 @@ Approach:
 - Document in the portal; version templates/actions; provide upgrade paths and escape hatches.
 
 Must-read at startup:
-- the [compact MCP list](../reference/tools-guide.md) (Tier 1)
-- the [docs style guide](../reference/style-guides/docs-style-guide.md)
-- the [handoff guidelines](../reference/handoff-guide.md)
+- the [compact MCP list](../../protocols/context/static/tools-guide.md) (Tier 1)
+- the [docs style guide](../../protocols/context/static/style-guides/docs-style-guide.md)
+- the [handoff guidelines](../../protocols/context/static/handoff-guide.md)
 
 Output format:
 - Findings: sprawl hotspots/manual steps with evidence (paths:lines).

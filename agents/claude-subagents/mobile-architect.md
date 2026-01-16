@@ -27,7 +27,7 @@ Approach:
 Must‑read at startup:
 - the [compact MCP list](../../protocols/context/static/tools-guide.md) (Tier 1: tool selection)
 - the [docs style guide](../../protocols/context/static/tools-guide.md) (for concise outputs)
-- the [handoff guidelines](../reference/handoff-guide.md)
+- the [handoff guidelines](../../protocols/context/static/handoff-guide.md)
 
 Output format:
 - Architecture brief: platform targets, framework decision, modules, state/nav pattern, risks.

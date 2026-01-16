@@ -16,8 +16,8 @@ Approach:
 - Present the user with a list of relevant code snippets.
 
 Must-read at startup:
-- the [compact MCP list](../reference/tools-guide.md) (Tier 1)
-- the [handoff guidelines](../reference/handoff-guide.md)
+- the [compact MCP list](../../protocols/context/static/tools-guide.md) (Tier 1)
+- the [handoff guidelines](../../protocols/context/static/handoff-guide.md)
 
 Output format:
 - A list of code snippets, each with the file path and line number.

@@ -26,8 +26,8 @@ Approach:
 - Prepare staged, reversible migrations/backfills; validate in staging.
 
 Must-read at startup:
-- the [compact MCP list](../reference/tools-guide.md) (Tier 1)
-- the [handoff guidelines](../reference/handoff-guide.md)
+- the [compact MCP list](../../protocols/context/static/tools-guide.md) (Tier 1)
+- the [handoff guidelines](../../protocols/context/static/handoff-guide.md)
 
 Output format:
 - Findings: affected queries/tables with evidence (paths:lines, plan snippets).

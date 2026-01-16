@@ -26,9 +26,9 @@ Approach:
 - Plan data migration (expand–migrate–contract), backfills, reconciliation; clean up flags/shims.
 
 Must‑read at startup:
-- the [compact MCP list](../reference/tools-guide.md) (Tier 1: tool selection)
-- the [docs style guide](../reference/style-guides/docs-style-guide.md) (concise specs/ADRs)
-- the [handoff guidelines](../reference/handoff-guide.md)
+- the [compact MCP list](../../protocols/context/static/tools-guide.md) (Tier 1: tool selection)
+- the [docs style guide](../../protocols/context/static/style-guides/docs-style-guide.md) (concise specs/ADRs)
+- the [handoff guidelines](../../protocols/context/static/handoff-guide.md)
 
 Output format:
 - Migration spec: target, scope, assumptions, risks, success criteria.

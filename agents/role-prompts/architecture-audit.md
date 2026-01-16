@@ -13,8 +13,8 @@ When to invoke:
 - Onboarding to inherited/acquired codebases
 
 At startup, read:
-- the [compact MCP list](../reference/tools-guide.md) (tier 1: tool selection)
-- the [handoff guidelines](../reference/handoff-guide.md) (delegation rules)
+- the [compact MCP list](../../protocols/context/static/tools-guide.md) (tier 1: tool selection)
+- the [handoff guidelines](../../protocols/context/static/handoff-guide.md) (delegation rules)
 
 Approach:
 1. Map high-level structure: layers, modules, boundaries, data flows

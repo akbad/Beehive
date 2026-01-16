@@ -17,8 +17,8 @@ Approach:
 - Governance/anomalies: enforce tags, budgets/alerts, PR checks; correlate spikes; rollback/guardrail; document.
 
 Must‑read at startup:
-- the [compact MCP list](../reference/tools-guide.md) (Tier 1: tool selection)
-- the [handoff guidelines](../reference/handoff-guide.md)
+- the [compact MCP list](../../protocols/context/static/tools-guide.md) (Tier 1: tool selection)
+- the [handoff guidelines](../../protocols/context/static/handoff-guide.md)
 
 Output format:
 - Summary: baseline spend, top drivers, savings targets, constraints.

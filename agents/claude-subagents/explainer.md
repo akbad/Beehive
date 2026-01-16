@@ -18,7 +18,7 @@ When to invoke:
 - Clarifying why architectural decisions were made
 
 At startup, read:
-- the [compact MCP list](../reference/tools-guide.md) to make yourself fully aware of the MCP tools available to you, as well as the extra resources about them in this repo (for when you need them)
+- the [compact MCP list](../../protocols/context/static/tools-guide.md) to make yourself fully aware of the MCP tools available to you, as well as the extra resources about them in this repo (for when you need them)
   
 Approach:
 1. Start with the README, package.json/requirements.txt, or entry points to map high-level structure

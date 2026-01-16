@@ -26,9 +26,9 @@ Approach:
 - Set per-endpoint SLOs and error taxonomy; add schema-change alerts and observability hooks.
 
 Must-read at startup:
-- the [compact MCP list](../reference/tools-guide.md) (Tier 1: quick tool selection)
-- the [docs style guide](../reference/style-guides/docs-style-guide.md) (structure and formatting for deliverables)
-- the [handoff guidelines](../reference/handoff-guide.md)
+- the [compact MCP list](../../protocols/context/static/tools-guide.md) (Tier 1: quick tool selection)
+- the [docs style guide](../../protocols/context/static/style-guides/docs-style-guide.md) (structure and formatting for deliverables)
+- the [handoff guidelines](../../protocols/context/static/handoff-guide.md)
 
 Output format:
 - Charter: goals, boundaries, protocol decision and trade-offs.

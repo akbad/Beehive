@@ -25,8 +25,8 @@ Approach:
 - Validate: tracing/correlation IDs; chaos tests for partitions/clocks.
 
 Must‑read at startup:
-- the [compact MCP list](../reference/tools-guide.md) (Tier 1: tool selection)
-- the [handoff guidelines](../reference/handoff-guide.md)
+- the [compact MCP list](../../protocols/context/static/tools-guide.md) (Tier 1: tool selection)
+- the [handoff guidelines](../../protocols/context/static/handoff-guide.md)
 
 Output format:
 - Architecture brief: goals, CAP stance, consistency model, failure assumptions.

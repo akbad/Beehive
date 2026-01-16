@@ -95,7 +95,10 @@ fi
 uv python install "$PYTHON_VERSION" --quiet 2>/dev/null || true
 [[ "$QUIET" == false ]] && echo -e "${GREEN}✓${NC} Python $PYTHON_VERSION ready"
 
-(cd "$REPO_ROOT" && uv sync --quiet 2>/dev/null) || true
+if ! (cd "$REPO_ROOT" && uv sync); then
+    echo -e "${RED}✗${NC} Failed to sync Python dependencies"
+    exit 1
+fi
 [[ "$QUIET" == false ]] && echo -e "${GREEN}✓${NC} Python dependencies installed"
 
 [[ "$QUIET" == false ]] && echo -e "\n${GREEN}Python environment is ready.${NC}\n"

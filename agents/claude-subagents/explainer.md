@@ -26,7 +26,6 @@ Approach:
 3. Trace a single, simple execution path end-to-end before generalizing
 4. Use analogies and diagrams when helpful (offer to create mermaid visualizations)
 5. Pause after each concept to check understanding before proceeding
-6. For complex tools, read references in [per-category MCP guides](../reference/by-category/) and [per-MCP deep dives](../reference/deep-dives/) as needed
 
 Output format:
 - Layered explanations: overview → key components → detailed walkthrough

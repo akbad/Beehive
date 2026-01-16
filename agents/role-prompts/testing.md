@@ -22,8 +22,6 @@ Approach:
 
 Must‑read at startup:
 - the [compact MCP list](../reference/tools-guide.md)
-- the [code search guide](../reference/by-category/code-search.md)
-- the [Semgrep deep dive](../reference/deep-dives/semgrep.md)
 - the [handoff guidelines](../reference/handoff-guide.md)
 
 Output format:

@@ -1,39 +1,35 @@
 # Tools: quick decision guide
 
 > [!NOTE]
-> 
+>
 > This guide:
-> 
+>
 > - Provides quick directives/heuristics as to which tools to use per task.
 > - Contains links to:
 >
 >     | File set | Look at these files <ins>only if</ins> *(to save context)*: |
 >     | --- | --- |
->     | Per‑category guides | Your exact, desired use case is not covered here |
->     | Per‑MCP deep dives  | When you need full guidance on the intricacies of using a particular MCP's toolset |
 >     | Editing mode files  | When user explicitly activates |
 
 ## Code search
 
-- For going through **public, open‑source code**: use Sourcegraph ([deep dive](deep-dives/sourcegraph.md)) to find examples/patterns (interactive time/result limits)
+- For going through **public, open‑source code**: use Sourcegraph to find examples/patterns (interactive time/result limits)
 - **Within local codebases**:
 
-    - For **semantic navigation/symbol-level refactors**: use Serena MCP ([deep dive](deep-dives/serena.md))
+    - For **semantic navigation/symbol-level refactors**: use Serena MCP
     - For **simple text searches**: use ripgrep/grep to find plain text/regex matches fast (respects .gitignore)
 
-> Link: [Full category guide - *code search*](by-category/code-search.md) 
 
 ## Web research
 
-- For **general web info**: use Tavily (cited results; 1k/mo) ([deep dive](deep-dives/tavily.md))
+- For **general web info**: use Tavily (cited results; 1k/mo)
 
-    - Fallback if *Tavily is exhausted*: use Brave (2k/mo) ([deep dive](deep-dives/brave.md))
+    - Fallback if *Tavily is exhausted*: use Brave (2k/mo)
 
     - Fallback if *Tavily and Brave are exhausted*: use Playwright to use the browser to search the web (unlimited)
 
-- For **simple URL fetches**: use Fetch (unlimited) ([deep dive](deep-dives/fetch.md))
+- For **simple URL fetches**: use Fetch (unlimited)
 
-> Link: [full category guide - *web research*](by-category/web-research.md)
 
 ## GitHub access
 
@@ -54,9 +50,8 @@
 
 ## API docs
 
-- For **official documentation**: use Context7 (versioned; public repos only) ([deep dive](deep-dives/context7.md))
+- For **official documentation**: use Context7 (versioned; public repos only)
 
-> Link: [full category guide - *API docs*](by-category/documentation.md) 
 
 ## Memory
 
@@ -134,7 +129,6 @@
 > | Serena MCP | *None required; automatically created* |
 > | claude-mem (Claude Code *only*) | *None required; automatically created* |
 
-> Link: [full category guide - *memory MCPs*](by-category/memory.md)
 
 ## Code analysis, editing and Git
 
@@ -159,10 +153,6 @@
 
 - For *all other operations*, default to your **native/built-in Write/Edit tool(s)**. 
 
-> [!TIP]
-> 
-> To resolve any remaining ambiguities, see the [Serena deep dive](deep-dives/serena.md) for the *full* decision tree for symbol vs text-based editing.
-
 ### Git operations
 
 Use (via Bash):
@@ -172,13 +162,11 @@ Use (via Bash):
 
 ### Security and quality scans
 
-Use **Semgrep** (local scans; autofix) *(for more info, see the [Semgrep deep dive](deep-dives/semgrep.md))*
+Use **Semgrep** (local scans; autofix)
 
 ## Browser automation
 
-- For **web automation and testing**: use Playwright (click, type, navigate, extract content) ([deep dive](deep-dives/playwright.md))
-
-> Link: [full category guide - *browser automation*](by-category/browser-automation.md)
+- For **web automation and testing**: use Playwright (click, type, navigate, extract content)
 
 ## Limits
 

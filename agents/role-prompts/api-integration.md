@@ -21,8 +21,6 @@ Approach:
 
 Must‑read at startup:
 - the [compact MCP list](../reference/tools-guide.md) (Tier 1: tool selection)
-- the [documentation category guide](../reference/by-category/documentation.md) (Tier 2)
-- the [Context7 deep dive](../reference/deep-dives/context7.md) (Tier 3 as needed)
 - the [docs style guide](../reference/style-guides/docs-style-guide.md) (clear ADRs/decision docs)
 - the [handoff guidelines](../reference/handoff-guide.md)
 

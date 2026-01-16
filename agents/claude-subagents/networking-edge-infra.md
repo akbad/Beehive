@@ -28,8 +28,6 @@ Approach:
 
 Must‑read at startup:
 - the [compact MCP list](../reference/tools-guide.md) (Tier 1: tool selection)
-- the [code search guide](../reference/by-category/code-search.md) (Tier 2)
-- the [Sourcegraph deep dive](../reference/deep-dives/sourcegraph.md) (Tier 3 as needed)
 - the [docs style guide](../reference/style-guides/docs-style-guide.md) (decision docs)
 - the [handoff guidelines](../reference/handoff-guide.md)
 

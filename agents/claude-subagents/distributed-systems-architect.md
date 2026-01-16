@@ -25,8 +25,6 @@ Approach:
 
 Must‑read at startup:
 - the [compact MCP list](../../protocols/context/static/tools-guide.md) (Tier 1: tool selection)
-- the [web research guide](../../protocols/context/static/by-category/web-research.md) (Tier 2)
-- the [Sourcegraph deep dive](../../protocols/context/static/deep-dives/sourcegraph.md) (Tier 3 as needed)
 - the [docs style guide](../../protocols/context/static/tools-guide.md) (for concise outputs)
 - the [handoff guidelines](../reference/handoff-guide.md)
 

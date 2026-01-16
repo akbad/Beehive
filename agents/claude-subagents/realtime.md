@@ -26,8 +26,6 @@ Approach:
 
 Must-read at startup:
 - the [compact MCP list](../reference/tools-guide.md) (Tier 1: quick tool selection)
-- the [code search guide](../reference/by-category/code-search.md) (Tier 2: code navigation/search choices)
-- the [Context7 deep dive](../reference/deep-dives/context7.md) (Tier 3: official framework/RTOS/protocol docs)
 - the [docs style guide](../reference/style-guides/docs-style-guide.md) (structure and formatting for deliverables)
 - the [handoff guidelines](../reference/handoff-guide.md)
 

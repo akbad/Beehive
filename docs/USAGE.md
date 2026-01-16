@@ -226,12 +226,7 @@ Simply explicitly mention the subagent you want to use and it will automatically
     - **PAL (`clink` tool only)**: enables cross-CLI collaboration/subagent spawning, [as discussed above](#spawning-subagents-using-any-cli-from-any-cli-via-clink)
 
 > [!TIP]
-> To learn more about the available MCPs and the specific guidance agents receive on how to use them, read:
->
-> - [`tools-guide.md`](../protocols/context/static/tools-guide.md): quick decision guide for selecting the best tool for a given task.
-> - [`deep-dives/`](../protocols/context/static/deep-dives/): 
-> 
->     - Collection of in-depth guides for each MCP, detailing their capabilities and advanced usage patterns. Only read by agents when necessary to preserve context
+> To learn more about the available MCPs and the specific guidance agents receive on how to use them, read [`tools-guide.md`](../protocols/context/static/tools-guide.md) *(quick decision guide for selecting the best tool for a given task)*.
 
 ### Non-MCP CLI tools
 

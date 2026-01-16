@@ -20,7 +20,6 @@ When to invoke:
 
 At startup, read:
 - the [compact MCP list](../reference/tools-guide.md) (tier 1: tool selection)
-- the [code search guide](../reference/category/code-search.md) (tier 2: finding patterns)
 - the [handoff guidelines](../reference/handoff-guide.md) (delegation rules)
 
 Approach:
@@ -42,5 +41,4 @@ Constraints and handoffs:
 - Distinguish must-fix (security, correctness, blockers) from should-improve
 - Use clink to delegate specialized deep dives (Semgrep for patterns, performance analysis)
 - AskUserQuestion for business constraints, roadmap priorities, team capacity
-- Read tier 3 deep dives when specialized analysis needed
 

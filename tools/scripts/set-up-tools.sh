@@ -25,15 +25,32 @@ REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 # Helper to read from merged config (merge order: charter.yml → directives.yml → local.yml → env)
 cfg() {
     local key="$1"
-    (cd "$REPO_ROOT" && uv run get-config "$key" 2>/dev/null) || true
+    (cd "$REPO_ROOT" && PYTHONPATH="$REPO_ROOT:${PYTHONPATH:-}" uv run get-config "$key" 2>/dev/null) || true
 }
 
 # Setting MCP source clone paths
-CLONE_DIR="$(cfg path_to.mcp_clones)"
-export SOURCEGRAPH_REPO_PATH="$CLONE_DIR/sourcegraph-mcp"
+CLONE_DIR="${CLONE_DIR:-$(cfg path_to.mcp_clones)}"
+# Resolve relative paths from repo root, handle empty values
+if [[ -n "$CLONE_DIR" ]]; then
+    # If relative path, resolve from repo root
+    if [[ "$CLONE_DIR" != /* ]] && [[ "$CLONE_DIR" != ~* ]]; then
+        CLONE_DIR="$REPO_ROOT/$CLONE_DIR"
+    fi
+    # Expand ~ to $HOME
+    CLONE_DIR="${CLONE_DIR/#\~/$HOME}"
+    export SOURCEGRAPH_REPO_PATH="$CLONE_DIR/sourcegraph-mcp"
+else
+    # Fallback to default if not set
+    export SOURCEGRAPH_REPO_PATH="$REPO_ROOT/.mcp-servers/sourcegraph-mcp"
+fi
 
-SERVER_START_TIMEOUT="$(cfg startup_timeout_for.mcp_servers)"
-DOCKER_TIMEOUT="$(cfg startup_timeout_for.docker_daemon)"
+SERVER_START_TIMEOUT="${SERVER_START_TIMEOUT:-$(cfg startup_timeout_for.mcp_servers)}"
+SERVER_START_TIMEOUT="${SERVER_START_TIMEOUT:-200}"  # Default to 200 seconds
+DOCKER_TIMEOUT="${DOCKER_TIMEOUT:-$(cfg startup_timeout_for.docker_daemon)}"
+DOCKER_TIMEOUT="${DOCKER_TIMEOUT:-120}"  # Default to 120 seconds
+
+# Source agent selection library early (needed for log_warning)
+source "$REPO_ROOT/bin/lib/agent-selection.sh"
 
 # Remote server URLs
 export SOURCEGRAPH_ENDPOINT="${SOURCEGRAPH_ENDPOINT:-$(cfg endpoint_for.sourcegraph)}"
@@ -59,12 +76,17 @@ for cli in claude gemini codex; do
 done
 export CLI_BIN_PATHS
 
-# Ports for local HTTP servers
+# Ports for local HTTP servers (with defaults if config read fails)
 export QDRANT_DB_PORT="${QDRANT_DB_PORT:-$(cfg port_for.qdrant_db)}"
+export QDRANT_DB_PORT="${QDRANT_DB_PORT:-8780}"
 export QDRANT_MCP_PORT="${QDRANT_MCP_PORT:-$(cfg port_for.qdrant_mcp)}"
+export QDRANT_MCP_PORT="${QDRANT_MCP_PORT:-8782}"
 export SOURCEGRAPH_MCP_PORT="${SOURCEGRAPH_MCP_PORT:-$(cfg port_for.sourcegraph_mcp)}"
+export SOURCEGRAPH_MCP_PORT="${SOURCEGRAPH_MCP_PORT:-8783}"
 export SEMGREP_MCP_PORT="${SEMGREP_MCP_PORT:-$(cfg port_for.semgrep_mcp)}"
+export SEMGREP_MCP_PORT="${SEMGREP_MCP_PORT:-8784}"
 export SERENA_MCP_PORT="${SERENA_MCP_PORT:-$(cfg port_for.serena_mcp)}"
+export SERENA_MCP_PORT="${SERENA_MCP_PORT:-8785}"
 
 # Configure Qdrant MCP (handles semantic memory)
 # Derive QDRANT_URL if not provided in env
@@ -85,9 +107,6 @@ export MEMORY_MCP_STORAGE_PATH="${MEMORY_MCP_STORAGE_PATH/#\~/$HOME}"
 
 # Directories
 FS_MCP_WHITELIST="${FS_MCP_WHITELIST:-$(cfg path_to.fs_mcp_whitelist)}"
-
-# Source agent selection library
-source "$REPO_ROOT/bin/lib/agent-selection.sh"
 
 # Supported agents' printable string names 
 CLAUDE="Claude Code"
@@ -221,9 +240,15 @@ wait_for_server_startup() {
     local server_name=$1
     local pid=$2
     local port=$3
-    local timeout=$4
+    local timeout=${4:-200}  # Default to 200 seconds if not provided
     local log_file=$5
     local elapsed=0
+
+    # Ensure timeout is a valid number
+    if [[ ! "$timeout" =~ ^[0-9]+$ ]] || [[ -z "$timeout" ]]; then
+        log_error "Invalid timeout value: $timeout, using default 200"
+        timeout=200
+    fi
 
     while [ $elapsed -lt $timeout ]; do
         sleep 1
@@ -329,7 +354,7 @@ add_mcp_to_gemini() {
         return 1
     fi
 
-    uv run "$SCRIPT_DIR/add-mcp-to-gemini.py" "$transport" "$server_name" "$GEMINI_CONFIG" "$@"
+    PYTHONPATH="$REPO_ROOT:${PYTHONPATH:-}" uv run "$SCRIPT_DIR/add-mcp-to-gemini.py" "$transport" "$server_name" "$GEMINI_CONFIG" "$@"
 }
 
 # Add server to Codex config file
@@ -1024,7 +1049,7 @@ if agent_enabled "OpenCode"; then
         mkdir -p "$(dirname "$TARGET_OC")"
 
         if [[ -n "$GENERATED_OC" && -f "$GENERATED_OC" ]]; then
-            if uv run "$SCRIPT_DIR/configure-opencode.py" --target "$TARGET_OC" --generated "$GENERATED_OC"; then
+            if PYTHONPATH="$REPO_ROOT:${PYTHONPATH:-}" uv run "$SCRIPT_DIR/configure-opencode.py" --target "$TARGET_OC" --generated "$GENERATED_OC"; then
                 log_success "OpenCode config merged into $TARGET_OC (preserved user overrides)"
             else
                 log_warning "OpenCode merge failed; leaving $TARGET_OC unchanged"

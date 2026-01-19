@@ -182,7 +182,7 @@ PAL_GENERATED_DIR="$REPO_ROOT/protocols/pal/generated"
 PAL_CLI_CLIENTS_DIR="$HOME/.pal/cli_clients"
 
 # Generate PAL CLI configs from settings.yaml (auto-discovers roles from agents/role-prompts/)
-if uv run python "$REPO_ROOT/protocols/scripts/generate-pal-configs.py"; then
+if PYTHONPATH="$REPO_ROOT:${PYTHONPATH:-}" uv run python "$REPO_ROOT/protocols/scripts/generate-pal-configs.py"; then
     print_success "PAL per-CLI config files generated in $PAL_GENERATED_DIR"
 else
     print_warning "Failed to generate PAL per-CLI config files - using existing files"

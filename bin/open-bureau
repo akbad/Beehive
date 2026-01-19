@@ -34,7 +34,7 @@ echo ""
 # Run cleanup if not run recently (silent, non-blocking)
 # Note: --quiet suppresses stdout, but stderr (errors) still shows
 if command -v uv &> /dev/null; then
-    uv run sweep --quiet || true
+    PYTHONPATH="$REPO_ROOT:${PYTHONPATH:-}" uv run sweep --quiet || true
 fi
 
 # --- Run setup scripts (all use directory-based detection) ---

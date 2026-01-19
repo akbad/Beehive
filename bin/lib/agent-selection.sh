@@ -56,7 +56,7 @@ _get_repo_root() {
 _get_config() {
     local repo_root
     repo_root="$(_get_repo_root)"
-    (cd "$repo_root" && uv run get-config "$@")
+    (cd "$repo_root" && PYTHONPATH="$repo_root:${PYTHONPATH:-}" uv run get-config "$@")
 }
 
 declare -A AGENT_MAP=(

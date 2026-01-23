@@ -17,7 +17,7 @@ REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$REPO_ROOT" || exit 1
 
 # Check dependencies, install correct Python version packages and set up env
-bin/check-prereqs
+bin/ensure-prereqs
 
 # Source agent selection library
 source "$REPO_ROOT/bin/lib/agent-selection.sh"

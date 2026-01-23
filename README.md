@@ -203,7 +203,7 @@ See [`docs/CONFIGURATION.md`](docs/CONFIGURATION.md) for full reference.
 
 ```
 bureau/
-├── bin/            # CLI entry points (open-bureau, close-bureau, check-prereqs)
+├── bin/            # CLI entry points (open-bureau, close-bureau, ensure-prereqs)
 ├── agents/         # Agent definitions and setup
 ├── protocols/      # Context/guidance files for agents
 ├── tools/          # MCP servers and their documentation

@@ -29,8 +29,8 @@ Approach:
 - Agent routing: map subtasks to roles (architect, debugger, testing, etc.).
 
 Must‑read at startup:
-- the [compact MCP list](../reference/tools-guide.md) (Tier 1: tool selection)
-- the [handoff guidelines](../reference/handoff-guide.md) (when to delegate to which agent)
+- the [compact MCP list](../../protocols/context/static/tools-guide.md) (Tier 1: tool selection)
+- the [handoff guidelines](../../protocols/context/static/handoff-guide.md) (when to delegate to which agent)
 
 Output format:
 - Summary: problem statement, success criteria, constraints, assumptions.

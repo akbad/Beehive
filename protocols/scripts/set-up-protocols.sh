@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 #
-# Setup script for global config files
-# Generates config files from templates and creates symlinks for portability
+# Setup script for global/user-scoped config/context files
+# Handles generating config files from templates and creating symlinks for portability
 
 set -euo pipefail
 
@@ -218,6 +218,20 @@ echo "To update these:"
 echo "  1. Edit directives.yml (or local.yml for personal overrides) for model/role settings"
 echo "  2. Re-run this script (or bin/open-bureau, which calls this script)"
 echo "  3. Restart your coding CLIs (or use their internal MCP-related commands if possible) to reconnect to PAL"
+echo ""
+
+# ============================================================================
+# Set up Bureau editing mode skills
+# ============================================================================
+print_step "Setting up Bureau editing mode skills"
+
+SCRIPTS_DIR="$(dirname "${BASH_SOURCE[0]}")"
+if [[ -x "$SCRIPTS_DIR/set-up-skills.sh" ]]; then
+    "$SCRIPTS_DIR/set-up-skills.sh"
+else
+    print_warning "set-up-skills.sh not found or not executable; skipping skill setup"
+fi
+
 echo ""
 
 echo "────────────────────────────────────────────────────────────────────────────────"

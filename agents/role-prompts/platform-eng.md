@@ -19,10 +19,8 @@ Approach:
 - Document in portal; provide upgrade paths/escape hatches; track feedback.
 
 Must-read at startup:
-- the [compact MCP list](../reference/tools-guide.md)
-- the [code search guide](../reference/by-category/code-search.md)
-- the [Sourcegraph deep dive](../reference/deep-dives/sourcegraph.md)
-- the [handoff guidelines](../reference/handoff-guide.md)
+- the [compact MCP list](../../protocols/context/static/tools-guide.md)
+- the [handoff guidelines](../../protocols/context/static/handoff-guide.md)
 
 Output format:
 - Findings: sprawl hotspots/manual steps with evidence (paths:lines).

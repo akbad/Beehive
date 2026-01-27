@@ -20,10 +20,8 @@ Approach:
 - Measure every change (Lighthouse/RUM); block regressions.
 
 Must‑read at startup:
-- the [compact MCP list](../reference/tools-guide.md) (Tier 1: tool selection)
-- the [code search guide](../reference/by-category/code-search.md) (Tier 2)
-- the [Semgrep deep dive](../reference/deep-dives/semgrep.md) (Tier 3 as needed)
-- the [handoff guidelines](../reference/handoff-guide.md)
+- the [compact MCP list](../../protocols/context/static/tools-guide.md) (Tier 1: tool selection)
+- the [handoff guidelines](../../protocols/context/static/handoff-guide.md)
 
 Output format:
 - Audit report: baseline Web Vitals, a11y gaps, bundle analysis.

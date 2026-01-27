@@ -28,10 +28,8 @@ Approach:
 - Backfills: incremental with checkpointing; validate output; minimal recompute.
 
 Must‑read at startup:
-- the [compact MCP list](../reference/tools-guide.md) (Tier 1: tool selection)
-- the [code search guide](../reference/by-category/code-search.md) (Tier 2)
-- the [Sourcegraph deep dive](../reference/deep-dives/sourcegraph.md) (Tier 3 as needed)
-- the [handoff guidelines](../reference/handoff-guide.md)
+- the [compact MCP list](../../protocols/context/static/tools-guide.md) (Tier 1: tool selection)
+- the [handoff guidelines](../../protocols/context/static/handoff-guide.md)
 
 Output format:
 - Data flow: DAG with sources/transforms/sinks, dependencies, SLAs.

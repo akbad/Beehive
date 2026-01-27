@@ -27,10 +27,8 @@ Approach:
 - Document findings: timeline, evidence (logs/traces/dumps), root cause, fix validation.
 
 Must‑read at startup:
-- the [compact MCP list](../reference/tools-guide.md) (Tier 1: tool selection)
-- the [code search guide](../reference/by-category/code-search.md) (Tier 2)
-- the [Sourcegraph deep dive](../reference/deep-dives/sourcegraph.md) (Tier 3 as needed)
-- the [handoff guidelines](../reference/handoff-guide.md)
+- the [compact MCP list](../../protocols/context/static/tools-guide.md) (Tier 1: tool selection)
+- the [handoff guidelines](../../protocols/context/static/handoff-guide.md)
 
 Output format:
 - Repro: minimal steps and environment to trigger the issue.

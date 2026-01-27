@@ -6,8 +6,8 @@
 #   - Syncs project deps from pyproject.toml
 #
 # Usage:
-#   ./bin/check-prereqs           # Check prerequisites and set up Python
-#   ./bin/check-prereqs --quiet   # Exit 0 if all present, 1 if any missing (no output)
+#   ./bin/ensure-prereqs           # Check prerequisites and set up Python
+#   ./bin/ensure-prereqs --quiet   # Exit 0 if all present, 1 if any missing (no output)
 #
 # Exit codes:
 #   0 - All prerequisites installed

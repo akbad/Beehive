@@ -46,7 +46,7 @@ pal:
 
   # PAL CLI-specific setting options
   # IMPORTANT: After changing any of the settings below:
-  #   1. Re-run protocols/scripts/set-up-configs.sh (or bin/open-bureau wrapper)
+  #   1. Re-run protocols/scripts/set-up-protocols.sh (or bin/open-bureau wrapper)
   #   2. Restart coding CLIs (or if possible, use their MCP-related commands without 
   #      restarting) to reconnect to PAL
   claude:

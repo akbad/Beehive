@@ -273,7 +273,7 @@ The new `local.yml` will be:
 | Setting | Default | How to customize |
 | :--- | :--- | :--- |
 | Enabled CLI agents | All 4 [supported CLIs](#supported-cli-coding-agents) | Set `agents` list in `local.yml` |
-| Bureau workspace path | `~/code` | Set `path_to.fs_mcp_whitelist` in `local.yml` |
+| Bureau workspace path | `~/code` | Set `path_to.workspace` in `local.yml` |
 | Memory retention | 30d–365d, depending on the backend | Set `retention_period_for.*` in `local.yml` |
 | [Role prompts](../agents/role-prompts/) and models for PAL `clink` to use with coding CLIs | All role prompts; Sonnet for Claude Code; gpt-5.2-codex with medium reasoning effort for Codex | Set `pal.*` settings in `local.yml` *(see [`directives.yml`](../directives.yml) for quick examples)* | 
 
@@ -281,8 +281,8 @@ The new `local.yml` will be:
 
 ```yml
 # bureau/local.yml (create if it doesn't exist)
-mcp:
-  auto_approve: yes  
+auto_approved:
+  mcps: true
 
 pal:
   claude: 
@@ -299,7 +299,7 @@ pal:
 | MCP server not starting | Check logs in `/tmp/mcp-*-server.log` |
 | Docker not running | Start Docker Desktop / Rancher Desktop first |
 | Missing API key warnings | Set the environment variables listed in prerequisites |
-| Port conflicts | Override ports in `local.yml` (see [CONFIGURATION.md](CONFIGURATION.md#port_for)) |
+| Port conflicts | Override MCP ports in `local.yml` (see [CONFIGURATION.md](CONFIGURATION.md#change-mcp-ports-to-avoid-conflicts)) |
 
 > [!NOTE]
 > For manual setup steps (symlinking, running individual scripts), see the scripts' sources:

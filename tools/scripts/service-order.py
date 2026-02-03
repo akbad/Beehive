@@ -8,7 +8,7 @@ Parses service plan JSON files to determine startup startup_seq of runtime servi
        then piped directly to orchestration tools
 
 Usage:
-    ./service-startup_seq.py <path_to_plan.json>
+    ./service-order.py <path_to_plan.json>
 
 Assumption:
     The input JSON is expected to follow this structure for listing dependencies:

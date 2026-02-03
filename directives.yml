@@ -27,8 +27,28 @@ path_to:
 
 # MCP tool permissions
 # When true, agents won't prompt for permission before using MCP tools
-mcp:
-  auto_approve: no
+# Role prompt availability settings: choose which agents are available 
+#   when launching CLIs directly (separate from PAL's clink cross-CLI 
+#   delegation, configured via pal.base-roles)
+# Options: "all", explicit list, or empty list []
+roles:
+  enabled:
+    - architect
+    - debugger
+    - code-reviewer
+    - optimization
+    - testing
+    - migration-refactoring
+
+  # Roles to explicitly exclude (takes precedence over enabled)
+  disabled: []
+
+  # Source directories for role discovery
+  sources:
+    - path: agents/role-prompts        # For Codex, Gemini, OpenCode
+      cli: [codex, gemini, opencode]
+    - path: agents/claude-subagents    # For Claude Code (has frontmatter)
+      cli: [claude]
 
 # PAL clink configuration: controls which models and system prompts are available
 #   when using PAL MCP's clink tool to spawn subagents across coding CLIs

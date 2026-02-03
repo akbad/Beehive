@@ -13,26 +13,20 @@
 #    --uninstall    Remove all Bureau skill installs
 
 set -e
-# Colors
-GREEN='\033[0;32m'
-RED='\033[0;31m'
-YELLOW='\033[1;33m'
-BLUE='\033[0;34m'
-NC='\033[0m'
-
-DRY_RUN=false
-UNINSTALL=false
 
 # Constants for functionality
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"  # we are in protocols/scripts/, so move up 2 parents
-BUREAU_SKILLS_DIR="$REPO_ROOT/protocols/context/static/skills"
-INSTALL_PREFIX="bureau-"  # prefix added to skill names when installing
+
+# Source shared libraries
+source "$REPO_ROOT/bin/lib/logging.sh"
+
 
 # Skill directory locations for each CLI
 CLAUDE_SKILLS_DIR="$HOME/.claude/skills"
 OPENCODE_SKILLS_DIR="$HOME/.config/opencode/skill"
 CODEX_SKILLS_DIR="$HOME/.codex/skills"
 GEMINI_SKILLS_DIR="$HOME/.gemini/skills"
+BUREAU_SKILL_PREFIX="bureau-"
 
 # Parse arguments
 while [[ $# -gt 0 ]]; do
@@ -56,35 +50,6 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
-log_action() {
-    local action=$1
-    local detail=$2
-    echo -e "${BLUE}$action${NC} $detail"
-}
-
-log_success() {
-    echo -e "${GREEN}✓${NC} $1"
-}
-
-log_warning() {
-    echo -e "${YELLOW}⚠${NC} $1"
-}
-
-log_error() {
-    echo -e "${RED}✗${NC} $1"
-}
-
-print_header() {
-    local label=$1
-    local path=$2
-    shift 2
-
-    echo -e "${BLUE}${label}${NC} ($path)"
-    for line in "$@"; do
-        echo -e "  ${YELLOW}${line}${NC}"
-    done
-}
-
 ensure_dir() {
     local dir=$1
 
@@ -106,7 +71,7 @@ set_up_bureau_skill_dirs() {
         command="cp -r"
         action="copy to"
     else
-        command="ln -s"
+        command="ln -sf"
         action="link from"
     fi
     
@@ -133,33 +98,36 @@ set_up_bureau_skill_dirs() {
 remove_bureau_skill_dirs() {
     local skill_conf_dir=$1
 
-    for skill_source_dir in "${SKILL_DIRS[@]}"; do
-        local skill_name
-        local skill_install_subdir  # install path relative to the CLI's skill config dir
-        local skill_install_dir     # full install path
+    if [[ ! -d "$skill_conf_dir" ]]; then
+        return
+    fi
 
-        skill_name=$(basename "$skill_source_dir")
-        skill_install_subdir="${INSTALL_PREFIX}${skill_name}"
-        skill_install_dir="$skill_conf_dir/$skill_install_subdir"
+    for entry in "$skill_conf_dir"/${BUREAU_SKILL_PREFIX}*; do
+        if [[ ! -e "$entry" ]]; then
+            continue
+        fi
 
-        # Auto-detect whether directory is symlinked or copied
-        # Must check -L first (since symlinked dirs match both -L and -d)
-        if [[ -L "$skill_install_dir" ]]; then
+        if [[ -L "$entry" ]]; then
             if [[ "$DRY_RUN" == true ]]; then
-                log_action "Would remove:" "$skill_install_dir"
+                log_action "Would remove:" "$entry"
             else
-                rm "$skill_install_dir"
-                log_success "Removed: $skill_install_dir"
+                rm -f "$entry"
+                log_success "Removed: $entry"
             fi
-        elif [[ -d "$skill_install_dir" ]]; then
+        elif [[ -d "$entry" ]]; then
             if [[ "$DRY_RUN" == true ]]; then
-                log_action "Would remove:" "$skill_install_dir/"
+                log_action "Would remove:" "$entry/"
             else
-                rm -rf "$skill_install_dir"
-                log_success "Removed: $skill_install_dir/"
+                rm -rf "$entry"
+                log_success "Removed: $entry/"
             fi
-        elif [[ -e "$skill_install_dir" ]]; then
-            log_warning "Skipped $skill_install_subdir (unexpected file type)"
+        elif [[ -e "$entry" ]]; then
+            if [[ "$DRY_RUN" == true ]]; then
+                log_action "Would remove:" "$entry"
+            else
+                rm -f "$entry"
+                log_success "Removed: $entry"
+            fi
         fi
     done
 }
@@ -173,56 +141,62 @@ fi
 # Get list of skill directories (source dirs don't have bureau- prefix)
 SKILL_DIRS=($(find "$BUREAU_SKILLS_DIR" -maxdepth 1 -mindepth 1 -type d | sort))
 
-if [[ ${#SKILL_DIRS[@]} -eq 0 ]]; then
-    log_error "No skill directories found in $BUREAU_SKILLS_DIR"
+if [[ ${#SKILL_NAMES[@]} -eq 0 ]]; then
+    log_error "No skills found in $SKILLS_CONFIG_PATH"
     exit 1
 fi
 
-echo -e "\n${BLUE}Bureau skill installation${NC}"
-echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-echo -e "Source: $BUREAU_SKILLS_DIR"
-echo -e "Skills found: ${#SKILL_DIRS[@]}\n"
+log_empty_line
+log_banner "Bureau skill installation"
+echo "Config: $SKILLS_CONFIG_PATH"
+echo "Skills found: ${#SKILL_NAMES[@]}"
+log_empty_line
 
 if [[ "$DRY_RUN" == true ]]; then
-    echo -e "${YELLOW}Dry run mode: no changes will be made${NC}\n"
+    log_warning "Dry run mode: no changes will be made"
+    log_empty_line
 fi
 
-echo -e "${YELLOW}Removing existing Bureau skill installs...${NC}\n"
+log_warning "Removing existing Bureau skill installs..."
+log_empty_line
 
-# Always remove skill directories to ensure install is consistent 
-#   with source of truth (bureau/protocols/context/static/skills/)
+# Always remove Bureau-prefixed skills to keep installs consistent 
+#   and avoid stale entries
 remove_bureau_skill_dirs "$CLAUDE_SKILLS_DIR"
 remove_bureau_skill_dirs "$OPENCODE_SKILLS_DIR"
 remove_bureau_skill_dirs "$CODEX_SKILLS_DIR"
 remove_bureau_skill_dirs "$GEMINI_SKILLS_DIR"
 
-echo -e "\n${GREEN}Bureau skills uninstalled.${NC}\n"
+log_empty_line
+log_success "Bureau skills uninstalled."
+log_empty_line
 
 if [[ "$UNINSTALL" == true ]]; then
     exit 0
 fi
 
-echo -e "${BLUE}Setting up fresh skill installs...${NC}\n"
+log_info "Setting up fresh skill installs..."
+log_empty_line
 
-print_header "Claude Code" "$CLAUDE_SKILLS_DIR"
+log_header "Claude Code" "$CLAUDE_SKILLS_DIR"
 set_up_bureau_skill_dirs "$CLAUDE_SKILLS_DIR"
 echo ""
 
-print_header "OpenCode" "$OPENCODE_SKILLS_DIR"
+log_header "OpenCode" "$OPENCODE_SKILLS_DIR"
 set_up_bureau_skill_dirs "$OPENCODE_SKILLS_DIR"
 echo ""
 
-print_header "Codex" "$CODEX_SKILLS_DIR" "Note Codex ignores symlinked directories; copying instead."
+log_header "Codex" "$CODEX_SKILLS_DIR" "Note Codex ignores symlinked directories; copying instead."
 set_up_bureau_skill_dirs "$CODEX_SKILLS_DIR"
 echo ""
 
-print_header "Gemini CLI" "$GEMINI_SKILLS_DIR"
+log_header "Gemini CLI" "$GEMINI_SKILLS_DIR"
 set_up_bureau_skill_dirs "$GEMINI_SKILLS_DIR"
 echo ""
 
-echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+log_divider
 if [[ "$DRY_RUN" == true ]]; then
-    echo -e "${YELLOW}Dry run complete. Run without --dry-run to apply changes.${NC}"
+    log_warning "Dry run complete. Run without --dry-run to apply changes."
 else
-    echo -e "${GREEN}Bureau skills setup complete!${NC}"
+    log_success "Bureau skills setup complete!"
 fi

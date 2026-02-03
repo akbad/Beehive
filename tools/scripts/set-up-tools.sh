@@ -52,14 +52,7 @@ AGENTS=()
 
 # --- CONFIG VALUES ---
 
-# Read auto-approve setting from config (accepts yes/true/no/false)
-_auto_approve_cfg="$(cfg mcp.auto_approve)"
-case "${_auto_approve_cfg,,}" in
-    yes|true) AUTO_APPROVE_MCP=true ;;
-    *) AUTO_APPROVE_MCP=false ;;
-esac
-
-# Detect installed CLIs based on config directory existence (exits if none found, logs detected CLIs)
+# Detect enabled agents based on YML configs (exits if none found, logs detected CLIs)
 discover_agents
 
 # --- HELPERS ---

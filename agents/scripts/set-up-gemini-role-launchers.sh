@@ -4,33 +4,25 @@ set -euo pipefail
 # Setup script for Gemini CLI role launcher wrappers
 # Creates executable scripts in ~/.local/bin/ for launching Gemini with specific agent roles
 
-# Color codes for output
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-BLUE='\033[0;34m'
-NC='\033[0m' # No Color
-
 # Find the repo root
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 AGENTS_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 REPO_ROOT="$(cd "$AGENTS_DIR/.." && pwd)"
 CLINK_ROLES_DIR="$AGENTS_DIR/role-prompts"
 
-# Source agent selection library
+# Source shared libraries
 source "$REPO_ROOT/bin/lib/agent-selection.sh"
+source "$REPO_ROOT/bin/lib/logging.sh"
+source "$REPO_ROOT/bin/lib/roles-setup.sh"
 
 # Detect installed CLIs (exits if none found, logs detected CLIs)
 discover_agents
 
 # Skip entirely if Gemini not enabled
 if ! agent_enabled "Gemini CLI"; then
-    echo -e "${YELLOW}Gemini CLI not enabled. Skipping role launchers setup.${NC}"
+    log_error "Cannot find role-prompts directory at: $CLINK_ROLES_DIR"
+    exit 1
     echo "To enable Gemini CLI:"
-    echo "  mkdir -p ~/.gemini"
-    echo "  Then re-run this script or agents/scripts/set-up-agents.sh"
-    exit 0
-fi
 
 # Target directory for launcher scripts
 LAUNCHERS_DIR="$HOME/.local/bin"

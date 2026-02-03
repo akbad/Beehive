@@ -22,7 +22,7 @@ discover_agents
 
 # Skip entirely if Codex not selected
 if ! agent_enabled "Codex"; then
-    echo -e "${YELLOW}Codex not in CLI profile. Skipping Superpowers setup.${NC}"
+    log_warning "Codex not in CLI profile. Skipping Superpowers setup."
     echo "To enable Codex, run:"
     echo "  tools/scripts/set-up-tools.sh -a x    # Codex only"
     echo "  tools/scripts/set-up-tools.sh -a cx   # Codex + Claude"

@@ -4,13 +4,6 @@ set -euo pipefail
 # Setup script for Codex role launcher wrappers
 # Creates executable scripts in ~/.local/bin/ for launching Codex with specific agent roles
 
-# Color codes for output
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-BLUE='\033[0;34m'
-NC='\033[0m' # No Color
-
 # Find the repo root
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 AGENTS_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
@@ -19,61 +12,27 @@ CLINK_ROLES_DIR="$AGENTS_DIR/role-prompts"
 
 # Source agent selection library
 source "$REPO_ROOT/bin/lib/agent-selection.sh"
+source "$REPO_ROOT/bin/lib/logging.sh"
+source "$REPO_ROOT/bin/lib/roles-setup.sh"
 
 # Detect installed CLIs (exits if none found, logs detected CLIs)
 discover_agents
 
-# Skip entirely if Codex not enabled
-if ! agent_enabled "Codex"; then
-    echo -e "${YELLOW}Codex not enabled. Skipping role launchers setup.${NC}"
-    echo "To enable Codex:"
-    echo "  mkdir -p ~/.codex"
-    echo "  Then re-run this script or agents/scripts/set-up-agents.sh"
-    exit 0
-fi
-
-# Target directory for launcher scripts
-LAUNCHERS_DIR="$HOME/.local/bin"
-
-echo -e "${GREEN}Role launcher setup for Codex${NC}"
+log_success "Role launcher setup for Codex"
 echo -e "Source: $CLINK_ROLES_DIR"
-echo -e "Target: $LAUNCHERS_DIR"
+echo -e "Target: $HOME/.local/bin"
 echo ""
-
-# Function to print step headers
-print_step() {
-    echo -e "${YELLOW}==>${NC} $1"
-}
-
-# Function to print success
-print_success() {
-    echo -e "${GREEN}✓${NC} $1"
-}
-
-# Function to print info
-print_info() {
-    echo -e "${BLUE}ℹ${NC} $1"
-}
-
-# Function to print error and exit
-print_error() {
-    echo -e "${RED}✗${NC} $1" >&2
-    exit 1
-}
 
 # Check if source directory exists
 if [[ ! -d "$CLINK_ROLES_DIR" ]]; then
-    print_error "Cannot find role-prompts directory at: $CLINK_ROLES_DIR"
+    log_error "Cannot find role-prompts directory at: $CLINK_ROLES_DIR"
+    exit 1
 fi
-
-# Create launchers directory if it doesn't exist
-mkdir -p "$LAUNCHERS_DIR"
-print_success "Ensured $LAUNCHERS_DIR exists"
 
 # Check if ~/.local/bin is in PATH
 if [[ ":$PATH:" != *":$HOME/.local/bin:"* ]]; then
-    print_info "Note: $HOME/.local/bin is not in your PATH"
-    print_info "Add this to your ~/.zshrc or ~/.bashrc:"
+    log_info "Note: $HOME/.local/bin is not in your PATH"
+    log_info "Add this to your ~/.zshrc or ~/.bashrc:"
     echo ""
     echo "  export PATH=\"\$HOME/.local/bin:\$PATH\""
     echo ""
@@ -139,7 +98,7 @@ EOF_OUTER
     # Make it executable
     chmod +x "$launcher_file"
 
-    print_info "Created $launcher_name"
+    log_info "Created $launcher_name"
     count=$((count + 1))
 done
 
@@ -148,7 +107,7 @@ print_success "Generated $count role launchers"
 
 # Print usage instructions
 echo ""
-echo -e "${GREEN}Setup complete!${NC}"
+log_success "Setup complete!"
 echo ""
 echo "Usage examples:"
 echo ""
@@ -170,6 +129,6 @@ echo ""
 
 # Verify PATH setup
 if [[ ":$PATH:" != *":$HOME/.local/bin:"* ]]; then
-    echo -e "${YELLOW}⚠${NC}  Remember to add ~/.local/bin to your PATH!"
+    log_warning "Remember to add ~/.local/bin to your PATH!"
     echo ""
 fi

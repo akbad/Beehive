@@ -25,8 +25,15 @@ path_to:
   # MCP server clone location (relative paths resolve from main repo root, shared across Bureau worktrees)
   mcp_clones: .mcp-servers
 
-# MCP tool permissions
+# Auto-approval settings
 # When true, agents won't prompt for permission before using MCP tools
+auto_approved:
+  mcps: false
+  bash:
+    enabled: false
+
+auto_clean_managed_mcps: true
+
 # Role prompt availability settings: choose which agents are available 
 #   when launching CLIs directly (separate from PAL's clink cross-CLI 
 #   delegation, configured via pal.base-roles)

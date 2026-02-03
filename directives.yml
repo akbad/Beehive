@@ -19,7 +19,6 @@ path_to:
   # Base workspace for user projects (override using: $BUREAU_WORKSPACE)
   # When set, the following paths are automatically derived from it (unless explicitly overridden):
   #   - serena_memories_root (root for recursive scanning of Serena memory files during Bureau-run cleanup)
-  #   - fs_mcp_whitelist (Filesystem MCP security boundary)
   workspace: ~/code
 
   # MCP server clone location (relative paths resolve from main repo root, shared across Bureau worktrees)
@@ -56,6 +55,14 @@ roles:
       cli: [codex, gemini, opencode]
     - path: agents/claude-subagents    # For Claude Code (has frontmatter)
       cli: [claude]
+
+# Skills configuration (installed via protocols/scripts/set-up-skills.sh)
+skills:
+  enabled: [micro-mode]
+  disabled: []
+  sources:
+    - path: protocols/context/static/skills
+      prefix: bureau-
 
 # PAL clink configuration: controls which models and system prompts are available
 #   when using PAL MCP's clink tool to spawn subagents across coding CLIs
@@ -121,15 +128,8 @@ cleanup:
 trash:
   grace_period: 30d
 
-# Timeouts (in seconds) to wait when starting up components (increase for slower machines)
+# Timeouts (in seconds) when starting up:
+# (increase for slower machines)
 startup_timeout_for:
-  mcp_servers: 200       # For HTTP MCP servers started by Bureau
-  docker_daemon: 120     # For Docker daemon startup
-
-# Ports for locally-run HTTP servers & backing DB containers
-port_for:
-  qdrant_db: 8780
-  qdrant_mcp: 8782
-  sourcegraph_mcp: 8783
-  semgrep_mcp: 8784
-  serena_mcp: 8785
+  mcp_servers: 200       # HTTP MCP servers
+  docker_daemon: 120     # Docker containers

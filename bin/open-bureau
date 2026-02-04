@@ -8,10 +8,6 @@
 
 set -euo pipefail
 
-GREEN='\033[0;32m'
-BLUE='\033[0;34m'
-NC='\033[0m'        # no colour
-
 # Change to repo root
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$REPO_ROOT" || exit 1
@@ -19,17 +15,16 @@ cd "$REPO_ROOT" || exit 1
 # Check dependencies, install correct Python version packages and set up env
 bin/ensure-prereqs
 
-# Source agent selection library
+# Source shared libraries
+source "$REPO_ROOT/bin/lib/logging.sh"
 source "$REPO_ROOT/bin/lib/agent-selection.sh"
 
-echo -e "${BLUE}====================================================${NC}"
-echo -e "${BLUE}  Bureau bootstrap & startup${NC}"
-echo -e "${BLUE}====================================================${NC}"
-echo ""
+log_banner "Bureau bootstrap & startup"
+log_empty_line
 
 # Determine enabled agents from config
 discover_agents
-echo ""
+log_empty_line
 
 # Run cleanup if not run recently (silent, non-blocking)
 # Note: --quiet suppresses stdout, but stderr (errors) still shows
@@ -45,31 +40,30 @@ fi
 #     (i.e. as opposed to as isolated subagents)
 # Note: Must be run before tools setup since the agent files mentioned by the PAL
 #   configs must exist when PAL is started up
-echo ""
-echo -e "${BLUE}Setting up agents and agent launchers/slash commands...${NC}"
-echo ""
+log_empty_line
+log_action "Setting up agents and agent launchers/slash commands..."
+log_empty_line
 agents/scripts/set-up-agents.sh
 
 # Run tools setup & startup, passing along CLI options received
 #   - Configures MCPs for each supported coding CLI
 #   - Launches MCPs servers and backing containers (for those run as local HTTP servers)
-echo -e "${BLUE}Setting up tools...${NC}"
-echo ""
+log_action "Setting up tools..."
+log_empty_line
 tools/scripts/set-up-tools.sh "$@"
 
 # Run configs setup:
 #   - Generate coding CLIs' context/config files (w/ device-specific abs paths) 
 #   - Symlinks them to the appropriate user-scoped locations for each agent
-echo ""
-echo -e "${BLUE}Setting up config files...${NC}"
-echo ""
+log_empty_line
+log_action "Setting up config files..."
+log_empty_line
 protocols/scripts/set-up-protocols.sh
 
-echo ""
-echo -e "${GREEN}==========================================================${NC}"
-echo -e "${GREEN}  Bootstrapping complete: Bureau is ready to use.${NC}"
-echo -e "${GREEN}==========================================================${NC}"
-echo ""
+log_empty_line
+log_banner "Bootstrapping complete: Bureau is ready to use."
+log_empty_line
+
 echo "To add or remove CLIs in the future:"
 echo "  - Add: Create user-scoped config directory (e.g., mkdir -p ~/.gemini)"
 echo "  - Remove: Delete user-scoped config directory (e.g., rm -rf ~/.codex)"

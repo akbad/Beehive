@@ -16,7 +16,7 @@ from typing import Any, Mapping
 #   be multiple value placeholders in a config string; `.*` would match up to the last `}` in the line,
 #   capturing the entire substring starting from the beginning of first placeholder to the end of the last,
 #   including everything in between
-_PLACEHOLDER_RE = re.compile(r"\$\{([^}]+)\}")
+_PLACEHOLDER_REGEX = re.compile(r"\$\{([^}]+)\}")
 
 # retrieve value stored in config dict (i.e. as formed by merging YML configs)
 def _get_config_value(config: Mapping[str, Any], path_to_key: str) -> str | None:
@@ -62,7 +62,7 @@ def expand_placeholders(
     while True:
         # config validation is responsible for catching recursive placeholders (or cycles thereof) 
         #   that would cause infinite looping here (e.g. `val="...${val}..."`)
-        expanded = _PLACEHOLDER_RE.sub(repl, expanded)
+        expanded = _PLACEHOLDER_REGEX.sub(repl, expanded)
         if expanded in seen:
             break
         seen.add(expanded)

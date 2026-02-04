@@ -10,7 +10,7 @@ AGENTS_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 REPO_ROOT="$(cd "$AGENTS_DIR/.." && pwd)"
 CLINK_ROLES_DIR="$AGENTS_DIR/role-prompts"
 
-# Source agent selection library
+# Source shared libraries
 source "$REPO_ROOT/bin/lib/agent-selection.sh"
 source "$REPO_ROOT/bin/lib/logging.sh"
 source "$REPO_ROOT/bin/lib/roles-setup.sh"
@@ -38,26 +38,24 @@ if [[ ":$PATH:" != *":$HOME/.local/bin:"* ]]; then
     echo ""
 fi
 
-# Counter for generated launchers
-count=0
+# Codex-specific processing function
+process_codex_launcher() {
+    local role_name="$1"
+    local target_dir="$2"
+    local role_file="$CLINK_ROLES_DIR/${role_name}.md"
 
-# Process each role file
-print_step "Generating role launchers from clink role prompts"
-echo ""
+    # Skip if file doesn't exist
+    if [[ ! -f "$role_file" ]]; then
+        log_warning "Role file not found: $role_file (skipping)"
+        return 1
+    fi
 
-for role_file in "$CLINK_ROLES_DIR"/*.md; do
-    # Get the base name without extension (e.g., "architect" from "architect.md")
-    role_name=$(basename "$role_file" .md)
-
-    # Create a launcher script name with "codex-" prefix
-    launcher_name="codex-${role_name}"
-    launcher_file="$LAUNCHERS_DIR/$launcher_name"
-
-    # Read the role prompt content
-    role_content=$(cat "$role_file")
+    # Create launcher script with "codex-" prefix
+    local launcher_name="codex-${role_name}"
+    local launcher_file="$target_dir/$launcher_name"
 
     # Create the launcher script that:
-    # 1. Creates a temporary AGENTS.md with the role prompt in the current directory
+    # 1. Creates a temporary AGENTS.md with the role prompt
     # 2. Launches codex (which auto-loads ./AGENTS.md)
     # 3. Cleans up on exit
     cat > "$launcher_file" << 'EOF_OUTER'
@@ -99,11 +97,12 @@ EOF_OUTER
     chmod +x "$launcher_file"
 
     log_info "Created $launcher_name"
-    count=$((count + 1))
-done
+    return 0
+}
 
-echo ""
-print_success "Generated $count role launchers"
+# Run setup using common workflow
+setup_roles_for_cli "Codex" "codex" "$HOME/.local/bin" process_codex_launcher
+
 
 # Print usage instructions
 echo ""

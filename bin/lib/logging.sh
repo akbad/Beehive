@@ -18,6 +18,7 @@
 #   log_empty_line           - Blank line
 #   log_divider              - Horizontal rule
 #   log_separator            - Empty + divider + empty
+#   log_banner "title"       - Banner with dividers
 #
 # Environment variables:
 #   LOG_COLORS=false         - Disable all colors (for CI/logs)
@@ -115,13 +116,16 @@ log_separator() {
 # Print a styled banner (for script headers)
 log_banner() {
     local title=$1
-    local width=${2:-40}
+    local padding="        "
+    local divider_char="━"
+    local line_len=$(( ${#title} + 16 ))
 
-    local padding=$(printf '%*s' $(((width - ${#title}) / 2)) '')
+    local divider
+    divider=$(printf '%*s' "$line_len" "" | tr ' ' "$divider_char")
 
-    log_divider
-    echo -e "${LOG_BOLD}${padding}${title}${padding}${LOG_NC}"
-    log_divider
+    echo "$divider"
+    echo "${padding}${title}${padding}"
+    echo "$divider"
 }
 
 # Progress indicator (for long-running operations)

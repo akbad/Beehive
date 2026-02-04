@@ -60,8 +60,8 @@ def expand_placeholders(
     expanded = value
     seen = {expanded}
     while True:
-        # config validation is responsible for catching recursive placeholders that would cause
-        #   infinite looping here (e.g. `val="...${val}..."`)
+        # config validation is responsible for catching recursive placeholders (or cycles thereof) 
+        #   that would cause infinite looping here (e.g. `val="...${val}..."`)
         expanded = _PLACEHOLDER_RE.sub(repl, expanded)
         if expanded in seen:
             break

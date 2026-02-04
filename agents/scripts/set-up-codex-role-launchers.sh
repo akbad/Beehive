@@ -1,8 +1,12 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Setup script for Codex role launcher wrappers
-# Creates executable scripts in ~/.local/bin/ for launching Codex with specific agent roles
+# Setup script for Codex role launcher wrappers: creates executable scripts 
+#   in ~/.local/bin/ for launching Codex with specific agent roles
+#
+# Note: to see the rationale for *embedding* role prompts in the launcher scripts 
+#   (e.g. rather than providing a Bureau-internal path to the role prompt file): 
+#   see agents/scripts/README.md
 
 # Find the repo root
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"

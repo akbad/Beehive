@@ -132,21 +132,22 @@ def validate_and_raise(config: Mapping[str, Any]) -> None:
 def validate_duration_format(duration: str) -> str | None:
     """Validate a duration string format.
 
+    Delegates to parse_duration() to ensure validation and parsing
+    always agree on what constitutes a valid duration.
+
     Args:
         duration: Duration string to validate.
 
     Returns:
         Error message if invalid, None if valid.
     """
-    import re
+    from .config_loader import parse_duration
 
-    if duration.lower() == "always":
+    try:
+        parse_duration(duration)
         return None
-
-    if not re.match(r"^\d+[hdwmy]$", duration.lower()):
-        return f"Invalid duration format: '{duration}'. Use format like '24h', '30d', '2w', '3m', '1y', or 'always'"
-
-    return None
+    except ValueError as e:
+        return str(e)
 
 
 def _check_durations(section: Mapping[str, Any], section_name: str, *keys: str) -> list[str]:

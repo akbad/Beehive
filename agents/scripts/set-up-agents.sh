@@ -29,7 +29,8 @@ log_empty_line
 
 # Check if we're in the right place
 if [[ ! -d "$AGENTS_DIR/$CLAUDE_AGENTS_DIRNAME" ]] || [[ ! -d "$AGENTS_DIR/$CLINK_AGENTS_DIRNAME" ]]; then
-    print_error "Cannot find agent directories! ($CLAUDE_AGENTS_DIRNAME/ and $CLINK_AGENTS_DIRNAME within $AGENTS_DIR)"
+    log_error "Cannot find agent directories! ($CLAUDE_AGENTS_DIRNAME/ and $CLINK_AGENTS_DIRNAME within $AGENTS_DIR)"
+    exit 1
 fi
 
 # ============================================================================
@@ -84,7 +85,7 @@ fi
 
 # Claude Code slash commands
 if agent_enabled "Claude Code"; then
-    print_step "Setting up Claude Code slash commands"
+    log_action "Setting up Claude Code slash commands"
     "$AGENTS_DIR/scripts/set-up-claude-slash-commands.sh"
     echo ""
 fi

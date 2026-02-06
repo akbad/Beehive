@@ -177,20 +177,3 @@ All non-listed MCPs are local and/or have no usage limits.
 | Tavily      | 1,000 credits/month      | Resets on 1st of month                        |
 | Brave       | 2,000 queries/month      | Free tier; basic web search                    |
 | Sourcegraph | Interactive limits       | use count:all to make the search exhaustive, bump timeout if needed; switch to src-cli for very large result sets beyond the UI display limit. |
-
-## Editing modes
-
-> [!IMPORTANT]
-> 
-> You must continuously watch for any activation inputs provided by the user as mentioned below in order to read the protocol file for and activate the correct editing mode.
->
-> If unsure/unambiguous, confirm clearly.
-
-| Editing mode | Activate when user says *anything like* | Full protocol file (read *only* when activated) |
-| --- | --- | --- |
-| Micro Mode | "MICRO MODE ON", "complete/implement in micro mode", etc. | [`modes/micro.md`](modes/micro.md) |
-| Adversarial Mode | "ADVERSARIAL MODE ON", "attack your own code", "red-team this", etc. | [`modes/adversarial.md`](modes/adversarial.md) |
-| Blast Radius Mode | "BLAST RADIUS MODE ON", "analyze impact", "careful mode", etc. | [`modes/blast-radius.md`](modes/blast-radius.md) |
-| Invariant Guard Mode | "INVARIANT GUARD MODE ON", "protect these invariants", "verify invariants", etc. | [`modes/invariant-guard.md`](modes/invariant-guard.md) |
-| Shadow Mode | "SHADOW MODE ON", "propose don't apply", "show me the diffs", "I'll apply manually", etc. | [`modes/shadow.md`](modes/shadow.md) |
-| Exit Criteria Mode | "EXIT CRITERIA MODE ON", "define done as", "success criteria first", "verify completion", etc. | [`modes/exit-criteria.md`](modes/exit-criteria.md) |

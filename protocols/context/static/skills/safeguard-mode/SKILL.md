@@ -1,8 +1,8 @@
 ---
-description: Continuous invariant protection throughout implementation. Activate when user says "INVARIANT GUARD MODE ON", "protect these invariants", "verify invariants", or "guard these rules". Defines system rules that must never break (value constraints, state machines, relationships, uniqueness, temporal, ordering, consistency), verifies after every change, and blocks changes that would violate them. Configurable intensity from light to paranoid.
+description: Continuous invariant protection throughout implementation. Activate when user says "SAFEGUARD MODE ON", "protect these invariants", "safeguard these rules", "verify invariants", or "guard these rules". Defines system rules that must never break (value constraints, state machines, relationships, uniqueness, temporal, ordering, consistency), verifies after every change, and blocks changes that would violate them. Configurable intensity from light to paranoid.
 ---
 
-# Invariant Guard Mode: *protocol*
+# Safeguard Mode: *protocol*
 
 > <ins>***Goal:** define the rules that must never break, verify after every change*</ins>
 >
@@ -18,15 +18,16 @@ description: Continuous invariant protection throughout implementation. Activate
 
 When the user says anything like:
 
-- "INVARIANT GUARD MODE ON"
+- "SAFEGUARD MODE ON"
 - "protect these invariants"
+- "safeguard these rules"
 - "verify invariants after changes"
 - "guard these rules"
 
-*follow this Invariant Guard Mode protocol* until you are told anything like:
+*follow this Safeguard Mode protocol* until you are told anything like:
 
-- "exit invariant guard mode"
-- "INVARIANT GUARD MODE OFF"
+- "safeguard mode off"
+- "SAFEGUARD MODE OFF"
 - "stop checking invariants"
 
 If you are unsure, confirm unambiguously with the user.
@@ -35,7 +36,7 @@ Upon exit, emit:
 
 ```
 ═══════════════════════════════════════
-Invariant Guard Mode OFF
+Safeguard Mode OFF
 Invariants defined: N
 Changes verified: M
 Violations caught: K
@@ -55,7 +56,7 @@ Verification intensity can be configured. Default is `standard`.
 | `strict` | After each edit | Static + runtime checks + tests |
 | `paranoid` | After each line change | All methods + formal reasoning |
 
-Activate specific intensity: "INVARIANT GUARD MODE ON, intensity: strict"
+Activate specific intensity: "SAFEGUARD MODE ON, intensity: strict"
 
 ## Core contract
 
@@ -511,7 +512,7 @@ content: JSON-serialized invariant registry
 At session start, check for existing invariants:
 
 ```
-INVARIANT GUARD MODE ON
+SAFEGUARD MODE ON
 
 Checking for existing invariants...
 Found: 4 invariants from previous session (2024-01-15)
@@ -533,29 +534,29 @@ For efficiency:
 - Only verify invariants relevant to the changed code
 - Batch verification for related micro edits
 
-### With Adversarial Mode
+### With Scrimmage Mode
 
 Complementary relationship:
-- **Invariant Guard**: Prevents known violations (defined rules)
-- **Adversarial Mode**: Discovers unknown vulnerabilities (attack vectors)
+- **Safeguard Mode**: Prevents known violations (defined rules)
+- **Scrimmage Mode**: Discovers unknown vulnerabilities (attack vectors)
 
 Run in parallel:
-1. Invariant Guard checks defined rules
-2. Adversarial Mode attacks beyond defined rules
+1. Safeguard Mode checks defined rules
+2. Scrimmage Mode attacks beyond defined rules
 3. Discovered vulnerabilities can become new invariants
 
 ### With Blast Radius Mode
 
 Sequence:
 1. **Blast Radius**: Analyze what could be affected
-2. **Invariant Guard**: Verify no invariants in blast radius are violated
+2. **Safeguard Mode**: Verify no invariants in blast radius are violated
 3. **Apply change** only if both pass
 
-### With Exit Criteria Mode
+### With Clearance Mode
 
 Auto-add invariant criteria:
 ```
-EXIT CRITERIA (auto-added by Invariant Guard Mode):
+CLEARANCE CRITERIA (auto-added by Safeguard Mode):
 □ All defined invariants verified post-implementation
 □ No VIOLATED status on any invariant
 □ All WEAKENED invariants acknowledged or fixed
@@ -567,9 +568,9 @@ EXIT CRITERIA (auto-added by Invariant Guard Mode):
 ### Activation
 
 ```
-INVARIANT GUARD MODE ON                      # Standard intensity
-INVARIANT GUARD MODE ON, intensity: strict   # With runtime checks
-INVARIANT GUARD MODE ON, load: previous      # Load from previous session
+SAFEGUARD MODE ON                            # Standard intensity
+SAFEGUARD MODE ON, intensity: strict         # With runtime checks
+SAFEGUARD MODE ON, load: previous            # Load from previous session
 ```
 
 ### Defining invariants

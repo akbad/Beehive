@@ -806,20 +806,20 @@ Shadow mode can wrap micro mode edits:
 
 Each micro edit becomes a shadow proposal.
 
-### With Adversarial Mode
+### With Scrimmage Mode
 
-Run adversarial analysis on proposed changes before user applies:
+Run scrimmage analysis on proposed changes before user applies:
 
 ```
 PROPOSED CHANGE [1 of 3]
 [diff...]
 
-ADVERSARIAL ANALYSIS (pre-application):
+SCRIMMAGE ANALYSIS (pre-application):
   ✅ No injection vulnerabilities
   ✅ Handles null input
   ⚠️ Consider: What if email contains unicode?
 
-Apply with confidence: This change passes adversarial review.
+Apply with confidence: This change passes scrimmage review.
 ```
 
 ### With Blast Radius Mode
@@ -838,7 +838,7 @@ BLAST RADIUS:
 Change is low-risk. Apply when ready.
 ```
 
-### With Invariant Guard Mode
+### With Safeguard Mode
 
 Verify invariants on proposed (not yet applied) changes:
 

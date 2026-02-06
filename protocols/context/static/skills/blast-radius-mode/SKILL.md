@@ -360,12 +360,12 @@ For efficiency, batch similar changes:
 - If multiple micro edits affect the same function, analyze once for all
 - Report cumulative blast radius
 
-### With Adversarial Mode
+### With Scrimmage Mode
 
 Run in sequence:
 1. Blast radius analysis (before change) - "what could break?"
 2. Apply change
-3. Adversarial analysis (after change) - "how could it fail?"
+3. Scrimmage analysis (after change) - "how could it fail?"
 
 ### With Contract-First Mode
 

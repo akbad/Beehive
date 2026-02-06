@@ -1,8 +1,8 @@
 ---
-description: Systematic self-attack vulnerability testing after every code change. Activate when user says "ADVERSARIAL MODE ON", "attack your own code", "red-team this", or wants proactive security testing. Generates attack vectors from 5 categories (input validation, state, failure modes, concurrency, security), executes attacks, and blocks progression until vulnerabilities are fixed. Configurable depth levels from light to paranoid.
+description: Systematic self-attack vulnerability testing after every code change. Activate when user says "SCRIMMAGE MODE ON", "attack your own code", "red-team this", "scrimmage this", or wants proactive security testing. Generates attack vectors from 5 categories (input validation, state, failure modes, concurrency, security), executes attacks, and blocks progression until vulnerabilities are fixed. Configurable depth levels from light to paranoid.
 ---
 
-# Adversarial Mode: *protocol*
+# Scrimmage Mode: *protocol*
 
 > <ins>***Goal:** attack your own code immediately after writing it*</ins>
 >
@@ -18,16 +18,17 @@ description: Systematic self-attack vulnerability testing after every code chang
 
 When the user says anything like:
 
-- "ADVERSARIAL MODE ON"
-- "implement with adversarial testing"
+- "SCRIMMAGE MODE ON"
+- "scrimmage this"
+- "implement with scrimmage testing"
 - "attack your own code"
 - "red-team this implementation"
 
-*follow this Adversarial Mode protocol* until you are told anything like:
+*follow this Scrimmage Mode protocol* until you are told anything like:
 
-- "exit adversarial mode"
-- "ADVERSARIAL MODE OFF"
-- "skip adversarial testing"
+- "scrimmage mode off"
+- "SCRIMMAGE MODE OFF"
+- "skip scrimmage testing"
 
 If you are unsure, confirm unambiguously with the user.
 
@@ -35,7 +36,7 @@ Upon exit, emit:
 
 ```
 ═══════════════════════════════════════
-Adversarial Mode OFF
+Scrimmage Mode OFF
 Changes tested: N
 Attacks generated: M
 Vulnerabilities found & fixed: K
@@ -45,7 +46,7 @@ Acknowledged risks: [ids, or "none"]
 
 ### Depth levels
 
-Adversarial testing depth can be configured. Default is `standard`.
+Scrimmage testing depth can be configured. Default is `standard`.
 
 | Depth | When to use | Attack vectors per change |
 |-------|-------------|---------------------------|
@@ -54,11 +55,11 @@ Adversarial testing depth can be configured. Default is `standard`.
 | `deep` | Security-critical, financial, auth | 8-12 vectors, full taxonomy |
 | `paranoid` | Cryptography, access control, payments | 12+ vectors, including concurrency & timing |
 
-Activate specific depth: "ADVERSARIAL MODE ON, depth: deep"
+Activate specific depth: "SCRIMMAGE MODE ON, depth: deep"
 
 ## Core contract
 
-### The adversarial guarantee
+### The scrimmage guarantee
 
 For every code change that modifies behavior (not formatting, comments, or renames):
 
@@ -139,7 +140,7 @@ You must draw attacks from these categories based on the code being changed:
 
 ### When to attack
 
-Trigger adversarial testing after:
+Trigger scrimmage testing after:
 
 1. **Completing a function or method** (new or modified)
 2. **Modifying control flow** (if/else, loops, error handling)
@@ -177,7 +178,7 @@ After generating attacks, emit a report in a similar format to the following exe
 
 ```
 ══════════════════════════════════════════════════════════
-ADVERSARIAL ANALYSIS: <file>::<function>
+SCRIMMAGE ANALYSIS: <file>::<function>
 Depth: <light|standard|deep|paranoid>
 ══════════════════════════════════════════════════════════
 
@@ -272,10 +273,10 @@ When attacks are generated, optionally persist them as test cases:
 **If test framework is available**:
 
 ```python
-# Auto-generated adversarial test from Adversarial Mode
+# Auto-generated scrimmage test from Scrimmage Mode
 # Attack vector: null_user_id (Category: input/null)
-def test_adversarial_get_user_null_input():
-    """Adversarial: get_user should handle None user_id safely."""
+def test_scrimmage_get_user_null_input():
+    """Scrimmage: get_user should handle None user_id safely."""
     with pytest.raises(ValueError, match="user_id required"):
         get_user(user_id=None)
 ```
@@ -285,38 +286,38 @@ def test_adversarial_get_user_null_input():
 
 ### Session persistence
 
-If pausing adversarial session:
+If pausing scrimmage session:
 
-1. Store pending attack vectors to memory (Qdrant with `metadata.type: "adversarial_session"`)
+1. Store pending attack vectors to memory (Qdrant with `metadata.type: "scrimmage_session"`)
 2. On resume: reload vectors, continue from last position
 
 ## Compatibility with other modes
 
 ### With Micro Mode
 
-Adversarial testing triggers **after each micro edit**, not after each line:
+Scrimmage testing triggers **after each micro edit**, not after each line:
 
 ```
-[Micro Mode Step] → [Apply micro edit] → [Adversarial analysis] → [Fix if broken] → [⏸️]
+[Micro Mode Step] → [Apply micro edit] → [Scrimmage analysis] → [Fix if broken] → [⏸️]
 ```
 
-The micro edit is not complete until adversarial analysis passes.
+The micro edit is not complete until scrimmage analysis passes.
 
 ### With Contract-First Mode
 
-Adversarial testing applies to **implementation phase only**, not contract design:
+Scrimmage testing applies to **implementation phase only**, not contract design:
 
-1. Contract-First: Design interfaces (no adversarial testing)
+1. Contract-First: Design interfaces (no scrimmage testing)
 2. Contract-First: User approves interfaces
-3. Implementation begins → Adversarial Mode activates
+3. Implementation begins → Scrimmage Mode activates
 
-### With Exit Criteria Mode
+### With Clearance Mode
 
-Add adversarial criteria automatically:
+Add scrimmage criteria automatically:
 
 ```
-EXIT CRITERIA (auto-added by Adversarial Mode):
-□ All code changes passed adversarial analysis
+CLEARANCE CRITERIA (auto-added by Scrimmage Mode):
+□ All code changes passed scrimmage analysis
 □ No BROKEN vectors remain unfixed
 □ All POTENTIAL vectors either verified or acknowledged
 □ No unaddressed escalations
@@ -327,16 +328,16 @@ EXIT CRITERIA (auto-added by Adversarial Mode):
 ### Activation
 
 ```
-ADVERSARIAL MODE ON                    # Standard depth
-ADVERSARIAL MODE ON, depth: deep       # Deep testing
-ADVERSARIAL MODE ON, depth: paranoid   # Maximum scrutiny
+SCRIMMAGE MODE ON                      # Standard depth
+SCRIMMAGE MODE ON, depth: deep         # Deep testing
+SCRIMMAGE MODE ON, depth: paranoid     # Maximum scrutiny
 ```
 
 ### During session
 
 ```
 >        # Proceed (after all attacks pass)
-skip     # Skip adversarial testing for this one change (requires justification)
+skip     # Skip scrimmage testing for this one change (requires justification)
 deeper   # Increase depth for current analysis
 reattack # Re-run attacks after manual changes
 ```

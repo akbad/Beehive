@@ -1,12 +1,12 @@
 ---
-description: Rigorous completion verification by defining measurable "done" criteria upfront. Activate when user says "EXIT CRITERIA MODE ON", "define done as", "success criteria first", "verify completion against", or "prove it's done". Defines criteria by type (functional, behavioral, performance, security, quality, documentation, integration, edge case) with priority levels (MUST, SHOULD, COULD). Tracks progress, requires evidence for each criterion, and blocks completion until all MUST criteria are satisfied.
+description: Rigorous completion verification by defining measurable "done" criteria upfront. Activate when user says "CLEARANCE MODE ON", "define done as", "success criteria first", "verify clearance against", "grant clearance", or "prove it's done". Defines criteria by type (functional, behavioral, performance, security, quality, documentation, integration, edge case) with priority levels (MUST, SHOULD, COULD). Tracks progress, requires evidence for each criterion, and blocks clearance until all MUST criteria are satisfied.
 ---
 
-# Exit Criteria Mode: *protocol*
+# Clearance Mode: *protocol*
 
 > <ins>***Goal:** define "done" upfront, prove each criterion is met before declaring success*</ins>
 >
-> *Rigorous completion verification through explicit success criteria. You will define measurable exit criteria before starting, track progress against them, and demonstrate each is satisfied with evidence before completing.*
+> *Rigorous completion verification through explicit success criteria. You will define measurable clearance criteria before starting, track progress against them, and demonstrate each is satisfied with evidence before completing.*
 
 > [!IMPORTANT]
 >
@@ -18,16 +18,17 @@ description: Rigorous completion verification by defining measurable "done" crit
 
 When the user says anything like:
 
-- "EXIT CRITERIA MODE ON"
+- "CLEARANCE MODE ON"
 - "define done as"
 - "success criteria first"
-- "verify completion against"
+- "verify clearance against"
+- "grant clearance"
 - "prove it's done"
 
-*follow this Exit Criteria Mode protocol* until you are told anything like:
+*follow this Clearance Mode protocol* until you are told anything like:
 
-- "exit criteria mode off"
-- "EXIT CRITERIA MODE OFF"
+- "clearance mode off"
+- "CLEARANCE MODE OFF"
 - "skip verification"
 
 If you are unsure, confirm unambiguously with the user.
@@ -36,7 +37,7 @@ Upon exit, emit:
 
 ```
 ═══════════════════════════════════════
-Exit Criteria Mode OFF
+Clearance Mode OFF
 Criteria defined: N
 Criteria satisfied: M
 Criteria waived: K
@@ -56,23 +57,23 @@ Verification rigor can be configured. Default is `standard`.
 | `strict` | Reproducible | Automated tests, runnable demos |
 | `auditable` | Documented | Full evidence trail with artifacts |
 
-Activate specific rigor: "EXIT CRITERIA MODE ON, rigor: strict"
+Activate specific rigor: "CLEARANCE MODE ON, rigor: strict"
 
 ## Core contract
 
-### The exit criteria guarantee
+### The clearance guarantee
 
 For every task:
 
-1. **Define** explicit, measurable exit criteria before starting work
+1. **Define** explicit, measurable clearance criteria before starting work
 2. **Track** progress against criteria throughout implementation
 3. **Verify** each criterion with appropriate evidence
 4. **Block** completion until all criteria are satisfied or explicitly waived
 5. **Document** the evidence for each satisfied criterion
 
-### What constitutes an exit criterion?
+### What constitutes a clearance criterion?
 
-An exit criterion must be:
+A clearance criterion must be:
 
 | Property | Description | Good example | Bad example |
 |----------|-------------|--------------|-------------|
@@ -98,16 +99,16 @@ An exit criterion must be:
 
 ### Setup phase
 
-Before starting ANY implementation work, define exit criteria:
+Before starting ANY implementation work, define clearance criteria:
 
 ```
-EXIT CRITERIA SETUP REQUIRED
+CLEARANCE CRITERIA SETUP REQUIRED
 
 Before proceeding, define the criteria for "done".
 
 Task: <user's task description>
 
-Please define exit criteria, or I'll propose some based on the task.
+Please define clearance criteria, or I'll propose some based on the task.
 
 Format:
   [TYPE] <criterion description>
@@ -152,7 +153,7 @@ When agent proposes criteria:
 
 ```
 ══════════════════════════════════════════════════════════════════════
-PROPOSED EXIT CRITERIA
+PROPOSED CLEARANCE CRITERIA
 Task: Implement password reset flow
 ══════════════════════════════════════════════════════════════════════
 
@@ -203,7 +204,7 @@ After approval, maintain a live registry:
 
 ```
 ══════════════════════════════════════════════════════════════════════
-EXIT CRITERIA REGISTRY
+CLEARANCE CRITERIA REGISTRY
 Task: Implement password reset flow
 ══════════════════════════════════════════════════════════════════════
 
@@ -270,7 +271,7 @@ Periodically (or on request), emit full progress report:
 
 ```
 ══════════════════════════════════════════════════════════════════════
-EXIT CRITERIA PROGRESS REPORT
+CLEARANCE CRITERIA PROGRESS REPORT
 Task: Implement password reset flow
 Time elapsed: 45 minutes
 ══════════════════════════════════════════════════════════════════════
@@ -674,7 +675,7 @@ SUMMARY:
 RECOMMENDED ACTIONS:
   1. Deploy scheduler service (unblocks C4, C5)
   2. Configure Redis (unblocks C8)
-  3. Resume Exit Criteria Mode to complete
+  3. Resume Clearance Mode to complete
 
 Progress stored: [memory location]
 ══════════════════════════════════════════════════════════════════════
@@ -703,7 +704,7 @@ Completed work:
 
 Resume instructions:
   1. Resolve scheduler blocker
-  2. Activate: "EXIT CRITERIA MODE ON, continue"
+  2. Activate: "CLEARANCE MODE ON, continue"
   3. Registry will load from stored session
 ```
 
@@ -736,7 +737,7 @@ Attributes:
 
 **If Qdrant MCP available (fallback):**
 ```
-metadata.type: "exit_criteria_session"
+metadata.type: "clearance_session"
 metadata.task: <task description>
 metadata.project: <project name>
 metadata.created_at: <ISO timestamp>
@@ -748,7 +749,7 @@ content: JSON-serialized criteria registry with all statuses
 At session start:
 
 ```
-EXIT CRITERIA MODE ON
+CLEARANCE MODE ON
 
 Checking for existing criteria...
 Found: Criteria set for "Implement password reset flow" (5/7 complete)
@@ -773,12 +774,12 @@ Each micro edit maps to criteria progress:
 
 Progress report after each micro edit shows which criteria are affected.
 
-### With Adversarial Mode
+### With Scrimmage Mode
 
-Auto-generate security criteria from adversarial findings:
+Auto-generate security criteria from scrimmage findings:
 
 ```
-ADVERSARIAL FINDING → EXIT CRITERION
+SCRIMMAGE FINDING → CLEARANCE CRITERION
 
 Finding: SQL injection possible in user lookup
 Severity: CRITICAL
@@ -795,7 +796,7 @@ Accept? [Y/N]: _
 Generate criteria for affected areas:
 
 ```
-BLAST RADIUS → EXIT CRITERIA
+BLAST RADIUS → CLEARANCE CRITERIA
 
 Blast radius shows 8 callers affected by signature change.
 
@@ -806,14 +807,14 @@ Auto-adding criteria:
 Accept? [Y/N]: _
 ```
 
-### With Invariant Guard Mode
+### With Safeguard Mode
 
 Map invariants to criteria:
 
 ```
-INVARIANTS → EXIT CRITERIA
+INVARIANTS → CLEARANCE CRITERIA
 
-Active invariants can become exit criteria:
+Active invariants can become clearance criteria:
 
   non_negative_balance → C17 │ MUST │ [B] │ Balance never goes negative
   order_state_machine  → C18 │ MUST │ [B] │ Order states follow valid transitions
@@ -843,9 +844,9 @@ Apply when ready: _
 ### Activation
 
 ```
-EXIT CRITERIA MODE ON                    # Standard rigor
-EXIT CRITERIA MODE ON, rigor: strict     # Require automated tests
-EXIT CRITERIA MODE ON, continue          # Resume previous session
+CLEARANCE MODE ON                        # Standard rigor
+CLEARANCE MODE ON, rigor: strict         # Require automated tests
+CLEARANCE MODE ON, continue              # Resume previous session
 ```
 
 ### Defining criteria

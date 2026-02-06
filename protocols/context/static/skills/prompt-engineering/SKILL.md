@@ -35,7 +35,7 @@ digraph when_prompt_eng {
 
 - System prompts for agents or assistants
 - Task prompts producing poor results
-- Skill definitions (apply bureau-writing-skills first for TDD)
+- Skill definitions
 - User-facing prompt templates
 - Automated workflow prompts
 
@@ -643,40 +643,15 @@ Some techniques work well together; others conflict:
 
 ## Integration with other skills
 
-### With bureau-writing-skills
-
-When engineering prompts for **skills**:
-
-1. Use bureau-writing-skills first (TDD for documentation)
-2. Apply bureau-prompt-engineering for the skill's instructional content
-3. Test with subagents before deployment
-
-### With bureau-tdd
-
-When prompts are part of **code**:
-
-1. Write failing test for prompt behavior first
-2. Engineer prompt to pass test
-3. Verify test passes
-4. Refactor prompt if needed
-
-### With bureau-adversarial-mode
+### With bureau-scrimmage-mode
 
 For **security-critical prompts**:
 
 1. Engineer prompt with this skill
-2. Activate adversarial mode
+2. Activate scrimmage mode
 3. Attack the prompt (injection, jailbreak, edge cases)
 4. Fix vulnerabilities found
 5. Re-verify
-
-### With bureau-brainstorming
-
-For **new prompt design**:
-
-1. Use brainstorming for requirements gathering
-2. Apply this skill for prompt construction
-3. Iterate based on testing
 
 ## Quick reference
 

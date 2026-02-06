@@ -1,5 +1,4 @@
 ---
-name: bureau-exit-criteria-mode
 description: Rigorous completion verification by defining measurable "done" criteria upfront. Activate when user says "EXIT CRITERIA MODE ON", "define done as", "success criteria first", "verify completion against", or "prove it's done". Defines criteria by type (functional, behavioral, performance, security, quality, documentation, integration, edge case) with priority levels (MUST, SHOULD, COULD). Tracks progress, requires evidence for each criterion, and blocks completion until all MUST criteria are satisfied.
 ---
 

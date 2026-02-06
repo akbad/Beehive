@@ -1,5 +1,4 @@
 ---
-name: bureau-prompt-engineering
 description: Use when creating, analyzing, or improving prompts for any purpose; whether system prompts, user prompts, agent instructions, or skill definitions. Use when prompts produce vague, inaccurate, generic, or poorly-structured outputs. Use when building new agents, skills, or automated workflows.
 ---
 

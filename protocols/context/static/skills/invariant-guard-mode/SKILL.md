@@ -1,5 +1,4 @@
 ---
-name: bureau-invariant-guard-mode
 description: Continuous invariant protection throughout implementation. Activate when user says "INVARIANT GUARD MODE ON", "protect these invariants", "verify invariants", or "guard these rules". Defines system rules that must never break (value constraints, state machines, relationships, uniqueness, temporal, ordering, consistency), verifies after every change, and blocks changes that would violate them. Configurable intensity from light to paranoid.
 ---
 

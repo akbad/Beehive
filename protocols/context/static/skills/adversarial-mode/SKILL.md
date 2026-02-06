@@ -1,5 +1,4 @@
 ---
-name: bureau-adversarial-mode
 description: Systematic self-attack vulnerability testing after every code change. Activate when user says "ADVERSARIAL MODE ON", "attack your own code", "red-team this", or wants proactive security testing. Generates attack vectors from 5 categories (input validation, state, failure modes, concurrency, security), executes attacks, and blocks progression until vulnerabilities are fixed. Configurable depth levels from light to paranoid.
 ---
 

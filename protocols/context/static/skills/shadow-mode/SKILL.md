@@ -1,5 +1,4 @@
 ---
-name: bureau-shadow-mode
 description: Propose-only editing with inverted control flow where agent proposes changes as diffs and human applies manually. Activate when user says "SHADOW MODE ON", "propose don't apply", "show me the diffs", "I'll apply manually", or "don't touch my files". Supports 5 output formats (unified diff, side-by-side, contextual, git patch, step-by-step instructions) and 4 granularity levels. Verifies correct application before proceeding. Ideal for learning, maximum transparency, or untrusted environments.
 ---
 

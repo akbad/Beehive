@@ -1,5 +1,4 @@
 ---
-name: bureau-blast-radius-mode
 description: Impact analysis before every code change to enumerate what could break. Activate when user says "BLAST RADIUS MODE ON", "analyze impact", "show me what could break", "careful mode", or "cautious mode". Identifies all callers, dependents, tests, and contracts affected by changes. Classifies changes as safe/review/breaking/blocked and requires approval before applying. Essential for refactoring and API changes.
 ---
 

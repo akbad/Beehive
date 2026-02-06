@@ -1,5 +1,4 @@
 ---
-name: bureau-micro-mode
 description: Step-gated editing with DAG-based planning and continuous user steering. Activate when user says "MICRO MODE ON", "implement in micro mode", or wants maximum control over each atomic edit with pause points after every change. Each edit is limited to one function and 30 lines. User resumes with ">" or ".". Ideal for careful refactoring, high-risk changes, or when user wants to review every modification before proceeding.
 ---
 

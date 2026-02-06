@@ -19,8 +19,10 @@
     - spawnable as **cross-CLI subagents** with *minimal* task delegation overhead
     - usable in *every* supported CLI as both: 
         
-        - **isolated subagents** 
+        - **isolated subagents**
         - **interactive main agents**
+
+- **Built-in workflow skills** — structured, multi-step protocols (like [two-phase code assessment](protocols/context/static/skills/assess-mode/SKILL.md)) that agents activate automatically when they recognise a matching task
 
 - A **<ins>*near-zero* learning curve</ins>** via:
   
@@ -110,15 +112,16 @@ All agents automatically read these files at startup:
 
     - Serves as an entrypoint to documentation progressively disclosing each MCP servers' tool capabilities
 
-- Guidance on automatically activating [skills](https://github.com/obra/superpowers/tree/main/skills) highly relevant and useful for key dev workflows/tasks *(provided by the [Superpowers plugin](https://github.com/obra/superpowers), currently **only for Claude Code or Codex**)*
+- **Custom Bureau skills**: structured workflow protocols (e.g. `bureau-assess-mode`) installed for all supported CLIs and activated automatically by matching prompts
+- **[Superpowers](https://github.com/obra/superpowers) skills** — community-maintained skill library *(currently Claude Code and Codex only)*
 
-Injected via these files (created in setup steps)
+Injected via these files
 
 - `~/.claude/CLAUDE.md` (Claude Code)
 - `~/.gemini/GEMINI.md` (Gemini CLI)
 - `~/.codex/AGENTS.md` (Codex)
 
-with each of the 3 files above generated from templates (for portability regardless of repo clone location).
+with each of the 3 files above generated from [templates](protocols/context/templates/) and symlinked (for portability).
 
 ### Spec-driven development *(maintainer favourite)* 
 
@@ -132,8 +135,43 @@ with each of the 3 files above generated from templates (for portability regardl
 - can seamlessly handle on-the-fly updates, accordingly synchronize/adjust specs, plans, tasks, etc. in a cascading fashion
 
 > [!TIP]
-> 
+>
 > To get started fast, **read [Bureau's 5-minute guide to `spec-kit`](docs/USAGE.md#using-github-speckit-cli)**.
+
+### Workflow skills that actually help
+
+> *Structured, multi-step protocols that agents activate automatically when they recognise a matching task.*
+
+> [!NOTE]
+> 
+> All skill names below appear in agent interfaces prefixed with `bureau-` (e.g. `assess-mode` → `bureau-assess-mode`).
+
+#### Skills installed by default
+
+| Skill | What it does |
+| :--- | :--- |
+| **[Assess mode](protocols/context/static/skills/assess-mode/SKILL.md)** | **Two-phase guided review**: first builds a mental model of changes (with 3 comprehension styles to choose from), then audits every file against [configurable quality standards](docs/CONFIGURATION.md#assess_mode). Interactive tour when used as a main agent; structured report when delegated to a subagent. |
+| **[Micro mode](protocols/context/static/skills/micro-mode/SKILL.md)** | **Step-gated editing with DAG-based planning:** offers maximum control over each atomic edit, with pause points after every change. |
+
+#### Additional skills available in the catalog
+
+The [`protocols/context/static/skills/`](protocols/context/static/skills/) directory ships several more skills that can be enabled on demand:
+
+| Skill | What it does |
+| :--- | :--- |
+| [Scrimmage mode](protocols/context/static/skills/scrimmage-mode/SKILL.md) | Systematic self-attack testing after every code change: generates attack vectors across 5 categories (input validation, state, failure modes, concurrency, security) and blocks progression until vulnerabilities are fixed. |
+| [Blast radius mode](protocols/context/static/skills/blast-radius-mode/SKILL.md) | Runs impact analysis before edits by enumerating callers, dependents, tests, and contracts affected, then classifying changes as *safe/needs review/breaking/blocked*. |
+| [Clearance mode](protocols/context/static/skills/clearance-mode/SKILL.md) | Rigorous completion verification that defines measurable "done" criteria upfront and blocks clearance until they're satisfied, with evidence. |
+| [Safeguard mode](protocols/context/static/skills/safeguard-mode/SKILL.md) | Defines system invariants (value constraints, state machines, relationships, ordering) that must never break and verifies them after all changes. |
+| [Prompt engineering](protocols/context/static/skills/prompt-engineering/SKILL.md) | Guided prompt creation and refinement for system prompts, agent instructions, skill definitions, or any LLM-facing text. |
+| [Shadow mode](protocols/context/static/skills/shadow-mode/SKILL.md) | Propose-only editing: the agent shows diffs without touching files, with the user applying changes manually. Ideal for learning, maximum transparency, or untrusted environments. |
+
+To enable any of these, add them to the `skills.enabled` [config setting](docs/CONFIGURATION.md#skills):
+
+```yaml
+skills:
+  enabled: [micro-mode, assess-mode, shadow-mode, scrimmage-mode]
+```
 
 ## Agent role usage patterns
 

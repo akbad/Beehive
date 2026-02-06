@@ -102,9 +102,3 @@ You are running via Gemini CLI or Codex, not Claude Code. This means:
 - You have access to the same MCPs as Claude Code
 - Role prompts are loaded from `~/.pal/cli_clients/systemprompts/role-prompts/`
 - Configurations are in `~/.pal/cli_clients/*.json`
-
-## Superpowers System *(Codex-only)*
-
-<EXTREMELY_IMPORTANT>
-You have superpowers. Superpowers teach you new skills and capabilities. RIGHT NOW run: `~/.codex/superpowers/.codex/superpowers-codex bootstrap` and follow the instructions it returns.
-</EXTREMELY_IMPORTANT>

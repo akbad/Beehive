@@ -1,5 +1,5 @@
 ---
-description: Two-phase code assessment workflow (architectural comprehension then quality audit) that adapts output to context. Interactive guided tour when running as a main agent; structured markdown report when running as a subagent. Activate when user says "assess my changes", "review my changes", "walk me through this code", "audit these files", or "ASSESS MODE ON". Configurable standards sources and git diff targets.
+description: Two-phase code assessment workflow (architectural comprehension then quality audit) that adapts output to context. Interactive guided tour when running as a main agent; structured markdown report when running as a subagent. Supports four comprehension styles including hunk-by-hunk inline review (comprehension + audit per diff hunk). Activate when user says "assess my changes", "review my changes", "walk me through this code", "audit these files", "assess my changes hunk by hunk", "detailed review", or "ASSESS MODE ON". Configurable standards sources and git diff targets.
 ---
 
 # Assess mode: *protocol*
@@ -26,6 +26,8 @@ When the user says anything like:
 - "review this branch"
 - "walk me through this code"
 - "audit these files against my standards"
+- "assess my changes hunk by hunk"
+- "detailed review"
 - "ASSESS MODE ON"
 
 *Follow this assess mode protocol.* If you are unsure, confirm unambiguously with the user.
@@ -70,7 +72,7 @@ When the user says anything like:
 
 > [!NOTE]
 >
-> In **report mode**, skip this prompt and use the **layered walkthrough** by default (it reads well as a document).
+> In **report mode**, skip this prompt and use the **layered walkthrough** by default (it reads well as a document). The **hunk-by-hunk** style is interactive-mode only and is never used in report mode.
 
 Present the user with this choice:
 
@@ -79,7 +81,8 @@ Present the user with this choice:
 > 1. **Top-down summary** → one cohesive narrative of what the changeset does, then move to quality audit; best when you roughly know what changed and just need confirmation
 > 2. **Layered walkthrough** → executive summary, then component map, then per-component deep dive, with pauses between layers; best when you want to build a mental model incrementally
 > 3. **Dependency-ordered** → foundational modules first, consumers last, like reading a textbook; best when the code is unfamiliar and you want to understand it in the order it was designed to be understood
-> 4. **Skip** → go straight to quality audit
+> 4. **Hunk-by-hunk** → walk through each diff hunk individually, explaining what changed and why, then audit it inline; best when you want the finest granularity and want to catch issues in context as they appear
+> 5. **Skip** → go straight to quality audit
 
 ### Execute comprehension
 
@@ -105,6 +108,54 @@ Present the user with this choice:
 - Topologically sort the changes (foundational modules first, consumers last)
 - Walk through each file/module in dependency order, explaining what it does and why
 - **Pause after each module**; same user controls as layered walkthrough
+
+#### Hunk-by-hunk
+
+> [!NOTE]
+>
+> This style **merges Phase 1 and Phase 2**: comprehension and audit happen inline per hunk. There is no separate Phase 2 pass — skip directly to [Wrap-up](#wrap-up) after all hunks are processed.
+
+- **Parse the diff** into individual hunks via `git diff -U3 <ref>`
+
+    - Group adjacent or overlapping hunks within the same file into a single logical unit
+    - Order hunks using the same file ordering chosen during internal prep (logical groups or dependency order)
+
+- **For each hunk (or hunk group)**, emit this block:
+
+    ```
+    Hunk N/M — <file>:<start_line>-<end_line> (<function or scope>)
+    ```
+
+    1. **Show the diff** → render the hunk as a fenced diff code block (` ```diff `)
+    2. **Explain** → what changed and why (1-3 bullets; reference the dependency graph and logical groups from internal prep)
+    3. **Inline audit** → run all 6 check categories against *this hunk only*; emit findings using the same global sequential numbering (`#1` through `#N`) and severity levels as Phase 2
+
+        - If no findings: emit `No findings for this hunk.`
+        - If findings exist: list each as:
+
+            ```
+            #<N> [<severity>] <title>
+            <one-line explanation and suggested fix>
+            ```
+
+    4. **Pause** → emit:
+
+        ```
+        User: ">" to advance | "." to skip rest of file | "deeper" to expand | "fix #N" to fix now | or ask a question
+        ⏸️
+        ```
+
+    5. **Wait for user signal** before proceeding:
+
+        | User input | Agent action |
+        | --- | --- |
+        | `>` or "next" | Advance to next hunk |
+        | `.` or "skip" | Skip remaining hunks in current file, advance to next file |
+        | `deeper` | Expand analysis: show data flow, callers/callees, invariants affected by this hunk |
+        | `fix #N` | Apply the suggested fix for finding `#N` immediately, then re-show the hunk with the fix applied and re-pause |
+        | A question | Answer in context of the current hunk, then re-pause on the same hunk |
+
+- **After all hunks are processed**, proceed directly to [Wrap-up](#wrap-up) (skip Phase 2)
 
 ## Phase 2: quality audit
 
@@ -133,6 +184,10 @@ For each file in the changeset, check against these six categories:
 
 ### Interactive mode delivery
 
+> [!NOTE]
+>
+> If the **hunk-by-hunk** comprehension style was used, audit findings were already delivered inline per hunk. **Skip this entire Phase 2 delivery** and proceed directly to [Wrap-up](#wrap-up).
+
 - Walk through findings **grouped by file**, in the same order used during comprehension
 - For each finding, explain: what the issue is, why it matters, and a suggested fix
 - After each finding (or group of findings per file), pause for user response:
@@ -151,8 +206,12 @@ For each file in the changeset, check against these six categories:
 
 ### Interactive mode
 
-- Summarize: "**N** must-fix, **M** should-fix, **K** consider"
-- Ask if the user wants any findings addressed now
+> [!NOTE]
+>
+> In **hunk-by-hunk** mode, all findings were delivered inline. The wrap-up still aggregates them into a single summary. Include any findings the user addressed via `fix #N` as resolved.
+
+- Summarize: "**N** must-fix, **M** should-fix, **K** consider (**R** already fixed inline)" — omit the "already fixed inline" count if zero
+- Ask if the user wants any remaining findings addressed now
 
 ### Report mode
 

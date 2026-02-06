@@ -176,8 +176,7 @@ $ claude
 
 > [!NOTE]
 > 
-> Codex also works with Superpowers: Bureau sets it up **automatically** (via cloning the repo to the user-scoped `~/.codex/`).\
-> No manual setup is needed.
+> Codex also works with Superpowers; Bureau sets it up **automatically**.
 
 > [!IMPORTANT]
 > 
@@ -221,7 +220,7 @@ $ claude
 
 1. Ask: "What must-read files were you given?"
 2. Should reference delegation rules and clink
-3. Run `~/.codex/superpowers/.codex/superpowers-codex find-skills` to verify Superpowers
+3. Run `ls -ld ~/.agents/skills/superpowers`: it should be a symlink to `~/.codex/superpowers/skills`
 4. Run `codex-explainer` *(custom launch wrapper set up by Bureau)* from the command line to see if it launches Codex with the [`explainer`](../agents/role-prompts/explainer.md) agent active in the *main conversation*
     
     > You can test this with any role prompt in [`agents/role-prompts/`](../agents/role-prompts/): the launch wrapper created for each role will have the form `codex-<basename>` for each file in the directory.

@@ -6,7 +6,7 @@
 #     - Claude Code:  ~/.claude/skills/
 #     - OpenCode:     ~/.config/opencode/skill/
 #     - Gemini CLI:   ~/.gemini/skills/
-#     - Codex:        ~/.codex/skills/  (copies directories since Codex ignores symlinked dirs)
+#     - Codex:        ~/.agents/skills/
 #
 # Args:
 #    --dry-run      Show what would be done without making changes
@@ -24,7 +24,8 @@ source "$REPO_ROOT/bin/lib/logging.sh"
 # Skill directory locations for each CLI
 CLAUDE_SKILLS_DIR="$HOME/.claude/skills"
 OPENCODE_SKILLS_DIR="$HOME/.config/opencode/skill"
-CODEX_SKILLS_DIR="$HOME/.codex/skills"
+CODEX_SKILLS_DIR="$HOME/.agents/skills"
+LEGACY_CODEX_SKILLS_DIR="$HOME/.codex/skills"
 GEMINI_SKILLS_DIR="$HOME/.gemini/skills"
 BUREAU_SKILL_PREFIX="bureau-"
 
@@ -61,36 +62,34 @@ ensure_dir() {
 }
 
 set_up_bureau_skill_dirs() {
-    local command
-    local action
     local skill_conf_dir=$1
     ensure_dir "$skill_conf_dir"
-
-    # If configuring Codex, must copy the skill dirs (Codex skips symlinked dirs); else symlink
-    if [[ $skill_conf_dir == $CODEX_SKILLS_DIR ]]; then
-        command="cp -r"
-        action="copy to"
-    else
-        command="ln -sf"
-        action="link from"
-    fi
     
-    for skill_source_dir in "${SKILL_DIRS[@]}"; do
+    for ((i = 0; i < ${#SKILL_SOURCE_DIRS[@]}; i++)); do
         local skill_name
         local skill_install_subdir  # install path relative to the CLI's skill config dir
         local skill_install_dir     # full install path
+        local skill_prefix
+        local skill_source_dir
 
-        skill_name=$(basename "$skill_source_dir")
-        skill_install_subdir="${INSTALL_PREFIX}${skill_name}"
-        skill_install_dir="$skill_conf_dir/$skill_install_subdir"
+        skill_name="${SKILL_NAMES[$i]}"
+        skill_prefix="${SKILL_PREFIXES[$i]}"
+        skill_source_dir="${SKILL_SOURCE_DIRS[$i]}"
 
-        if [[ $DRY_RUN == true ]]; then
-            log_action "Would $action:" "$skill_install_dir"
+        if [[ ! -d "$skill_source_dir" ]]; then
+            log_warning "Skipped missing skill dir: $skill_source_dir"
             continue
         fi
 
-        # run the copy/symlink for this skill directory
-        $command "$skill_source_dir" "$skill_install_dir"
+        skill_install_subdir="${skill_prefix}${skill_name}"
+        skill_install_dir="$skill_conf_dir/$skill_install_subdir"
+
+        if [[ $DRY_RUN == true ]]; then
+            log_action "Would link from:" "$skill_install_dir"
+            continue
+        fi
+
+        ln -sfn "$skill_source_dir" "$skill_install_dir"
         log_success "$skill_install_dir"
     done
 }
@@ -165,6 +164,7 @@ log_empty_line
 remove_bureau_skill_dirs "$CLAUDE_SKILLS_DIR"
 remove_bureau_skill_dirs "$OPENCODE_SKILLS_DIR"
 remove_bureau_skill_dirs "$CODEX_SKILLS_DIR"
+remove_bureau_skill_dirs "$LEGACY_CODEX_SKILLS_DIR"
 remove_bureau_skill_dirs "$GEMINI_SKILLS_DIR"
 
 log_empty_line

@@ -128,7 +128,13 @@ Present the user with this choice:
 
     1. **Show the diff** → render the hunk as a fenced diff code block (` ```diff `)
     2. **Explain** → what changed and why (1-3 bullets; reference the dependency graph and logical groups from internal prep)
-    3. **Inline audit** → run all 6 check categories against *this hunk only*; emit findings using the same global sequential numbering (`#1` through `#N`) and severity levels as Phase 2
+    3. **Observe** *(optional — only when the hunk warrants it)* → surface a brief observation (1-3 sentences) when this hunk reveals something non-obvious: an interesting design trade-off, an architectural decision worth noting, or a genuinely suboptimal pattern that could be improved
+
+        - **Read before you speak:** if your observation depends on code outside this hunk (callers, sibling modules, prior art in the codebase), read that context first; do not speculate about what surrounding code does.
+        - **Earn the call-out:** only flag a design as suboptimal if (a) you have ingested enough context to be confident, (b) the improvement is concrete and actionable, and (c) it is not premature abstraction or YAGNI material. A real problem with a real fix — not a hypothetical improvement
+        - **Skip silently** on trivial hunks (renames, import reordering, comment edits). Forced insight on uninteresting code wastes the user's attention
+
+    4. **Inline audit** → run all 6 check categories against *this hunk only*; emit findings using the same global sequential numbering (`#1` through `#N`) and severity levels as Phase 2
 
         - If no findings: emit `No findings for this hunk.`
         - If findings exist: list each as:
@@ -138,14 +144,14 @@ Present the user with this choice:
             <one-line explanation and suggested fix>
             ```
 
-    4. **Pause** → emit:
+    5. **Pause** → emit:
 
         ```
         User: ">" to advance | "." to skip rest of file | "deeper" to expand | "fix #N" to fix now | or ask a question
         ⏸️
         ```
 
-    5. **Wait for user signal** before proceeding:
+    6. **Wait for user signal** before proceeding:
 
         | User input | Agent action |
         | --- | --- |
@@ -212,6 +218,7 @@ For each file in the changeset, check against these six categories:
 
 - Summarize: "**N** must-fix, **M** should-fix, **K** consider (**R** already fixed inline)" — omit the "already fixed inline" count if zero
 - Ask if the user wants any remaining findings addressed now
+- If the user expressed **recurring style or design preferences** during the review (e.g. "I prefer early returns," "don't flag missing docstrings on private methods"), list them back and ask: *"You mentioned these preferences during the review — would you like to add them to your quality standards?"*
 
 ### Report mode
 

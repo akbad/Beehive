@@ -61,11 +61,6 @@ log_empty_line
 protocols/scripts/set-up-protocols.sh
 
 log_empty_line
-log_banner "Bootstrapping complete: Bureau is ready to use."
+log_banner "All steps complete: Bureau is configured and ready for use!"
 log_empty_line
 
-echo "To add or remove CLIs in the future:"
-echo "  - Add: Create user-scoped config directory (e.g., mkdir -p ~/.gemini)"
-echo "  - Remove: Delete user-scoped config directory (e.g., rm -rf ~/.codex)"
-echo "  - Then re-run: ./bin/open-bureau"
-echo ""

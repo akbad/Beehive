@@ -48,7 +48,7 @@ When the user says anything like:
 
     1. User provides paths in their activation prompt → use those
     2. `assess_mode.standards_sources` in config → use those
-    3. Neither found → the quality audit still runs but only checks internal consistency (DRYness, algorithmic efficiency, codebase pattern consistency); explicitly inform the user that no external standards docs were found
+    3. Neither found → the quality audit still runs but only checks internal consistency (DRYness, algorithmic efficiency, codebase pattern consistency); explicitly inform the user that no external standards docs were found and suggest: *"For more targeted reviews, you can configure `assess_mode.standards_sources` in your Bureau configuration to provide files detailing what you want agents in Assess Mode to focus on. See the documentation for details."*
 
 - Read all resolved standards documents before beginning the audit phase
 
@@ -86,16 +86,29 @@ Present the user with this choice:
 
 ### Execute comprehension
 
+#### Observation directive *(applies to all styles)*
+
+> [!IMPORTANT]
+>
+> Throughout comprehension — regardless of which style is active — surface brief observations (1-3 sentences) when the code reveals something non-obvious: an interesting design trade-off, an architectural decision worth noting, or a genuinely suboptimal pattern that could be improved.
+>
+> - **Read before you speak:** if your observation depends on code outside the current scope (callers, sibling modules, prior art in the codebase), read that context first. Do not speculate about what surrounding code does
+> - **Earn the call-out:** only flag a design as suboptimal if (a) you have ingested enough context to be confident, (b) the improvement is concrete and actionable, and (c) it is not premature abstraction or YAGNI material. A real problem with a real fix — not a hypothetical improvement
+> - **Skip silently** when there is nothing worth noting. Forced insight on uninteresting code wastes the user's attention
+>
+> Each style below specifies *when* observations should appear in that style's flow.
+
 #### Top-down summary
 
 - Present a single architectural narrative covering the entire changeset
+- Weave observations into the narrative where they arise naturally — don't separate them into a distinct section
 - One pause for questions, then proceed to Phase 2
 
 #### Layered walkthrough
 
 - **Layer 1:** one-paragraph executive summary of the entire changeset
 - **Layer 2:** component map → the 3-5 logical groups of files, what each group does, how they connect
-- **Layer 3:** per-component deep dive → design decisions, data flow, invariants for each group
+- **Layer 3:** per-component deep dive → design decisions, data flow, invariants for each group. Surface observations during this layer, attached to the component they concern
 - **Pause after each layer**; the user can:
 
     - Ask questions about the current layer
@@ -106,14 +119,15 @@ Present the user with this choice:
 #### Dependency-ordered
 
 - Topologically sort the changes (foundational modules first, consumers last)
-- Walk through each file/module in dependency order, explaining what it does and why
+- Walk through each file/module in dependency order, explaining what it does and why. Surface observations inline as each module is presented
 - **Pause after each module**; same user controls as layered walkthrough
 
 #### Hunk-by-hunk
 
-> [!NOTE]
+> [!IMPORTANT]
 >
-> This style **merges Phase 1 and Phase 2**: comprehension and audit happen inline per hunk. There is no separate Phase 2 pass — skip directly to [Wrap-up](#wrap-up) after all hunks are processed.
+> - This style **merges Phase 1 and Phase 2**: comprehension and audit happen *together*, inline per hunk.
+> - There is no separate Phase 2 pass: skip directly to [Wrap-up](#wrap-up) after all hunks are processed.
 
 - **Parse the diff** into individual hunks via `git diff -U3 <ref>`
 
@@ -128,14 +142,11 @@ Present the user with this choice:
 
     1. **Show the diff** → render the hunk as a fenced diff code block (` ```diff `)
     2. **Explain** → what changed and why (1-3 bullets; reference the dependency graph and logical groups from internal prep)
-    3. **Observe** *(optional — only when the hunk warrants it)* → surface a brief observation (1-3 sentences) when this hunk reveals something non-obvious: an interesting design trade-off, an architectural decision worth noting, or a genuinely suboptimal pattern that could be improved
-
-        - **Read before you speak:** if your observation depends on code outside this hunk (callers, sibling modules, prior art in the codebase), read that context first; do not speculate about what surrounding code does.
-        - **Earn the call-out:** only flag a design as suboptimal if (a) you have ingested enough context to be confident, (b) the improvement is concrete and actionable, and (c) it is not premature abstraction or YAGNI material. A real problem with a real fix — not a hypothetical improvement
-        - **Skip silently** on trivial hunks (renames, import reordering, comment edits). Forced insight on uninteresting code wastes the user's attention
+    3. **Observe** *(optional)* → apply the [observation directive](#observation-directive-applies-to-all-styles) to this hunk. Surface observations between the explanation and the audit; skip silently on trivial hunks (renames, import reordering, comment edits)
 
     4. **Inline audit** → run all 6 check categories against *this hunk only*; emit findings using the same global sequential numbering (`#1` through `#N`) and severity levels as Phase 2
 
+        - **Cross-hunk awareness:** check whether this hunk echoes or contradicts findings from previously reviewed hunks. If a pattern recurs, reference the original finding number rather than re-explaining (e.g. `#7 [should-fix] Same unquoted expansion as #2`). If a prior finding is *resolved* by this hunk, note that too
         - If no findings: emit `No findings for this hunk.`
         - If findings exist: list each as:
 
@@ -158,10 +169,8 @@ Present the user with this choice:
         | `>` or "next" | Advance to next hunk |
         | `.` or "skip" | Skip remaining hunks in current file, advance to next file |
         | `deeper` | Expand analysis: show data flow, callers/callees, invariants affected by this hunk |
-        | `fix #N` | Apply the suggested fix for finding `#N` immediately, then re-show the hunk with the fix applied and re-pause |
+        | `fix #N` | Apply the suggested fix for finding `#N` immediately, re-audit the changed lines, then re-show the hunk with the fix applied (and any new findings numbered sequentially) and re-pause |
         | A question | Answer in context of the current hunk, then re-pause on the same hunk |
-
-- **After all hunks are processed**, proceed directly to [Wrap-up](#wrap-up) (skip Phase 2)
 
 ## Phase 2: quality audit
 
@@ -216,6 +225,7 @@ For each file in the changeset, check against these six categories:
 >
 > In **hunk-by-hunk** mode, all findings were delivered inline. The wrap-up still aggregates them into a single summary. Include any findings the user addressed via `fix #N` as resolved.
 
+- **Verdict** → open with a 1-2 sentence overall assessment: is this changeset ready to ship as-is, ready with minor fixes, or does it need significant rework? Be direct — the user wants a judgment call, not a hedge
 - Summarize: "**N** must-fix, **M** should-fix, **K** consider (**R** already fixed inline)" — omit the "already fixed inline" count if zero
 - Ask if the user wants any remaining findings addressed now
 - If the user expressed **recurring style or design preferences** during the review (e.g. "I prefer early returns," "don't flag missing docstrings on private methods"), list them back and ask: *"You mentioned these preferences during the review — would you like to add them to your quality standards?"*
@@ -223,7 +233,7 @@ For each file in the changeset, check against these six categories:
 ### Report mode
 
 - Write the report to `docs/reviews/YYYY-MM-DD-<branch-or-topic>.md`
-- Return a one-paragraph summary to the calling agent/user with finding counts
+- Return a one-paragraph summary to the calling agent/user with an overall verdict and finding counts
 
 ## Report template
 
@@ -299,6 +309,8 @@ For each file in the changeset, check against these six categories:
 - <explanation>
 
 ## Summary
+
+**Verdict:** <1-2 sentence overall assessment — ready to ship, ready with minor fixes, or needs significant rework>
 
 - **Must fix:** N findings
 - **Should fix:** M findings

@@ -4,17 +4,12 @@
 
 set -euo pipefail
 
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-RED='\033[0;31m'
-NC='\033[0m'
-
 # Find repo root
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-AGENTS_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
-REPO_ROOT="$(cd "$AGENTS_DIR/.." && pwd)"
+REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 
-# Source agent selection library
+# Source logging + agent selection libraries
+source "$REPO_ROOT/bin/lib/logging.sh"
 source "$REPO_ROOT/bin/lib/agent-selection.sh"
 
 # Load agent selection from profile
@@ -22,7 +17,7 @@ discover_agents
 
 # Skip entirely if Codex not selected
 if ! agent_enabled "Codex"; then
-    echo -e "${YELLOW}Codex not in CLI profile. Skipping Superpowers setup.${NC}"
+    log_warning "Codex not in CLI profile. Skipping Superpowers setup."
     echo "To enable Codex, run:"
     echo "  tools/scripts/set-up-tools.sh -a x    # Codex only"
     echo "  tools/scripts/set-up-tools.sh -a cx   # Codex + Claude"
@@ -31,59 +26,50 @@ if ! agent_enabled "Codex"; then
 fi
 
 REPO_URL="https://github.com/obra/superpowers.git"
-TARGET_DIR="${HOME}/.codex/superpowers"
-SKILLS_DIR="${HOME}/.codex/skills"
-BOOTSTRAP_CMD="${TARGET_DIR}/.codex/superpowers-codex"
+SUPERPOWERS_DIR="${HOME}/.codex/superpowers"
+CODEX_SKILLS_DIR="${HOME}/.agents/skills"
+SUPERPOWERS_SKILLS_SOURCE="${SUPERPOWERS_DIR}/skills"
+SUPERPOWERS_SKILLS_LINK="${CODEX_SKILLS_DIR}/superpowers"
 
-print_step() {
-    echo -e "${YELLOW}==>${NC} $1"
-}
-
-print_success() {
-    echo -e "${GREEN}✓${NC} $1"
-}
-
-print_warning() {
-    echo -e "${YELLOW}⚠${NC} $1"
-}
-
-print_error() {
-    echo -e "${RED}✗${NC} $1" >&2
-    exit 1
-}
-
-print_step "Ensuring Codex directories exist"
+log_action "==>" "Ensuring Codex directories exist"
 mkdir -p "${HOME}/.codex"
-mkdir -p "${SKILLS_DIR}"
-print_success "Codex directories ready"
+mkdir -p "${CODEX_SKILLS_DIR}"
+log_success "Codex directories ready"
 
-if [ -d "${TARGET_DIR}/.git" ]; then
-    print_step "Updating existing Superpowers checkout"
-    git -C "${TARGET_DIR}" remote set-url origin "${REPO_URL}"
-    if ! git -C "${TARGET_DIR}" fetch --tags --prune; then
-        print_warning "Unable to fetch updates for Superpowers. Continuing with existing checkout."
+if [ -d "${SUPERPOWERS_DIR}/.git" ]; then
+    log_action "==>" "Updating existing Superpowers checkout"
+    git -C "${SUPERPOWERS_DIR}" remote set-url origin "${REPO_URL}"
+    if ! git -C "${SUPERPOWERS_DIR}" fetch --tags --prune; then
+        log_warning "Unable to fetch updates for Superpowers. Continuing with existing checkout."
     else
-        if ! git -C "${TARGET_DIR}" merge --ff-only origin/main >/dev/null 2>&1; then
-            print_warning "Could not fast-forward Superpowers repository (local changes?). Leaving as-is."
+        if ! git -C "${SUPERPOWERS_DIR}" merge --ff-only origin/main >/dev/null 2>&1; then
+            log_warning "Could not fast-forward Superpowers repository (local changes?). Leaving as-is."
         else
-            print_success "Superpowers repository updated"
+            log_success "Superpowers repository updated"
         fi
     fi
 else
-    print_step "Cloning Superpowers repository"
-    git clone "${REPO_URL}" "${TARGET_DIR}"
-    print_success "Superpowers repository cloned"
+    log_action "==>" "Cloning Superpowers repository"
+    git clone "${REPO_URL}" "${SUPERPOWERS_DIR}"
+    log_success "Superpowers repository cloned"
 fi
 
-if [ ! -x "${BOOTSTRAP_CMD}" ]; then
-    print_warning "Bootstrap command ${BOOTSTRAP_CMD} not found or not executable"
+if [ ! -d "${SUPERPOWERS_SKILLS_SOURCE}" ]; then
+    log_error "Superpowers skills directory not found at ${SUPERPOWERS_SKILLS_SOURCE}"
+    exit 1
+fi
+
+if [ -L "${SUPERPOWERS_SKILLS_LINK}" ]; then
+    rm -f "${SUPERPOWERS_SKILLS_LINK}"
+fi
+
+if [ -e "${SUPERPOWERS_SKILLS_LINK}" ]; then
+    log_error "Path exists and is not a symlink: ${SUPERPOWERS_SKILLS_LINK}"
+    log_error "Move or remove it, then rerun this setup script."
+    exit 1
 else
-    print_step "Running Superpowers bootstrap (verification)"
-    if "${BOOTSTRAP_CMD}" bootstrap >/dev/null 2>&1; then
-        print_success "Superpowers bootstrap completed"
-    else
-        print_warning "Bootstrap command exited with a non-zero status. Review output above if any."
-    fi
+    ln -s "${SUPERPOWERS_SKILLS_SOURCE}" "${SUPERPOWERS_SKILLS_LINK}"
+    log_success "Linked ${SUPERPOWERS_SKILLS_LINK} -> ${SUPERPOWERS_SKILLS_SOURCE}"
 fi
 
-print_success "Superpowers setup for Codex complete!"
+log_success "Superpowers setup for Codex complete!"

@@ -28,8 +28,8 @@ Approach:
 - Test with realistic data: N+1 is invisible with 2 records, catastrophic with 1000.
 
 Must‑read at startup:
-- the [compact MCP list](../reference/tools-guide.md) (Tier 1: tool selection)
-- the [handoff guidelines](../reference/handoff-guide.md)
+- the [compact MCP list](../../protocols/context/static/tools-guide.md) (Tier 1: tool selection)
+- the [handoff guidelines](../../protocols/context/static/handoff-guide.md)
 
 Output format:
 - Query analysis: current queries, N+1 identification, query count per operation.

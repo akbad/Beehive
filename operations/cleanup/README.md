@@ -172,9 +172,10 @@ Each handler is implemented corresponding to its memory storage backend's underl
 
 - **Storage model:**
 
-    - The backing Qdrant DB service is locally run as a Docker container on the port specified by the `port_for.qdrant_db` config setting (default: `8780`)
-    - Memories are stored to it in the collection specified by the `qdrant.collection` setting (default: `coding-memory`)
-    - The backing Qdrant DB is persisted to the directory specified by the `path_to.storage_for.qdrant` setting (default: `~/.qdrant/storage/`)
+    - The backing Qdrant DB runs via `mcp.runtime_services.qdrant_db` on `host_port` (default: `8780`).
+    - The cleanup handler reads the collection name from `mcp.runtime_services.qdrant_mcp.settings.collection` (default: `coding-memory`).
+    - The DB persists data under `mcp.runtime_services.qdrant_db.mounts[*].host_path` (default: `~/.qdrant/storage/`).
+    - The handler connects using `mcp.runtime_services.qdrant_mcp.env.QDRANT_URL` (default: `http://127.0.0.1:${mcp.runtime_services.qdrant_db.host_port}`).
 
 - **Implementation:**
 

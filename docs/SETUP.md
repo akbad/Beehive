@@ -176,8 +176,7 @@ $ claude
 
 > [!NOTE]
 > 
-> Codex also works with Superpowers: Bureau sets it up **automatically** (via cloning the repo to the user-scoped `~/.codex/`).\
-> No manual setup is needed.
+> Codex also works with Superpowers; Bureau sets it up **automatically**.
 
 > [!IMPORTANT]
 > 
@@ -221,7 +220,7 @@ $ claude
 
 1. Ask: "What must-read files were you given?"
 2. Should reference delegation rules and clink
-3. Run `~/.codex/superpowers/.codex/superpowers-codex find-skills` to verify Superpowers
+3. Run `ls -ld ~/.agents/skills/superpowers`: it should be a symlink to `~/.codex/superpowers/skills`
 4. Run `codex-explainer` *(custom launch wrapper set up by Bureau)* from the command line to see if it launches Codex with the [`explainer`](../agents/role-prompts/explainer.md) agent active in the *main conversation*
     
     > You can test this with any role prompt in [`agents/role-prompts/`](../agents/role-prompts/): the launch wrapper created for each role will have the form `codex-<basename>` for each file in the directory.
@@ -273,7 +272,7 @@ The new `local.yml` will be:
 | Setting | Default | How to customize |
 | :--- | :--- | :--- |
 | Enabled CLI agents | All 4 [supported CLIs](#supported-cli-coding-agents) | Set `agents` list in `local.yml` |
-| Bureau workspace path | `~/code` | Set `path_to.fs_mcp_whitelist` in `local.yml` |
+| Bureau workspace path | `~/code` | Set `path_to.workspace` in `local.yml` |
 | Memory retention | 30d–365d, depending on the backend | Set `retention_period_for.*` in `local.yml` |
 | [Role prompts](../agents/role-prompts/) and models for PAL `clink` to use with coding CLIs | All role prompts; Sonnet for Claude Code; gpt-5.2-codex with medium reasoning effort for Codex | Set `pal.*` settings in `local.yml` *(see [`directives.yml`](../directives.yml) for quick examples)* | 
 
@@ -281,8 +280,8 @@ The new `local.yml` will be:
 
 ```yml
 # bureau/local.yml (create if it doesn't exist)
-mcp:
-  auto_approve: yes  
+auto_approved:
+  mcps: true
 
 pal:
   claude: 
@@ -299,7 +298,7 @@ pal:
 | MCP server not starting | Check logs in `/tmp/mcp-*-server.log` |
 | Docker not running | Start Docker Desktop / Rancher Desktop first |
 | Missing API key warnings | Set the environment variables listed in prerequisites |
-| Port conflicts | Override ports in `local.yml` (see [CONFIGURATION.md](CONFIGURATION.md#port_for)) |
+| Port conflicts | Override MCP ports in `local.yml` (see [CONFIGURATION.md](CONFIGURATION.md#change-mcp-ports-to-avoid-conflicts)) |
 
 > [!NOTE]
 > For manual setup steps (symlinking, running individual scripts), see the scripts' sources:
@@ -308,5 +307,5 @@ pal:
 > | --- | --- |
 > | [`bin/open-bureau`](../bin/open-bureau) | Main bootstrap/setup convenience/wrapper script |
 > | [`tools/scripts/set-up-tools.sh`](../tools/scripts/set-up-tools.sh) | MCP/tooling setup | 
-> | [`protocols/scripts/set-up-configs.sh`](../protocols/scripts/set-up-configs.sh) | Config/context file setup |
+> | [`protocols/scripts/set-up-protocols.sh`](../protocols/scripts/set-up-protocols.sh) | Config/context file setup |
 > | [`agents/scripts/set-up-agents.sh`](../agents/scripts/set-up-agents.sh) | Agent-/role-related setup |

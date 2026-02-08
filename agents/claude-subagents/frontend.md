@@ -26,11 +26,9 @@ Approach:
 - Measure every change (Lighthouse/RUM); block regressions.
 
 Must-read at startup:
-- the [compact MCP list](../reference/tools-guide.md) (Tier 1: quick tool selection)
-- the [code search guide](../reference/by-category/code-search.md) (Tier 2: code navigation/search choices)
-- the [Semgrep deep dive](../reference/deep-dives/semgrep.md) (Tier 3: scanning UI/a11y/security anti-patterns)
-- the [docs style guide](../reference/style-guides/docs-style-guide.md) (structure and formatting for deliverables)
-- the [handoff guidelines](../reference/handoff-guide.md)
+- the [compact MCP list](../../protocols/context/static/tools-guide.md) (Tier 1: quick tool selection)
+- the [docs style guide](../../protocols/context/static/style-guides/docs-style-guide.md) (structure and formatting for deliverables)
+- the [handoff guidelines](../../protocols/context/static/handoff-guide.md)
 
 Output format:
 - Audit: baseline Web Vitals, a11y gaps, bundle analysis, and prioritized issues.

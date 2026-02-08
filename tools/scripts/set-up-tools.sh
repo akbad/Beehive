@@ -28,68 +28,14 @@ cfg() {
     (cd "$REPO_ROOT" && uv run get-config "$key" 2>/dev/null) || true
 }
 
-# Setting MCP source clone paths
-CLONE_DIR="$(cfg path_to.mcp_clones)"
-export SOURCEGRAPH_REPO_PATH="$CLONE_DIR/sourcegraph-mcp"
-
 SERVER_START_TIMEOUT="$(cfg startup_timeout_for.mcp_servers)"
 DOCKER_TIMEOUT="$(cfg startup_timeout_for.docker_daemon)"
 
-# Remote server URLs
-export SOURCEGRAPH_ENDPOINT="${SOURCEGRAPH_ENDPOINT:-$(cfg endpoint_for.sourcegraph)}"
-export CONTEXT7_URL="${CONTEXT7_URL:-$(cfg endpoint_for.context7)}"
-export TAVILY_URL="${TAVILY_URL:-$(cfg endpoint_for.tavily)}"
-
-# PAL MCP: disable all tools except clink (since they need an API key)
-export PAL_DISABLED_TOOLS="${PAL_DISABLED_TOOLS:-$(cfg pal_disabled_tools)}"
-
-# Add CLI bin paths (resolved directly for portability) to the PATH provided to PAL MCP
-#   on startup so that each can be called directly via clink (i.e. to spawn subagents)
-CLI_BIN_PATHS=""
-for cli in claude gemini codex; do
-    if cli_path="$(command -v "$cli" 2>/dev/null)"; then
-        cli_dir="$(dirname "$cli_path")"
-        # Add to path if not already present (dedup)
-        if [[ ":$CLI_BIN_PATHS:" != *":$cli_dir:"* ]]; then
-            CLI_BIN_PATHS="${CLI_BIN_PATHS:+$CLI_BIN_PATHS:}$cli_dir"
-        fi
-    else
-        log_warning "CLI '$cli' not found in PATH - clink won't be able to use it"
-    fi
-done
-export CLI_BIN_PATHS
-
-# Ports for local HTTP servers
-export QDRANT_DB_PORT="${QDRANT_DB_PORT:-$(cfg port_for.qdrant_db)}"
-export QDRANT_MCP_PORT="${QDRANT_MCP_PORT:-$(cfg port_for.qdrant_mcp)}"
-export SOURCEGRAPH_MCP_PORT="${SOURCEGRAPH_MCP_PORT:-$(cfg port_for.sourcegraph_mcp)}"
-export SEMGREP_MCP_PORT="${SEMGREP_MCP_PORT:-$(cfg port_for.semgrep_mcp)}"
-export SERENA_MCP_PORT="${SERENA_MCP_PORT:-$(cfg port_for.serena_mcp)}"
-
-# Configure Qdrant MCP (handles semantic memory)
-# Derive QDRANT_URL if not provided in env
-if [[ -z "${QDRANT_URL:-}" ]]; then
-    QDRANT_URL="http://127.0.0.1:$QDRANT_DB_PORT"
-fi
-export QDRANT_URL
-export QDRANT_COLLECTION_NAME="${QDRANT_COLLECTION_NAME:-$(cfg qdrant.collection)}"
-export QDRANT_EMBEDDING_PROVIDER="${QDRANT_EMBEDDING_PROVIDER:-$(cfg qdrant.embedding_provider)}"
-
-# Expand ~ to $HOME for:
-# - Docker compatibility (QDRANT_STORAGE_PATH)
-# - mkdir/Node compatibility (MEMORY_MCP_STORAGE_PATH)
-MEMORY_MCP_STORAGE_PATH="${MEMORY_MCP_STORAGE_PATH:-$(cfg path_to.storage_for.memory_mcp)}"
-QDRANT_STORAGE_PATH="${QDRANT_STORAGE_PATH:-$(cfg path_to.storage_for.qdrant)}"
-export QDRANT_STORAGE_PATH="${QDRANT_STORAGE_PATH/#\~/$HOME}"
-export MEMORY_MCP_STORAGE_PATH="${MEMORY_MCP_STORAGE_PATH/#\~/$HOME}"
-
-# Directories
-FS_MCP_WHITELIST="${FS_MCP_WHITELIST:-$(cfg path_to.fs_mcp_whitelist)}"
-
-# Source agent selection library
+# Source shared libraries
 source "$REPO_ROOT/bin/lib/agent-selection.sh"
+source "$REPO_ROOT/bin/lib/logging.sh"
 
-# Supported agents' printable string names 
+# Supported agents' printable string names
 CLAUDE="Claude Code"
 CODEX="Codex"
 GEMINI="Gemini CLI"
@@ -100,28 +46,13 @@ CODEX_CONFIG="$HOME/.codex/config.toml"
 CLAUDE_CONFIG="$HOME/.claude/settings.json"
 CLAUDE_CLI_STATE="$HOME/.claude.json"
 
-# Contains the list of agents to be configured by this script to use Bureau and its tools;
-# Populated by discover_agents(); agentic CLIs above are added if their corresponding 
-#   user-level config dir exists
+# Contains the list of agents to be configured by this script to use Bureau and its tools
+# Populated later by discover_agents() based on the YML configs
 AGENTS=()
-
-# Colors
-GREEN='\033[0;32m'
-BLUE='\033[0;34m'
-YELLOW='\033[1;33m'
-RED='\033[0;31m'
-NC='\033[0m'
 
 # --- CONFIG VALUES ---
 
-# Read auto-approve setting from config (accepts yes/true/no/false)
-_auto_approve_cfg="$(cfg mcp.auto_approve)"
-case "${_auto_approve_cfg,,}" in
-    yes|true) AUTO_APPROVE_MCP=true ;;
-    *) AUTO_APPROVE_MCP=false ;;
-esac
-
-# Detect installed CLIs based on config directory existence (exits if none found, logs detected CLIs)
+# Detect enabled agents based on YML configs (exits if none found, logs detected CLIs)
 discover_agents
 
 # --- HELPERS ---

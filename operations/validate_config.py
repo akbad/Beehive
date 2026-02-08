@@ -6,6 +6,8 @@ cleanup operations run. This prevents silent failures from missing keys.
 import sys
 from typing import Any, Mapping
 
+from .config_templating import _PLACEHOLDER_REGEX
+
 
 class ConfigurationError(Exception):
     """Raised when configuration is invalid."""
@@ -132,21 +134,22 @@ def validate_and_raise(config: Mapping[str, Any]) -> None:
 def validate_duration_format(duration: str) -> str | None:
     """Validate a duration string format.
 
+    Delegates to parse_duration() to ensure validation and parsing
+    always agree on what constitutes a valid duration.
+
     Args:
         duration: Duration string to validate.
 
     Returns:
         Error message if invalid, None if valid.
     """
-    import re
+    from .config_loader import parse_duration
 
-    if duration.lower() == "always":
+    try:
+        parse_duration(duration)
         return None
-
-    if not re.match(r"^\d+[hdwmy]$", duration.lower()):
-        return f"Invalid duration format: '{duration}'. Use format like '24h', '30d', '2w', '3m', '1y', or 'always'"
-
-    return None
+    except ValueError as e:
+        return str(e)
 
 
 def _check_durations(section: Mapping[str, Any], section_name: str, *keys: str) -> list[str]:
@@ -195,6 +198,67 @@ def validate_durations(config: Mapping[str, Any]) -> list[str]:
     return errors
 
 
+def _collect_placeholder_refs(
+    node: Any, path: str, graph: dict[str, set[str]]
+) -> None:
+    """
+    Recursively collect placeholder references (i.e. `${...}` segments in config strings 
+    that are meant to be replaced by env var values) into a dependency graph.
+    """
+    if isinstance(node, str):
+        if refs := set(_PLACEHOLDER_REGEX.findall(node)):
+            graph[path] = refs
+    elif isinstance(node, dict):
+        for k, v in node.items():
+            _collect_placeholder_refs(v, f"{path}.{k}" if path else k, graph)
+    elif isinstance(node, list):
+        for i, v in enumerate(node):
+            _collect_placeholder_refs(v, f"{path}[{i}]", graph)
+
+
+def _find_graph_cycles(graph: dict[str, set[str]]) -> list[str]:
+    """
+    Detects cycles via DFS in the placeholder dependency graph, returns formatted cycle paths.
+    
+    Used as part of placeholder validation to ensure no cycles exist that would cause
+    infinite placeholder expansion (e.g. val="...${val}...")
+    """
+    visited, in_stack, stack, cycles = set(), set(), [], []
+
+    def dfs(node: str) -> None:
+        visited.add(node)
+        in_stack.add(node)
+        stack.append(node)
+
+        for neighbor in graph.get(node, ()):
+            if neighbor in in_stack:
+                cycles.append(" → ".join(stack[stack.index(neighbor) :] + [neighbor]))
+            elif neighbor not in visited:
+                dfs(neighbor)
+
+        stack.pop()
+        in_stack.discard(node)
+
+    for node in graph:
+        if node not in visited:
+            dfs(node)
+
+    return cycles
+
+
+def validate_placeholder_cycles(config: Mapping[str, Any]) -> list[str]:
+    """
+    Validate that placeholder references in the YML configs' setting strings don't form cycles, which
+    would cause infinite expansion
+
+    Cycles cause infinite expansion (e.g., val="...${val}..." would cause `val` to keep getting expanded 
+    forever).
+    """
+    graph: dict[str, set[str]] = {}
+    _collect_placeholder_refs(config, "", graph)
+    return [f"Circular placeholder reference: {c}" for c in _find_graph_cycles(graph)]
+
+
 def full_validate(config: Mapping[str, Any]) -> list[str]:
     """Perform full validation including structure and format checks.
 
@@ -206,9 +270,10 @@ def full_validate(config: Mapping[str, Any]) -> list[str]:
     """
     errors = validate_config(config)
 
-    # Only check duration formats if structure is valid
+    # Only check duration formats and placeholder cycles if structure is valid
     if not errors:
         errors.extend(validate_durations(config))
+        errors.extend(validate_placeholder_cycles(config))
 
     return errors
 

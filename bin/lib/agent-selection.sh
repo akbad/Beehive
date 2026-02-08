@@ -51,7 +51,7 @@ _get_repo_root() {
 }
 
 # Internal: call get-config Python module 
-#   (caller must ensure env is setup, i.e. by running check-prereqs)
+#   (caller must ensure env is setup, i.e. by running ensure-prereqs)
 # Usage: _get_config <args...>
 _get_config() {
     local repo_root

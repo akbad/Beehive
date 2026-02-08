@@ -71,13 +71,45 @@ def save_json_config(path: str, config: dict, indent: int = 2) -> None:
         path: Path to the JSON file (supports ~ expansion)
         config: Configuration dictionary to save
         indent: JSON indentation level (default: 2)
+
+    Raises:
+        SystemExit: If the config dict cannot be serialized as JSON 
+            (i.e. is not a plain dict with serializable data)
     """
     config_path = Path(path).expanduser()
     ensure_parent_dir(config_path)
 
-    with open(config_path, 'w', encoding='utf-8') as f:
-        json.dump(config, f, indent=indent)
-        f.write('\n')  # Add trailing newline
+    try:
+        with open(config_path, 'w', encoding='utf-8') as f:
+            json.dump(config, f, indent=indent)
+            f.write('\n')  # Add trailing newline
+    except (TypeError, ValueError) as exc:
+        raise SystemExit(f"Failed to serialize JSON for {path}: {exc}") from exc
+
+
+def load_json_text(text: str, source: str | None = None) -> dict:
+    """
+    Parse JSON from a string with consistent error handling.
+
+    Args:
+        text: JSON string to parse
+        source: Optional description of the source (used in error messages)
+
+    Returns:
+        Parsed JSON dictionary
+
+    Raises:
+        SystemExit: If JSON is invalid
+    """
+    try:
+        result = json.loads(text)
+    except json.JSONDecodeError as exc:
+        label = source or "JSON"
+        raise SystemExit(f"Failed to parse {label}: {exc}") from exc
+    if not isinstance(result, dict):
+        label = source or "JSON"
+        raise SystemExit(f"{label} must be a JSON object")
+    return result
 
 
 def expand_vars(value: str) -> str:
